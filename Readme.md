@@ -5,6 +5,7 @@ A jit inerpreted language created by joachim barre
 
 it is based on a set of basic instruction an use a single register and a memory tape that as an initial state and size define in the object 
 numbers are currently 64 bits
+jumps can jump to label that aren't encountered yet
 
 ## instruction set
 

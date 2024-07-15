@@ -21,9 +21,9 @@ currently the language is composed of ten instructions :
 | 6  | *      | multiply the current register value by the current memory tape value                                         |
 | 7  | /      | divide the current register value by the current memory tape value                                           |
 | 8  | P      | print the register value to stdout                                                                           |
-| 9  | [      | label : nexts jumps will jump to the instruction after this one                                              | 
-| 10 | ]      | jumps to the last label                                                                                      |
-| 11 | }      | jumps to the last label if the current register value is 0                                                   |
+| 9  | [      | label : set a jump label their index is simply their order in the source code and starts at 0                | 
+| 10 | ]      | jumps to the label who is at the index stored in the current memory tape value                               |
+| 11 | }      | does the same as the ] instruction if the current register value is 0                                        |
 | 12 | Q      | exit program with the exit code contained in the register                                                    |
 | 13 | I      | increase the register value by 1                                                                             |
 | 14 | D      | decrease register value by 1                                                                                 |

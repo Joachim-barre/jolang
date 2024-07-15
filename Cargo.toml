@@ -4,3 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+cranelift = "0.109.0"
+cranelift-simplejit = "0.68.0"

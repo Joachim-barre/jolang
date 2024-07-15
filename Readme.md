@@ -27,3 +27,10 @@ currently the language is composed of ten instructions :
 | 12 | Q      | exit program with the exit code contained in the register                           |
 | 13 | I      | increase the register value by 1                                                    |
 | 14 | D      | decrease register value by 1                                                        |
+
+## file formats
+
+| extention | description            |
+| --        | --                     |
+| .joo      | compiled jolang object |
+| .jol      | source code            |

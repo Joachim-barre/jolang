@@ -38,3 +38,59 @@ currently the language is composed of ten instructions :
 | --        | --                     |
 | .joo      | compiled jolang object |
 | .jol      | source code            |
+
+## syntax
+
+current source file are composed of : 
+a number indicating the tape size 
+a number indicating the default value for the numbers on the tape
+then two sections that starts by .SESSION_NAME:
+    - TEXT that store the code
+    - DATA that store default value of the first tape entries
+the TEXT section should only contain instruction symbols line break or spaces
+any line begining by a # is ignored
+the DATA section contain one number per line 
+
+like so : 
+```
+# calculate the first 10 numbers in the fibonnatchi sequence
+6
+1
+.DATA
+# jump table
+0
+1
+2
+# quantity of numbers to calulate
+10
+# progress counter (count how many numbers we have already calculated)
+0
+.TEXT
+# main block index : 0 
+>
+# print one two times as it's the first 
+LP
+# main loop index : 1
+[
+# calulate a number in the sequence
++SP
+# increase number progress counter
+<LIS
+# check if the program should exit
+<C<}
+# load the number that was calculated before
+>>>L
+# calculate the next number
+>+SP
+# increase progress couter
+<<LIS
+# check if the program should exit
+<C<}
+# loop back to the start of the loop
+<]
+# exit block index 2
+# set M to zero
+L-
+E
+```
+

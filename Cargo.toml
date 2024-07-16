@@ -5,5 +5,6 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.9", features = ["derive"] }
+clio = { version = "0.3.5", features = ["clap"] }
 cranelift = "0.109.0"
 cranelift-simplejit = "0.68.0"

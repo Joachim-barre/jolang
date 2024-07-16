@@ -94,3 +94,16 @@ L-
 E
 ```
 
+## binary object format
+
+the generated binary object follow this format
+
+- an header composed of four bytes to indicate that it is the binary format that can be executed that is "\0JOO"
+- 4-bytes indicating the position of the main block in the jumt table
+- 4-bytes indicating the size of the jump table
+- for each entry in the jump table : 4-bytes address of the first instruction
+- 4- bytes indicating the size of the data section ( and by extention the size of the tape )
+- for each tape value : a i64
+- 4-bytes indication the text section lenght
+- for each instruction : an u8 (instruction id)
+

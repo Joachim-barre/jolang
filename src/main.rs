@@ -2,6 +2,7 @@ use std::result::Result;
 use clap::Parser;
 mod cli;
 use cli::Commands;
+use clio::OutputPath;
 use std::fs::File;
 
 fn main() -> Result<(),()>{
@@ -13,7 +14,7 @@ fn main() -> Result<(),()>{
                 return Err(())
             }
             let mut _file : &File;
-            match args.file.open() {
+            match args.file.clone().open() {
                 Ok(mut input) => {
                     match input.get_file() {
                         Some(f) => {
@@ -30,6 +31,22 @@ fn main() -> Result<(),()>{
                     return Err(())
                 }
             }
+            let mut object_file = match args.object_file {
+                Some(p) => p,
+                None => OutputPath::std()
+            };
+            if !object_file.is_local()  {
+                let mut new_path = args.file.clone();
+                new_path.set_extension("joo");
+                object_file = match OutputPath::new(new_path.clone()) {
+                    Ok(path) => path,
+                    Err(_) => {
+                        println!("failed to open output file : {}", new_path);
+                        return Err(())
+                    }
+                }
+            }
+            println!("building {} to {}...", args.file, object_file);
             todo!();
         }
     }

@@ -50,7 +50,7 @@ impl SourceFile {
         for header in headers {
             match header.1.as_str() {
                 ".DATA" => {
-                    if self.data_start == None {
+                    if self.data_start != None {
                         return Err("header found twice : .DATA".to_string())
                     }
                     self.data_start = Some(header.0 as u64);
@@ -59,7 +59,7 @@ impl SourceFile {
                     }
                 },
                 ".TEXT" => {
-                    if self.text_start == None {
+                    if self.text_start != None {
                         return Err("header found twice : .TEXT".to_string())
                     }
                     self.text_start = Some(header.0 as u64);

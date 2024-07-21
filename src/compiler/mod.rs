@@ -3,6 +3,9 @@ use std::fs::{File, OpenOptions};
 use std::result::Result;
 use crate::cli::compile::CompileArgs;
 mod source_file;
+mod text_data;
+use text_data::TextData;
+mod instructions;
 use source_file::SourceFile;
 
 pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {

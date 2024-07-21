@@ -5,10 +5,9 @@ use crate::cli::compile::CompileArgs;
 mod source_file;
 use source_file::SourceFile;
 
-pub fn compile<'a>(args : CompileArgs) -> Result<(),()> {
+pub fn compile<'a>(args : CompileArgs) -> Result<(),&'static str> {
     if !args.file.is_local() {
-        println!("please input a local file");
-        return Err(())
+        return Err("please input a local file")
     }
     let mut file : File;
     match OpenOptions::new().read(true).write(false).truncate(false).append(false).open(args.file.clone().as_os_str()) {
@@ -16,8 +15,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),()> {
             file = f
         }
         Err(_) => {
-            println!("can't open file");
-            return Err(())
+            return Err("can't open file")
         }
     }
     let mut object_file = match args.object_file {
@@ -30,8 +28,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),()> {
         object_file = match OutputPath::new(new_path.clone()) {
             Ok(path) => path,
             Err(_) => {
-                println!("failed to open output file : {}", new_path);
-                return Err(())
+                return Err(&format!("failed to open output file : {}", new_path.to_string()).to_string())
             }
         }
     }

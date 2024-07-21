@@ -25,3 +25,10 @@ impl From<File> for SourceFile {
         }
     }
 }
+
+impl SourceFile {
+    pub fn lines<'a>(&'a self) -> Lines<BufReader<&'a File>> {
+        return BufReader::new(&self.file).lines()
+    }
+
+}

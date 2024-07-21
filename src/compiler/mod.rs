@@ -34,5 +34,6 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
     }
     println!("building {} to {}...", args.file, object_file);
     let mut source = SourceFile::from(file);
+    source.find_headers()?;
     todo!();
 }

@@ -1,26 +1,20 @@
 use clio::OutputPath;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::result::Result;
 use crate::cli::compile::CompileArgs;
+mod source_file;
+use source_file::SourceFile;
 
 pub fn compile<'a>(args : CompileArgs) -> Result<(),()> {
     if !args.file.is_local() {
         println!("please input a local file");
         return Err(())
     }
-    let mut _file : &File;
-    match args.file.clone().open() {
-        Ok(mut input) => {
-            match input.get_file() {
-                Some(f) => {
-                    _file = &f;
-                },
-                None => {
-                    println!("can't open file");
-                    return Err(())
-                }
-            }
-        },
+    let mut file : File;
+    match OpenOptions::new().read(true).write(false).truncate(false).append(false).open(args.file.clone().as_os_str()) {
+        Ok(mut f) => {
+            file = f
+        }
         Err(_) => {
             println!("can't open file");
             return Err(())
@@ -42,5 +36,6 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),()> {
         }
     }
     println!("building {} to {}...", args.file, object_file);
+    let mut source = SourceFile::from(file);
     todo!();
 }

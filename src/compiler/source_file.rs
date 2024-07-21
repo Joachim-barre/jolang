@@ -1,8 +1,9 @@
 use std::fs::File;
+use std::io::{BufReader, Lines};
 use std::option::Option;
 
 pub struct SourceFile {
-    pub file : File,
+    pub reader : BufReader<File>,
     // first text line
     pub text_start : Option<u64>,
     // last text line
@@ -16,7 +17,7 @@ pub struct SourceFile {
 impl From<File> for SourceFile {
     fn from(file: File) -> Self {
         SourceFile {
-            file,
+            reader : BufReader::new(file),
             text_start : None,
             text_end : None,
             data_start : None,

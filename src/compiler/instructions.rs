@@ -17,8 +17,6 @@ pub enum Instructions {
     Div,
     /// P
     Print,
-    /// [
-    Label,
     /// ],
     Jump,
     /// }

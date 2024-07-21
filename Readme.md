@@ -47,7 +47,7 @@ a number indicating the default value for the numbers on the tape
 then two sections that starts by .SESSION_NAME:
     - TEXT that store the code
     - DATA that store default value of the first tape entries
-the TEXT section should only contain instruction symbols line break or spaces
+the TEXT section should only contain instruction symbols or whitespace
 any line begining by a # is ignored
 the DATA section contain one number per line 
 

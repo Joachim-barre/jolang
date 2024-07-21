@@ -8,7 +8,13 @@ fn main() -> Result<(),()>{
     let cli = cli::Cli::parse();
     match cli.command {
         Commands::Compile(args) => {
-            return compiler::compile(args);
+            match compiler::compile(args) {
+                Ok(_) => return Ok(()),
+                Err(desc) => {
+                    println!("{}", desc);
+                    return Err(())
+                }
+            }
         }
     }
 }

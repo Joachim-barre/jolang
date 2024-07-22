@@ -15,12 +15,14 @@ impl TryFrom<&SourceFile> for TextData {
             return Err("you need to parse headers first".to_string())
         }
         let symbols : Vec<char> = value.lines()
+            .enumerate()
             .skip(value.text_start.unwrap().try_into().unwrap())
             .skip(1)
+            .filter_map(|(line,x)| if (value.text_end == None) || (line>=(value.text_end.unwrap() as usize)) { Some(x) } else { None })
             .filter_map(|x| x.ok().map(|y| String::from(y)))
             .filter(|x| !x.starts_with("#"))
             .flat_map(|x| x.chars().collect::<Vec<_>>())
-            .filter(|x: &char| x.is_whitespace() || *x == '[')
+            .filter(|x: &char| !x.is_whitespace())
             .collect();
         let mut instructions = Vec::new();
         let mut jump_index : usize = 0;

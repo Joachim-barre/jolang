@@ -3,6 +3,7 @@ use std::io::{BufReader, Lines, BufRead};
 use std::option::Option;
 use std::result::Result;
 
+#[derive(Debug)]
 pub struct SourceFile {
     pub file: File,
     // first text line

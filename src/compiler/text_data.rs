@@ -1,6 +1,7 @@
 use std::vec::Vec;
 use super::{instructions::Instructions, source_file::SourceFile};
 
+#[derive(Debug,Clone)]
 pub struct TextData {
     instructions : Vec<Instructions>,
     /// jump table : (index in jump table), (instruction index) 

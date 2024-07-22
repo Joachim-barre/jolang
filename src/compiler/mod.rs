@@ -1,5 +1,6 @@
 use clio::OutputPath;
 use std::fs::{File, OpenOptions};
+use std::io::Seek;
 use std::result::Result;
 use crate::cli::compile::CompileArgs;
 mod source_file;
@@ -38,6 +39,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
     println!("building {} to {}...", args.file, object_file);
     let mut source = SourceFile::from(file);
     source.find_headers()?;
+    let _ = source.file.rewind();
     let text = TextData::try_from(&source);
     todo!();
 }

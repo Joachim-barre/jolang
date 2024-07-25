@@ -41,5 +41,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
     source.find_headers()?;
     let _ = source.file.rewind();
     let text = TextData::try_from(&source)?;
+    let _ = source.file.rewind();
+    let data = source.parse_data()?;
     todo!();
 }

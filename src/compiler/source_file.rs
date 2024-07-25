@@ -75,4 +75,34 @@ impl SourceFile {
         }
         Ok(())
     }
+
+    pub fn parse_data(&self) -> Result<Vec<i64>, String> {
+        if self.data_start == None {
+            return Err("you need to parse headers first".to_string())
+        }
+        let mut data_size : String = String::new();
+        let mut data_default : String = String::new();
+        let mut numbers : Vec<i64> = self.lines()
+            .enumerate()
+            .filter_map(|(line, x)| x.ok().map(|y| (line, String::from(y))))
+            .filter(|(_line, x)| !x.starts_with("#"))
+            .enumerate()
+            .filter_map(|(n, x)| { if n==0 { data_size=x.1; return None} else if n==1 { data_default=x.1; return None} else { return Some(x) } }  )
+            .filter(|(line, _x)| (line) > &(self.data_start.unwrap() as usize))
+            .filter_map(|(line,x)| if (self.data_end == None) || (line<(self.data_end.unwrap() as usize)) { Some(x) } else { None })
+            .map(|x| x.parse::<i64>().unwrap())
+            .collect();      
+
+        let data_size = data_size.parse::<usize>().unwrap();
+        
+        if numbers.len() > data_size {
+            return Err(String::from("to many numbers in data section"))
+        }
+        
+        let data_default = data_default.parse::<i64>().unwrap();
+
+        while numbers.len() < data_size  { numbers.push(data_default) }
+
+        return Ok(numbers)
+    }
 }

@@ -18,7 +18,7 @@ impl TryFrom<&SourceFile> for TextData {
             .enumerate()
             .skip(value.text_start.unwrap().try_into().unwrap())
             .skip(1)
-            .filter_map(|(line,x)| if (value.text_end == None) || (line>(value.text_end.unwrap() as usize)) { Some(x) } else { None })
+            .filter_map(|(line,x)| if (value.text_end == None) || (line<(value.text_end.unwrap() as usize)) { Some(x) } else { None })
             .filter_map(|x| x.ok().map(|y| String::from(y)))
             .filter(|x| !x.starts_with("#"))
             .flat_map(|x| x.chars().collect::<Vec<_>>())

@@ -3,6 +3,7 @@ use clap::Parser;
 mod cli;
 use cli::Commands;
 mod compiler;
+mod commons;
 
 fn main() -> Result<(),()>{
     let cli = cli::Cli::parse();

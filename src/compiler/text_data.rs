@@ -1,5 +1,6 @@
 use std::vec::Vec;
-use super::{instructions::Instructions, source_file::SourceFile};
+use super::source_file::SourceFile;
+use crate::commons::instructions::Instructions;
 
 #[derive(Debug,Clone)]
 pub struct TextData {

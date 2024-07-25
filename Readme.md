@@ -17,7 +17,7 @@ currently the language is composed of ten instructions :
 | -- | --     | --                                                                                                           |                         
 | 0  | <      | move the memory tape backward                                                                                |
 | 1  | >      | move the memory tape forward                                                                                 |
-| 4  | L      | load a value from the tape into the register                                                                 |
+| 2  | L      | load a value from the tape into the register                                                                 |
 | 3  | S      | store what in the rengister into the current memory tape entry                                               |
 | 4  | +      | add the current value on the memory tape to the register                                                     |
 | 5  | -      | subtract the current value on the memory tape from the register                                              |

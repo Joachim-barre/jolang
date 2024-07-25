@@ -42,7 +42,7 @@ impl TryFrom<&SourceFile> for TextData {
                 'P' => Instructions::Print,
                 ']' => Instructions::Jump,
                 '}' => Instructions::JumpIfZero,
-                'Q' => Instructions::Exit,
+                'E' => Instructions::Exit,
                 'I' => Instructions::Inc,
                 'D' => Instructions::Dec,
                 'C' => Instructions::Compare,

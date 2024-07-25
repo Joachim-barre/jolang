@@ -22,7 +22,7 @@ pub enum Instructions {
     Jump,
     /// }
     JumpIfZero,
-    /// Q
+    /// E
     Exit,
     /// I
     Inc,

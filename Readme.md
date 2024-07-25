@@ -27,7 +27,7 @@ currently the language is composed of ten instructions :
 | 9  | [      | label : set a jump label their index is simply their order in the source code                                | 
 | 10 | ]      | jumps to the label who is at the index stored in the current memory tape value                               |
 | 11 | }      | does the same as the ] instruction if the current register value is 0                                        |
-| 12 | Q      | exit program with the exit code contained in the register                                                    |
+| 12 | E      | exit program with the exit code contained in the register                                                    |
 | 13 | I      | increase the register value by 1                                                                             |
 | 14 | D      | decrease register value by 1                                                                                 |
 | 15 | C      | compare reg to the current tape value and if equal set the register to 0 if greater to 1 and if lesser to -1 |

@@ -99,7 +99,7 @@ E
 the generated binary object follow this format
 
 - an header composed of four bytes to indicate that it is the binary format that can be executed that is "\0JOO"
-- 4-bytes indicating the position of the main block in the jumt table
+- 4-bytes indicating the position of the main block in the jump table
 - 4-bytes indicating the size of the jump table
 - for each entry in the jump table : 4-bytes address of the first instruction
 - 4- bytes indicating the size of the data section ( and by extention the size of the tape )

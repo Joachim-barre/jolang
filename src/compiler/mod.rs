@@ -40,6 +40,6 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
     let mut source = SourceFile::from(file);
     source.find_headers()?;
     let _ = source.file.rewind();
-    let text = TextData::try_from(&source);
+    let text = TextData::try_from(&source)?;
     todo!();
 }

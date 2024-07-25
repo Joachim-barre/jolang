@@ -65,7 +65,7 @@ impl SourceFile {
                     }
                     self.text_start = Some(header.0 as u64);
                     if self.data_start != None {
-                        self.data_end = self.data_start;
+                        self.data_end = self.text_start;
                     }
                 },
                 _ => {

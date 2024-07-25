@@ -1,33 +1,34 @@
 #[derive(Debug,Clone, PartialEq, Eq)]
+#[repr(u8)]
 pub enum Instructions {
     /// <
-    Backward,
+    Backward = 0,
     /// >
-    Forward,
+    Forward = 1,
     /// L
-    Load,
+    Load = 2,
     /// S
-    Store,
+    Store = 3,
     /// +
-    Add,
+    Add = 4,
     /// -
-    Sub,
+    Sub = 5,
     /// *
-    Mul,
+    Mul = 6,
     /// /
-    Div,
+    Div = 7,
     /// P
-    Print,
+    Print = 8,
     /// ],
-    Jump,
+    Jump = 10,
     /// }
-    JumpIfZero,
+    JumpIfZero = 11,
     /// E
-    Exit,
+    Exit = 12,
     /// I
-    Inc,
+    Inc = 13,
     /// D
-    Dec,
+    Dec = 14,
     /// C
-    Compare
+    Compare = 15
 }

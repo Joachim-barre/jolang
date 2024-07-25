@@ -47,9 +47,9 @@ impl TryFrom<&SourceFile> for TextData {
                 'D' => Instructions::Dec,
                 'C' => Instructions::Compare,
                 '[' => {
+                    jump_index -= 1;
                     jumps.push((last_label,jump_index));
                     last_label += 1;
-                    jump_index -= 1;
                     continue;
                 }
                 _ => {

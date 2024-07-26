@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+c-enum = "0.2.3"
 clap = { version = "4.5.9", features = ["derive"] }
 clio = { version = "0.3.5", features = ["clap", "clap-parse"] }
 cranelift = "0.109.0"

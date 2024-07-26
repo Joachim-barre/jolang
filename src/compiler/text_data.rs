@@ -4,9 +4,9 @@ use crate::commons::instructions::Instructions;
 
 #[derive(Debug,Clone)]
 pub struct TextData {
-    instructions : Vec<Instructions>,
+    pub instructions : Vec<Instructions>,
     /// jump table (instruction index) 
-    jumps : Vec<usize>
+    pub jumps : Vec<usize>
 }
 
 impl TryFrom<&SourceFile> for TextData {

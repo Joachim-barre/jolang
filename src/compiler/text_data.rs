@@ -5,8 +5,8 @@ use crate::commons::instructions::Instructions;
 #[derive(Debug,Clone)]
 pub struct TextData {
     instructions : Vec<Instructions>,
-    /// jump table : (index in jump table), (instruction index) 
-    jumps : Vec<(usize,usize)>
+    /// jump table (instruction index) 
+    jumps : Vec<usize>
 }
 
 impl TryFrom<&SourceFile> for TextData {
@@ -27,8 +27,7 @@ impl TryFrom<&SourceFile> for TextData {
             .collect();
         let mut instructions = Vec::new();
         let mut jump_index : usize = 0;
-        let mut last_label : usize = 0;
-        let mut jumps : Vec<(usize,usize)>= vec![(0,0)]; 
+        let mut jumps : Vec<usize>= vec![0]; 
         for symbol in symbols {
             jump_index += 1;
             instructions.push(match symbol {
@@ -49,8 +48,7 @@ impl TryFrom<&SourceFile> for TextData {
                 'C' => Instructions::Compare,
                 '[' => {
                     jump_index -= 1;
-                    jumps.push((last_label,jump_index));
-                    last_label += 1;
+                    jumps.push(jump_index);
                     continue;
                 }
                 _ => {

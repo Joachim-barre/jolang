@@ -3,6 +3,7 @@ use std::fs::{File, OpenOptions};
 use std::io::Seek;
 use std::result::Result;
 use crate::cli::compile::CompileArgs;
+use crate::commons::object::Object;
 pub mod source_file;
 pub mod text_data;
 use text_data::TextData;
@@ -42,5 +43,6 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
     let text = TextData::try_from(&source)?;
     let _ = source.file.rewind();
     let data = source.parse_data()?;
+    let object = Object::build(text, data)?;
     todo!();
 }

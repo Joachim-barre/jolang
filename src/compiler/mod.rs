@@ -3,8 +3,8 @@ use std::fs::{File, OpenOptions};
 use std::io::Seek;
 use std::result::Result;
 use crate::cli::compile::CompileArgs;
-mod source_file;
-mod text_data;
+pub mod source_file;
+pub mod text_data;
 use text_data::TextData;
 use source_file::SourceFile;
 

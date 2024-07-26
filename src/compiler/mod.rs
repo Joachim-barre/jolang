@@ -12,9 +12,9 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
     if !args.file.is_local() {
         return Err(String::from("please input a local file"))
     }
-    let mut file : File;
+    let file : File;
     match OpenOptions::new().read(true).write(false).truncate(false).append(false).open(args.file.clone().as_os_str()) {
-        Ok(mut f) => {
+        Ok(f) => {
             file = f
         }
         Err(_) => {

@@ -1,5 +1,6 @@
-use crate::{cli::run::RunArgs, commons::{instructions::Instructions, object::Object}};
+use crate::{cli::run::RunArgs, commons::{instructions::{self, Instructions}, object::Object}};
 use std::{result::Result, fs::{File, OpenOptions}};
+use inkwell::{context::Context, AddressSpace};
 
 pub fn run(args : RunArgs) -> Result<(), String> {
     if !args.file.is_local() {
@@ -30,6 +31,24 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         current_block = next_block;
     }
     blocks.push(current_block);
+
+    let data_size = object.data.len();
+
+    let context = Context::create();
+    let module = context.create_module("main");
+    let builder = context.create_builder();
+    let i64_type = context.i64_type();
+    let ptr_type = i64_type.ptr_type(AddressSpace::default());
+    let main_fn_type = i64_type.fn_type(&[i64_type.into(), ptr_type.into()], false);
+    let main_fn = module.add_function("main", main_fn_type, None);
+    
+    let entry_block = context.append_basic_block(main_fn, "entry");
+    
+    let blocks : Vec<_> = blocks.iter()
+        .enumerate()
+        .map(|(i, x)| (format!("block{}", i.to_string()), x))
+        .map(|(i, x)| (context.append_basic_block(main_fn, &i), x))
+        .collect();
 
     todo!();
 }

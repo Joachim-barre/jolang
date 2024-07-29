@@ -44,5 +44,18 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
     let _ = source.file.rewind();
     let data = source.parse_data()?;
     let object = Object::build(text, data)?;
-    todo!();
+    let mut object_file = match OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(object_file.path().as_os_str()) {
+            Ok(f) => f,
+            Err(_) => {
+                return Err("failed to open object file".to_string())
+            }
+    };
+    object.save(&mut object_file)?;
+    println!("success");
+    Ok(())
 }

@@ -8,6 +8,7 @@ numbers are currently 64 bits
 jumps can jump to label that aren't encountered yet
 the first tape value should be the main label address
 jump indexes start at zero but the index 0 is a jump to the first instruction of the program
+jumps default to main block if out of range 
 
 ## instruction set
 

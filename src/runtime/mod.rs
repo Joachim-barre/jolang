@@ -1,4 +1,4 @@
-use crate::{cli::run::RunArgs, commons::object::Object};
+use crate::{cli::run::RunArgs, commons::{instructions::Instructions, object::Object}};
 use std::{result::Result, fs::{File, OpenOptions}};
 
 pub fn run(args : RunArgs) -> Result<(), String> {
@@ -15,6 +15,21 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         }
     }
     println!("loading object {}", args.file);
-    dbg!(Object::load(&mut file)?);
+    let object = Object::load(&mut file)?;
+    
+    let mut blocks : Vec<Vec<Instructions>> = Vec::new();
+
+    let mut block_offset : usize = 0; 
+
+    let mut current_block : Vec<Instructions> = object.text;
+
+    for jump in &object.jumps[1..] {
+        let next_block = current_block.split_off(*jump as usize - block_offset);
+        block_offset += *jump as usize;
+        blocks.push(current_block);
+        current_block = next_block;
+    }
+    blocks.push(current_block);
+
     todo!();
 }

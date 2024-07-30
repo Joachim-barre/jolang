@@ -1,5 +1,4 @@
 # Jolang
----
 
 A jit inerpreted language created by joachim barre
 

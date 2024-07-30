@@ -1,6 +1,6 @@
 use crate::{cli::run::RunArgs, commons::{instructions::Instructions, object::Object}};
 use std::{result::Result, fs::{File, OpenOptions}};
-use inkwell::{context::Context, AddressSpace};
+use inkwell::{context::Context, module::Linkage, AddressSpace};
 pub mod externs;
 
 pub fn run(args : RunArgs) -> Result<(), String> {
@@ -42,7 +42,10 @@ pub fn run(args : RunArgs) -> Result<(), String> {
     let ptr_type = i64_type.ptr_type(AddressSpace::default());
     let main_fn_type = i64_type.fn_type(&[i64_type.into(), ptr_type.into()], false);
     let main_fn = module.add_function("main", main_fn_type, None);
-    
+   
+    let print_int_type = context.void_type().fn_type(&[i64_type.into()], false);
+    let print_int_fn = module.add_function("print_int", print_int_type, Some(Linkage::External));
+
     let entry_block = context.append_basic_block(main_fn, "entry");
     let tape_size = main_fn.get_first_param().unwrap().into_int_value();
     let tape_start_ptr = main_fn.get_nth_param(1).unwrap().into_pointer_value();
@@ -112,6 +115,10 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     };
                     let _ = builder.build_store(reg_ptr, res_value);
                 },
+                Instructions::Print => {
+                    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();
+                    let _ = builder.build_call(print_int_fn, &[reg_value.into()], "_");
+                }
                 _ => todo!()
             }
         }

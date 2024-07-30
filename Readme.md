@@ -1,13 +1,13 @@
 # Jolang
 
-A jit inerpreted language created by joachim barre
+A jit interpreted language created by joachim barre
 
-it is based on a set of basic instruction an use a single register and a memory tape that as an initial state and size define in the object 
-numbers are currently 64 bits
-jumps can jump to label that aren't encountered yet
-the first tape value should be the main label address
-jump indexes start at zero but the index 0 is a jump to the first instruction of the program
-jumps default to main block if out of range 
+it is based on a set of basic instruction an use a single register and a memory tape that as an initial state and size define in the object<br> 
+numbers are currently 64 bits<br>
+jumps can jump to label that aren't encountered yet<br>
+the first tape value should be the main label address<br>
+jump indexes start at zero but the index 0 is a jump to the first instruction of the program<br>
+jumps default to main block if out of range<br>
 
 ## instruction set
 
@@ -41,15 +41,15 @@ currently the language is composed of ten instructions :
 
 ## syntax
 
-current source file are composed of : 
-a number indicating the tape size 
-a number indicating the default value for the numbers on the tape
-then two sections that starts by .SESSION_NAME:
-    - TEXT that store the code
-    - DATA that store default value of the first tape entries
-the TEXT section should only contain instruction symbols or whitespace
-any line begining by a # is ignored
-the DATA section contain one number per line 
+current source file are composed of :<br> 
+a number indicating the tape size<br>
+a number indicating the default value for the numbers on the tape<br>
+then two sections that starts by .SESSION_NAME:<br>
+    - TEXT that store the code<br>
+    - DATA that store default value of the first tape entries<br>
+the TEXT section should only contain instruction symbols or whitespace<br>
+any line begining by a # is ignored<br>
+the DATA section contain one number per line<br> 
 
 like so : 
 ```

@@ -131,6 +131,22 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     let _ = builder.build_switch(tape_value, switch_table[0].1, &switch_table[..]);
                 }
                 _ => todo!()
+                Instructions::JumpIfZero => {
+                    // split block
+                    let block_name = String::from(builder.get_insert_block().unwrap().get_name().to_str().unwrap());
+                    let switch_block = context.append_basic_block(main_fn, (block_name.clone() + "_switch").as_str());
+                    let else_block = context.append_basic_block(main_fn, (block_name + "_then").as_str());
+                    let _ = switch_block.move_after(builder.get_insert_block().unwrap());
+                    let _ = else_block.move_after(switch_block);
+                    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();
+                    let is_zero = builder.build_int_compare(inkwell::IntPredicate::EQ, reg_value, i64_type.const_int(0, false), "is_equal").unwrap();
+                    let _ = builder.build_conditional_branch(is_zero, switch_block, else_block);
+                    builder.position_at_end(switch_block);
+                    let tape_ptr = builder.build_load(ptr_type, tape_ptr_ptr, "tape_ptr").unwrap().into_pointer_value();
+                    let tape_value = builder.build_load(i64_type, tape_ptr, "tape_value").unwrap().into_int_value();
+                    let _ = builder.build_switch(tape_value, switch_table[0].1, &switch_table[..]);
+                    builder.position_at_end(else_block);
+                },
             }
         }
     }

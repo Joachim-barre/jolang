@@ -56,6 +56,12 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         .map(|(i, x)| (context.append_basic_block(main_fn, &i), x))
         .collect();
 
+    let switch_table : Vec<_> = blocks.iter()
+        .map(|(block, _x)| block)
+        .enumerate()
+        .map(|(i, x)| (i64_type.const_int(i as u64, false), *x))
+        .collect();
+
     builder.position_at_end(entry_block);
     let tape_ptr_ptr = builder.build_alloca(ptr_type, "tape_ptr_ptr").unwrap();
     let reg_ptr = builder.build_alloca(i64_type, "reg_ptr").unwrap();
@@ -118,6 +124,11 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                 Instructions::Print => {
                     let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();
                     let _ = builder.build_call(print_int_fn, &[reg_value.into()], "_");
+                },
+                Instructions::Jump => {
+                    let tape_ptr = builder.build_load(ptr_type, tape_ptr_ptr, "tape_ptr").unwrap().into_pointer_value();
+                    let tape_value = builder.build_load(i64_type, tape_ptr, "tape_value").unwrap().into_int_value();
+                    let _ = builder.build_switch(tape_value, switch_table[0].1, &switch_table[..]);
                 }
                 _ => todo!()
             }

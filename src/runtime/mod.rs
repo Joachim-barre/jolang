@@ -174,6 +174,9 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         }
     }
 
+    if args.print_to_stderr {
+        module.print_to_stderr();
+    }
 
     todo!();
 }

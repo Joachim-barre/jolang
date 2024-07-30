@@ -89,6 +89,7 @@ LP
 # loop back to the start of the loop
 <]
 # exit block index 2
+[
 # set M to zero
 L-
 E

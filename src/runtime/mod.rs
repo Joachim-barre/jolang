@@ -98,21 +98,19 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     let tape_ptr_int = builder.build_ptr_to_int(tape_ptr, i64_type, "tape_ptr_int").unwrap();
                     let tape_start_ptr_int = builder.build_ptr_to_int(tape_start_ptr, i64_type, "tape_start_ptr_int").unwrap();
                     let is_equal = builder.build_int_compare(inkwell::IntPredicate::EQ, tape_ptr_int, tape_start_ptr_int, "is_equal").unwrap();
-                    let dec_tape_ptr_int = builder.build_int_sub(tape_ptr_int, one, "dec_tape_ptr_int").unwrap();
-                    let max_tape_ptr_int = builder.build_int_add(tape_start_ptr_int, tape_size, "max_tape_ptr_int").unwrap();
-                    let res_tape_ptr_int = builder.build_select(is_equal, max_tape_ptr_int, dec_tape_ptr_int, "res_tape_ptr_int").unwrap().into_int_value();
-                    let res_tape_ptr = builder.build_int_to_ptr(res_tape_ptr_int, ptr_type, "res_tape_ptr").unwrap();
+                    let dec_tape_ptr = unsafe { builder.build_gep(ptr_type, tape_ptr, &[i64_type.const_int(u64::from_le_bytes((-1i64).to_le_bytes()), false)], "dec_tape_ptr").unwrap() };
+                    let max_tape_ptr = unsafe { builder.build_gep(ptr_type, tape_start_ptr, &[tape_size],"max_tape_ptr").unwrap() };
+                    let res_tape_ptr = builder.build_select(is_equal, max_tape_ptr, dec_tape_ptr, "res_tape_ptr").unwrap().into_pointer_value();
                     let _ = builder.build_store(tape_ptr_ptr, res_tape_ptr);
                 },
                 Instructions::Forward => {
                     let tape_ptr = builder.build_load(ptr_type, tape_ptr_ptr, "tape_ptr").unwrap().into_pointer_value();
+                    let max_tape_ptr = unsafe { builder.build_gep(ptr_type, tape_start_ptr, &[tape_size],"max_tape_ptr").unwrap() };
                     let tape_ptr_int = builder.build_ptr_to_int(tape_ptr, i64_type, "tape_ptr_int").unwrap();
-                    let tape_start_ptr_int = builder.build_ptr_to_int(tape_start_ptr, i64_type, "tape_start_ptr_int").unwrap();
-                    let max_tape_ptr_int = builder.build_int_add(tape_start_ptr_int, tape_size, "max_tape_ptr_int").unwrap();
+                    let max_tape_ptr_int = builder.build_ptr_to_int(max_tape_ptr, i64_type, "max_tape_ptr_int").unwrap();
                     let is_equal = builder.build_int_compare(inkwell::IntPredicate::EQ, tape_ptr_int, max_tape_ptr_int, "is_equal").unwrap();
-                    let inc_tape_ptr_int = builder.build_int_add(tape_ptr_int, one, "inc_tape_ptr_int").unwrap();
-                    let res_tape_ptr_int = builder.build_select(is_equal, tape_start_ptr_int, inc_tape_ptr_int, "res_tape_ptr_int").unwrap().into_int_value();
-                    let res_tape_ptr = builder.build_int_to_ptr(res_tape_ptr_int, ptr_type, "res_tape_ptr").unwrap();
+                    let inc_tape_ptr = unsafe { builder.build_gep(ptr_type, tape_ptr, &[i64_type.const_int(1, false)], "in_tape_ptr").unwrap() };
+                    let res_tape_ptr = builder.build_select(is_equal, tape_start_ptr, inc_tape_ptr, "res_tape_ptr_int").unwrap().into_pointer_value(); 
                     let _ = builder.build_store(tape_ptr_ptr, res_tape_ptr);
                 },
                 Instructions::Load => {

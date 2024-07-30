@@ -1,6 +1,6 @@
 use crate::{cli::run::RunArgs, commons::{instructions::Instructions, object::Object}};
 use std::{result::Result, fs::{File, OpenOptions}};
-use inkwell::{context::Context, module::Linkage, AddressSpace};
+use inkwell::{context::Context, module::Linkage, AddressSpace, OptimizationLevel, execution_engine::JitFunction};
 pub mod externs;
 
 pub fn run(args : RunArgs) -> Result<(), String> {
@@ -178,5 +178,13 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         module.print_to_stderr();
     }
 
-    todo!();
+    let execution_engine = module.create_jit_execution_engine(OptimizationLevel::Default).unwrap();
+
+    unsafe {
+        type MainFn = unsafe extern "C" fn(u64, *const i64) -> i64;
+        let main_fn: JitFunction<MainFn> = execution_engine.get_function("main").unwrap();
+        main_fn.call(data_size as u64, object.data.as_ptr());
+    }
+
+    Ok(())
 }

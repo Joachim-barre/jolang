@@ -1,6 +1,6 @@
 use crate::{cli::run::RunArgs, commons::{instructions::Instructions, object::Object}};
 use std::{result::Result, fs::{File, OpenOptions}};
-use inkwell::{context::Context, module::Linkage, AddressSpace, OptimizationLevel, execution_engine::JitFunction};
+use inkwell::{context::Context, AddressSpace, OptimizationLevel, execution_engine::JitFunction};
 pub mod externs;
 
 pub fn run(args : RunArgs) -> Result<(), String> {

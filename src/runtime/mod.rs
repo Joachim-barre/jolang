@@ -160,7 +160,16 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     let res_value = builder.build_int_sub(reg_value, one, "res_value").unwrap();
                     let _ = builder.build_store(reg_ptr, res_value); 
                 },
-                _ => todo!()
+                Instructions::Compare => {
+                    let tape_ptr = builder.build_load(ptr_type, tape_ptr_ptr, "tape_ptr").unwrap().into_pointer_value();
+                    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value(); 
+                    let tape_value = builder.build_load(i64_type, tape_ptr, "tape_value").unwrap().into_int_value();
+                    let eq = builder.build_int_compare(inkwell::IntPredicate::EQ, reg_value, tape_value, "eq").unwrap();
+                    let gt = builder.build_int_compare(inkwell::IntPredicate::SGT, reg_value, tape_value, "gt").unwrap();
+                    let res_value = builder.build_select(eq, i64_type.const_int(0, false), builder.build_select(gt, one, i64_type.const_int(u64::from_le_bytes((-1i64).to_le_bytes()), false), "res").unwrap().into_int_value(), "res_value").unwrap();
+                    let _ = builder.build_store(reg_ptr, res_value);
+                },
+                _ => unreachable!()
             }
         }
     }

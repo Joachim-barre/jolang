@@ -129,8 +129,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     let tape_ptr = builder.build_load(ptr_type, tape_ptr_ptr, "tape_ptr").unwrap().into_pointer_value();
                     let tape_value = builder.build_load(i64_type, tape_ptr, "tape_value").unwrap().into_int_value();
                     let _ = builder.build_switch(tape_value, switch_table[0].1, &switch_table[..]);
-                }
-                _ => todo!()
+                },
                 Instructions::JumpIfZero => {
                     // split block
                     let block_name = String::from(builder.get_insert_block().unwrap().get_name().to_str().unwrap());
@@ -147,6 +146,21 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     let _ = builder.build_switch(tape_value, switch_table[0].1, &switch_table[..]);
                     builder.position_at_end(else_block);
                 },
+                Instructions::Exit => {
+                    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();
+                    let _ = builder.build_return(Some(&reg_value));
+                },
+                Instructions::Inc => {
+                    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value(); 
+                    let res_value = builder.build_int_add(reg_value, one, "res_value").unwrap();
+                    let _ = builder.build_store(reg_ptr, res_value); 
+                },
+                Instructions::Dec => {
+                    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value(); 
+                    let res_value = builder.build_int_sub(reg_value, one, "res_value").unwrap();
+                    let _ = builder.build_store(reg_ptr, res_value); 
+                },
+                _ => todo!()
             }
         }
     }

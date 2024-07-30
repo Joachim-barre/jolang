@@ -174,6 +174,12 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         }
     }
 
+    let exit_block = context.append_basic_block(main_fn, "exit");
+    let _ = builder.build_unconditional_branch(exit_block);
+    builder.position_at_end(exit_block);
+    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();
+    let _ = builder.build_return(Some(&reg_value));
+
     if args.print_to_stderr {
         module.print_to_stderr();
     }

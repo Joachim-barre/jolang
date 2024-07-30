@@ -76,6 +76,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
     let tape_ptr_ptr = builder.build_alloca(ptr_type, "tape_ptr_ptr").unwrap();
     let reg_ptr = builder.build_alloca(i64_type, "reg_ptr").unwrap();
     let _ = builder.build_store(tape_ptr_ptr, tape_start_ptr);
+    let _ = builder.build_store(reg_ptr, i64_type.const_int(0, false));
     let one = i64_type.const_int(1, false);
 
     let exit_block = context.append_basic_block(main_fn, "exit");

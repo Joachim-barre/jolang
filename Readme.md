@@ -54,7 +54,7 @@ the DATA section contain one number per line<br>
 like so : 
 ```
 # calculate the first 10 numbers in the fibonnatchi sequence
-6
+7
 1
 .DATA
 # jump table
@@ -69,11 +69,14 @@ like so :
 # main block index : 0 
 >
 # print one two times as it's the first 
-LP
+LPP
 # main loop index : 1
 [
+>>>>>
+#load last calulated number
+L 
 # calulate a number in the sequence
-+SP
+<+SP
 # increase number progress counter
 <LIS
 # check if the program should exit

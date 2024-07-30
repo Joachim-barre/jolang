@@ -44,7 +44,16 @@ pub fn run(args : RunArgs) -> Result<(), String> {
     let main_fn = module.add_function("main", main_fn_type, None);
    
     let print_int_type = context.void_type().fn_type(&[i64_type.into()], false);
-    let print_int_fn = module.add_function("print_int", print_int_type, Some(Linkage::External));
+    let print_int_fn = module.add_function("print_int", print_int_type, None);
+
+    let print_block = context.append_basic_block(print_int_fn, "link");
+    builder.position_at_end(print_block);
+
+    let print_int_ptr = i64_type
+            .const_int(externs::print_int as *const usize as u64, false)
+            .const_to_pointer(print_int_type.ptr_type(AddressSpace::default()));
+
+    let _ = builder.build_indirect_call(print_int_type, print_int_ptr, &[print_int_fn.get_first_param().unwrap().into()], "call");
 
     let entry_block = context.append_basic_block(main_fn, "entry");
     let tape_size = main_fn.get_first_param().unwrap().into_int_value();

@@ -68,6 +68,8 @@ pub fn run(args : RunArgs) -> Result<(), String> {
     let _ = builder.build_store(tape_ptr_ptr, tape_start_ptr);
     let one = i64_type.const_int(1, false);
 
+    let exit_block = context.append_basic_block(main_fn, "exit");
+
     for (block, instr) in blocks {
         let _ = builder.build_unconditional_branch(block);
         builder.position_at_end(block);
@@ -147,8 +149,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     builder.position_at_end(else_block);
                 },
                 Instructions::Exit => {
-                    let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();
-                    let _ = builder.build_return(Some(&reg_value));
+                    let _ = builder.build_unconditional_branch(exit_block);
                 },
                 Instructions::Inc => {
                     let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value(); 
@@ -174,7 +175,6 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         }
     }
 
-    let exit_block = context.append_basic_block(main_fn, "exit");
     let _ = builder.build_unconditional_branch(exit_block);
     builder.position_at_end(exit_block);
     let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();

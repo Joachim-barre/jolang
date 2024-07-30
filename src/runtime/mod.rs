@@ -54,6 +54,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
             .const_to_pointer(print_int_type.ptr_type(AddressSpace::default()));
 
     let _ = builder.build_indirect_call(print_int_type, print_int_ptr, &[print_int_fn.get_first_param().unwrap().into()], "call");
+    let _ = builder.build_return(None); 
 
     let entry_block = context.append_basic_block(main_fn, "entry");
     let tape_size = main_fn.get_first_param().unwrap().into_int_value();

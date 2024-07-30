@@ -79,11 +79,18 @@ pub fn run(args : RunArgs) -> Result<(), String> {
     let one = i64_type.const_int(1, false);
 
     let exit_block = context.append_basic_block(main_fn, "exit");
+    let mut block_terminated = false;
 
     for (block, instr) in blocks {
-        let _ = builder.build_unconditional_branch(block);
+        if !block_terminated {
+            let _ = builder.build_unconditional_branch(block);
+        }
+        block_terminated = false;
         builder.position_at_end(block);
         for i in instr {
+            if block_terminated {
+                return Err("unreachable code".to_string())
+            }
             match *i{
                 Instructions::Backward => {
                     let tape_ptr = builder.build_load(ptr_type, tape_ptr_ptr, "tape_ptr").unwrap().into_pointer_value();
@@ -141,6 +148,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                     let tape_ptr = builder.build_load(ptr_type, tape_ptr_ptr, "tape_ptr").unwrap().into_pointer_value();
                     let tape_value = builder.build_load(i64_type, tape_ptr, "tape_value").unwrap().into_int_value();
                     let _ = builder.build_switch(tape_value, switch_table[0].1, &switch_table[..]);
+                    block_terminated = true;
                 },
                 Instructions::JumpIfZero => {
                     // split block
@@ -160,6 +168,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
                 },
                 Instructions::Exit => {
                     let _ = builder.build_unconditional_branch(exit_block);
+                    block_terminated = true;
                 },
                 Instructions::Inc => {
                     let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value(); 
@@ -184,8 +193,10 @@ pub fn run(args : RunArgs) -> Result<(), String> {
             }
         }
     }
-
-    let _ = builder.build_unconditional_branch(exit_block);
+    
+    if !block_terminated {
+        let _ = builder.build_unconditional_branch(exit_block);
+    }
     builder.position_at_end(exit_block);
     let reg_value = builder.build_load(i64_type, reg_ptr, "reg_value").unwrap().into_int_value();
     let _ = builder.build_return(Some(&reg_value));

@@ -1,43 +1,53 @@
-# calculate the first 10 numbers in the fibonnatchi sequence
-7
-1
-.DATA
-# jump table
-0
-1
-2
-# quantity of numbers to calulate
-10
-# progress counter (count how many numbers we have already calculated)
-0
-.TEXT
-# main block index : 0 
->
-# print one two times as it's the first 
-LPP
-# main loop index : 1
-[
->>>>>
-#load last calulated number
-L 
-# calulate a number in the sequence
-<+SP
-# increase number progress counter
-<LIS
-# check if the program should exit
-<C<}
-# load the number that was calculated before
->>>L
-# calculate the next number
->+SP
-# increase progress couter
-<<LIS
-# check if the program should exit
-<C<}
-# loop back to the start of the loop
-<]
-# exit block index 2
-[
-# set M to zero
-L-
-E
+// calulate the first n number of the fibonacci sequece where n is asked to the user
+var n = input();
+if(n <= 0) {
+    return 0;
+}else if(n == 1) {
+    print(1);
+}
+
+var calulated = 2;
+var num1 = 1;
+var num2 = 1;
+
+print(1);
+print(1);
+
+while (calulated < n) {
+    var tmp = num1 + num2;
+    num2 = num1;
+    num1 = tmp;
+    print(num1);
+    calulated = calulated + 1;
+}
+
+/* 
+    the following code is useless and only for testing purposes
+    if the exit code isn't 0 these test failed
+*/
+
+var precedence_test = 2+1*2;
+if(precedence_test != 4){
+    return 1;
+}
+
+// test the pow builtin function
+var pow_tes = pow(3,3);
+if (pow_test != 21) {
+    return 2;
+}
+
+// test some loop features
+var test_loop;
+loop {
+    test_loop = test_loop + 1;
+    if(test_loop == 2){
+        test_loop = test_loop + 1;
+        continue;
+    }else if(test_loop == 3){
+        return 3;
+    }else if(test_loop == 10) {
+        break;
+    }
+}
+return 0;

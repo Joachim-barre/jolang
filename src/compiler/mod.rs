@@ -7,6 +7,7 @@ use crate::commons::object::Object;
 pub mod source_file;
 pub mod text_data;
 pub mod lexer;
+pub mod compiler_error;
 use text_data::TextData;
 use source_file::SourceFile;
 

@@ -35,6 +35,9 @@ while(i <= 4) {
 loop {
     var v = input();
     print(v-1);
+    if ( v < 0 ) {
+        return 0; // exit with exit code 0
+    }
 }
 ```
 

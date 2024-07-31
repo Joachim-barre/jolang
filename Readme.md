@@ -36,9 +36,11 @@ loop {
     var v = input();
     print(v-1);
     if ( v < 0 ) {
-        return 0; // exit with exit code 0
-    }
+        break; // exit the loop
+    }else 
+        continue;
 }
+return 0; // exit the program with exit code 0
 ```
 
 these builtin functions are currently available: 

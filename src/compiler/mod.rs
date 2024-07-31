@@ -6,7 +6,6 @@ use crate::cli::compile::CompileArgs;
 use crate::commons::object::Object;
 pub mod source_file;
 pub mod text_data;
-pub mod parser;
 use text_data::TextData;
 use source_file::SourceFile;
 

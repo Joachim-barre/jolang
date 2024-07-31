@@ -1,11 +1,12 @@
 use crate::{cli::run::RunArgs, commons::{instructions::Instructions, object::Object}};
-use std::{result::Result, fs::{File, OpenOptions}};
+use std::fs::{File, OpenOptions};
 use inkwell::{context::Context, AddressSpace, OptimizationLevel, execution_engine::JitFunction};
+use anyhow::{Result, anyhow};
 pub mod externs;
 
-pub fn run(args : RunArgs) -> Result<(), String> {
+pub fn run(args : RunArgs) -> Result<()> {
     if !args.file.is_local() {
-        return Err(String::from("please input a local file"))
+        return Err(anyhow!("please input a local file"))
     }
     let mut file : File;
     match OpenOptions::new().read(true).write(false).truncate(false).append(false).open(args.file.clone().as_os_str()) {
@@ -13,7 +14,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
             file = f
         }
         Err(_) => {
-            return Err(String::from("can't open file"))
+            return Err(anyhow!("can't open file"))
         }
     }
     println!("loading object {}", args.file);
@@ -90,7 +91,7 @@ pub fn run(args : RunArgs) -> Result<(), String> {
         builder.position_at_end(block);
         for i in instr {
             if block_terminated {
-                return Err("unreachable code".to_string())
+                return Err(anyhow!("unreachable code"))
             }
             match *i{
                 Instructions::Backward => {

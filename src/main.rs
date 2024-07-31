@@ -1,4 +1,5 @@
-use std::{hint::black_box, result::Result};
+use std::hint::black_box;
+use anyhow::Result;
 use clap::Parser;
 mod cli;
 use cli::Commands;
@@ -7,27 +8,15 @@ mod commons;
 mod runtime;
 use runtime::externs::PRINT_INT;
 
-fn main() -> Result<(),()>{
+fn main() -> Result<()>{
     black_box(PRINT_INT);
     let cli = cli::Cli::parse();
     match cli.command {
         Commands::Compile(args) => {
-            match compiler::compile(args) {
-                Ok(_) => return Ok(()),
-                Err(desc) => {
-                    println!("{}", desc);
-                    return Err(())
-                }
-            }
+            return compiler::compile(args);
         }
         Commands::Run(args) => {
-            match runtime::run(args) {
-                Ok(_) => return Ok(()),
-                Err(desc) => {
-                    println!("{}", desc);
-                    return Err(())
-                }
-            }
+            return runtime::run(args);
         }
     }
 }

@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufReader, Lines, BufRead};
 use std::option::Option;
-use std::result::Result;
+use anyhow::{anyhow, Result};
 
 #[derive(Debug)]
 pub struct SourceFile {
@@ -33,7 +33,7 @@ impl SourceFile {
         return BufReader::new(&self.file).lines()
     }
 
-    pub fn find_headers(&mut self) -> Result<(), String>{
+    pub fn find_headers(&mut self) -> Result<()>{
         self.text_start = None;
         self.text_end = None;
         self.data_start = None;
@@ -45,14 +45,14 @@ impl SourceFile {
             .collect();
 
         if headers.len() != 2{
-            return Err("to many headers".to_string())
+            return Err(anyhow!("to many headers"))
         }
 
         for header in headers {
             match header.1.as_str() {
                 ".DATA" => {
                     if self.data_start != None {
-                        return Err("header found twice : .DATA".to_string())
+                        return Err(anyhow!("header found twice : .DATA"))
                     }
                     self.data_start = Some(header.0 as u64);
                     if self.text_start != None {
@@ -61,7 +61,7 @@ impl SourceFile {
                 },
                 ".TEXT" => {
                     if self.text_start != None {
-                        return Err("header found twice : .TEXT".to_string())
+                        return Err(anyhow!("header found twice : .TEXT"))
                     }
                     self.text_start = Some(header.0 as u64);
                     if self.data_start != None {
@@ -69,16 +69,16 @@ impl SourceFile {
                     }
                 },
                 _ => {
-                    return Err("bad header".to_string())
+                    return Err(anyhow!("bad header"))
                 }
             }
         }
         Ok(())
     }
 
-    pub fn parse_data(&self) -> Result<Vec<i64>, String> {
+    pub fn parse_data(&self) -> Result<Vec<i64>> {
         if self.data_start == None {
-            return Err("you need to parse headers first".to_string())
+            return Err(anyhow!("you need to parse headers first"))
         }
         let mut data_size : String = String::new();
         let mut data_default : String = String::new();
@@ -96,7 +96,7 @@ impl SourceFile {
         let data_size = data_size.parse::<usize>().unwrap();
         
         if numbers.len() > data_size {
-            return Err(String::from("to many numbers in data section"))
+            return Err(anyhow!("to many numbers in data section"))
         }
         
         let data_default = data_default.parse::<i64>().unwrap();

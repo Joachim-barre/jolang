@@ -1,6 +1,7 @@
 use crate::compiler::text_data::TextData;
 use super::instructions::Instructions;
 use std::{fs::File, io::{Read, Write}};
+use anyhow::{anyhow, Result};
 
 #[derive(Debug)]
 pub struct Object {
@@ -11,9 +12,9 @@ pub struct Object {
 }
 
 impl Object {
-    pub fn build(text : TextData, data : Vec<i64>) -> Result<Self, String> {
+    pub fn build(text : TextData, data : Vec<i64>) -> Result<Self> {
         if data.len() < 1 || data[0] < 0 || data[0] >= text.jumps.len().try_into().unwrap() {
-            return Err(String::from("bad entry point"))
+            return Err(anyhow!("bad entry point"))
         }
         Ok(Object {
             main_jump : data[0] as u64,
@@ -25,7 +26,7 @@ impl Object {
         })
     }
 
-    pub fn save(&self, file : &mut File) -> Result<(), String> {
+    pub fn save(&self, file : &mut File) -> Result<()> {
         let mut bytes : Vec<u8> = Vec::new();
         
         bytes.extend_from_slice("\0JOO".as_bytes());
@@ -38,33 +39,33 @@ impl Object {
         bytes.extend(self.text.iter().flat_map(|x| Into::<u8>::into(x.clone()).to_le_bytes()));
 
         if !file.write(&bytes[..]).ok().map_or(false, |x| x==bytes.len()) {
-            return Err(String::from("failed to write the compiled object"));
+            return Err(anyhow!("failed to write the compiled object"));
         }
         Ok(())
     }
 
-    pub fn load(file : &mut File) -> Result<Self, String> {
+    pub fn load(file : &mut File) -> Result<Self> {
         let mut bytes :  Vec<u8> = Vec::new();
 
         match file.read_to_end(&mut bytes) {
             Ok(_) => {},
             Err(_) => {
-                return Err("can't read file".to_string());
+                return Err(anyhow!("can't read file"));
             }
         };
 
         if bytes.len() < 36 {
-            return Err("object file too small".to_string());
+            return Err(anyhow!("object file too small"));
         }
 
         if bytes[..4] != "\0JOO".as_bytes()[..4] {
-            return Err("bad header (unknown file format)".to_string())
+            return Err(anyhow!("bad header (unknown file format)"))
         }
 
         let main_jump = u64::from_le_bytes(bytes[4..12].try_into().unwrap());
         let jump_len = u64::from_le_bytes(bytes[12..20].try_into().unwrap()); 
         if bytes.len() < (36 + jump_len*8) as usize {
-            return Err("bad jump table size".to_string())
+            return Err(anyhow!("bad jump table size"))
         }
         let mut jumps = bytes.split_off(20);
         bytes = jumps.split_off((jump_len*8) as usize);
@@ -73,7 +74,7 @@ impl Object {
             .collect();
         let data_len = u64::from_le_bytes(bytes[..8].try_into().unwrap());
         if bytes.len() < (16 + data_len*8) as usize {
-            return Err("bad data section size".to_string())
+            return Err(anyhow!("bad data section size"))
         } 
         let mut data = bytes.split_off(8);
         bytes = data.split_off((data_len*8) as usize);
@@ -82,7 +83,7 @@ impl Object {
             .collect();
         let text_len = u64::from_le_bytes(bytes[..8].try_into().unwrap());
         if bytes.len() != (8+text_len) as usize {
-            return Err(String::from("bad text section size"))
+            return Err(anyhow!("bad text section size"))
         }
         let text : Vec<Instructions> = bytes.iter()
             .skip(8)

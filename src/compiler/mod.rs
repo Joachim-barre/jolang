@@ -1,7 +1,7 @@
 use clio::OutputPath;
 use std::fs::{File, OpenOptions};
 use std::io::Seek;
-use std::result::Result;
+use anyhow::{anyhow, Result};
 use crate::cli::compile::CompileArgs;
 use crate::commons::object::Object;
 pub mod source_file;
@@ -9,9 +9,9 @@ pub mod text_data;
 use text_data::TextData;
 use source_file::SourceFile;
 
-pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
+pub fn compile<'a>(args : CompileArgs) -> Result<()> {
     if !args.file.is_local() {
-        return Err(String::from("please input a local file"))
+        return Err(anyhow!("please input a local file"))
     }
     let file : File;
     match OpenOptions::new().read(true).write(false).truncate(false).append(false).open(args.file.clone().as_os_str()) {
@@ -19,7 +19,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
             file = f
         }
         Err(_) => {
-            return Err(String::from("can't open file"))
+            return Err(anyhow!("can't open file"))
         }
     }
     let mut object_file = match args.object_file {
@@ -32,7 +32,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
         object_file = match OutputPath::new(new_path.clone()) {
             Ok(path) => path,
             Err(_) => {
-                return Err(format!("failed to open output file : {}", new_path.to_string()).to_string())
+                return Err(anyhow!("failed to open output file : {}", new_path))
             }
         }
     }
@@ -52,7 +52,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<(),String> {
         .open(object_file.path().as_os_str()) {
             Ok(f) => f,
             Err(_) => {
-                return Err("failed to open object file".to_string())
+                return Err(anyhow!("failed to open object file"))
             }
     };
     object.save(&mut object_file)?;

@@ -1,6 +1,7 @@
 use std::vec::Vec;
 use super::source_file::SourceFile;
 use crate::commons::instructions::Instructions;
+use anyhow::anyhow;
 
 #[derive(Debug,Clone)]
 pub struct TextData {
@@ -10,10 +11,10 @@ pub struct TextData {
 }
 
 impl TryFrom<&SourceFile> for TextData {
-    type Error = String;
-    fn try_from(value: &SourceFile) -> Result<Self, Self::Error> {
+    type Error = anyhow::Error;
+    fn try_from(value: &SourceFile) -> Result<Self, anyhow::Error> {
         if value.text_start == None {
-            return Err("you need to parse headers first".to_string())
+            return Err(anyhow!("you need to parse headers first"))
         }
         let symbols : Vec<char> = value.lines()
             .enumerate()
@@ -52,7 +53,7 @@ impl TryFrom<&SourceFile> for TextData {
                     continue;
                 }
                 _ => {
-                    return Err(format!("bad instruction : {}", symbol.to_string()).to_string()) 
+                    return Err(anyhow!("bad instruction : {}", symbol)) 
                 }
             })
         }

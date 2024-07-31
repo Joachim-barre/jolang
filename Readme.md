@@ -48,10 +48,6 @@ these builtin functions are currently available:
 | --      | --        | --                                               |
 | print   | 1         | print a variable to stdout                       |
 | input   | 0         | read a variable from stdin                       |
-| sqrt    | 1         | square root                                      |
-| sin     | 1         | sine of the argument                             |
-| cos     | 1         | cosine of the argument                           |
-| tan     | 1         | tangent of the argument                          |
 | pow     | 2         | first argument to the power of the second        |
 | randint | 2         | generate a random interger between arg1 and arg2 |
 

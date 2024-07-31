@@ -1,36 +1,8 @@
 # Jolang
 
 A jit interpreted language created by joachim barre
-
-it is based on a set of basic instruction an use a single register and a memory tape that as an initial state and size define in the object<br> 
-numbers are currently 64 bits<br>
-jumps can jump to label that aren't encountered yet<br>
-the first tape value should be the main label address<br>
-jump indexes start at zero but the index 0 is a jump to the first instruction of the program<br>
-jumps default to main block if out of range<br>
-
-## instruction set
-
-currently the language is composed of ten instructions :
-
-| id | symbol | decription                                                                                                   |
-| -- | --     | --                                                                                                           |                         
-| 0  | <      | move the memory tape backward                                                                                |
-| 1  | >      | move the memory tape forward                                                                                 |
-| 2  | L      | load a value from the tape into the register                                                                 |
-| 3  | S      | store what in the rengister into the current memory tape entry                                               |
-| 4  | +      | add the current value on the memory tape to the register                                                     |
-| 5  | -      | subtract the current value on the memory tape from the register                                              |
-| 6  | *      | multiply the current register value by the current memory tape value                                         |
-| 7  | /      | divide the current register value by the current memory tape value                                           |
-| 8  | P      | print the register value to stdout                                                                           |
-| 9  | [      | label : set a jump label their index is simply their order in the source code                                | 
-| 10 | ]      | jumps to the label who is at the index stored in the current memory tape value                               |
-| 11 | }      | does the same as the ] instruction if the current register value is 0                                        |
-| 12 | E      | exit program with the exit code contained in the register                                                    |
-| 13 | I      | increase the register value by 1                                                                             |
-| 14 | D      | decrease register value by 1                                                                                 |
-| 15 | C      | compare reg to the current tape value and if equal set the register to 0 if greater to 1 and if lesser to -1 |
+ 
+all variables are 64-bit integer<br>
 
 ## file formats
 
@@ -41,73 +13,47 @@ currently the language is composed of ten instructions :
 
 ## syntax
 
-current source file are composed of :<br> 
-a number indicating the tape size<br>
-a number indicating the default value for the numbers on the tape<br>
-then two sections that starts by .SESSION_NAME:<br>
-    - TEXT that store the code<br>
-    - DATA that store default value of the first tape entries<br>
-the TEXT section should only contain instruction symbols or whitespace<br>
-any line begining by a # is ignored<br>
-the DATA section contain one number per line<br> 
+### TODO better documentation
 
-like so : 
+a source file currently looks like that: <br>
 ```
-# calculate the first 10 numbers in the fibonnatchi sequence
-7
-1
-.DATA
-# jump table
-0
-1
-2
-# quantity of numbers to calulate
-10
-# progress counter (count how many numbers we have already calculated)
-0
-.TEXT
-# main block index : 0 
->
-# print one two times as it's the first 
-LPP
-# main loop index : 1
-[
->>>>>
-#load last calulated number
-L 
-# calulate a number in the sequence
-<+SP
-# increase number progress counter
-<LIS
-# check if the program should exit
-<C<}
-# load the number that was calculated before
->>>L
-# calculate the next number
->+SP
-# increase progress couter
-<<LIS
-# check if the program should exit
-<C<}
-# loop back to the start of the loop
-<]
-# exit block index 2
-[
-# set M to zero
-L-
-E
+// this is a line comment
+/* block comment*/
+builtin_function(arg1, arg2); // call to a builtin function
+var varible; // variable declaration default value is zero
+varible = input(); // variable assigment
+if (varible == sqrt(4)) { // if statement
+    print(variable); 
+} else {
+    return 1;
+}
+var i = 0;
+while(i <= 4) {
+    i = i + 1;
+    print(i*i);
+}
+loop {
+    var v = input();
+    print(v-1);
+}
 ```
+
+these builtin functions are currently available: 
+| name    | arg count | description                                      |
+| --      | --        | --                                               |
+| print   | 1         | print a variable to stdout                       |
+| input   | 0         | read a variable from stdin                       |
+| sqrt    | 1         | square root                                      |
+| sin     | 1         | sine of the argument                             |
+| cos     | 1         | cosine of the argument                           |
+| tan     | 1         | tangent of the argument                          |
+| pow     | 2         | first argument to the power of the second        |
+| randint | 2         | generate a random interger between arg1 and arg2 |
 
 ## binary object format
 
 the generated binary object follow this format
 
 - an header composed of four bytes to indicate that it is the binary format that can be executed that is "\0JOO"
-- 8-bytes indicating the position of the main block in the jump table
-- 8-bytes indicating the size of the jump table
-- for each entry in the jump table : 8-bytes address of the first instruction
-- 8-bytes indicating the size of the data section ( and by extention the size of the tape )
-- for each tape value : a i64
-- 8-bytes indication the text section lenght
-- for each instruction : an u8 (instruction id)
+### TODO binary format
 

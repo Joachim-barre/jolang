@@ -1,3 +1,4 @@
+
 Program = { SOI ~ Stmt* ~ EOI }
 
 SEMICOLON = _{ ";" }
@@ -13,7 +14,7 @@ Stmt = {
   | If
   | While
   | Loop
-  | ((Return | Decl | Call | SetVar) ~ SEMICOLON)
+  | ((Return | Break | Continue | Decl | Call | SetVar) ~ SEMICOLON)
 }
 
 Block = {
@@ -34,6 +35,14 @@ Loop = {
 
 Return = {
     "return " ~ Expr
+}
+
+Break = {
+	"break"
+}
+
+Continue = {
+	"continue"
 }
 
 Ident = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }

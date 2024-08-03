@@ -98,3 +98,37 @@ impl Lexer {
 pub struct LexerTokens<'a> {
     lexer : &'a mut Lexer
 }
+
+impl<'a> Iterator for LexerTokens<'a> {
+    type Item = Result<Token<'a>, CompilerError>;
+   
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut current_char = self.lexer.peek_char()?;
+        // ignore whitespace
+        while current_char.is_whitespace() {
+            current_char = self.lexer.next_char()?;
+        }
+        let current_pos = self.lexer.pos;
+        // test for single char tokens
+        if let Some(k) = match current_char {
+                '{' => Some(TokenKind::LCurly),
+                '}' => Some(TokenKind::RCurly),
+                '(' => Some(TokenKind::LParan),
+                ')' => Some(TokenKind::RParan),
+                ';' => Some(TokenKind::Semicolon),
+                '+' => Some(TokenKind::Plus),
+                '*' => Some(TokenKind::Times),
+                '/' => Some(TokenKind::Divider),
+                '-' => Some(TokenKind::Minus),
+                ',' => Some(TokenKind::Comma),
+                _ => None
+            }
+        {
+            self.lexer.next_char();
+            return Some(Ok(Token{
+                kind : k,
+                span : SourceSpan::at(&self.lexer.source, current_pos, self.lexer.pos)
+            }))
+        }
+    }
+}

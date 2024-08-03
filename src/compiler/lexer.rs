@@ -20,7 +20,6 @@ pub enum TokenKind {
     LShift,
     RShift,
     Comma,
-    EOF,
     Keyword(KeywordType),
     Ident
 }

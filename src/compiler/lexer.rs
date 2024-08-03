@@ -47,6 +47,17 @@ pub struct Lexer {
 }
 
 impl Lexer {
+    pub fn new(source : SourceBuffer) -> Self {
+        Lexer {
+            source,
+            pos : SourcePos {
+                index : 0,
+                line : 0,
+                collumn : 0
+            }
+        }
+    }
+
     fn peek_char(&self) -> Option<char> {
         // TODO optimize
         self.source.buffer.chars().nth(self.pos.index)

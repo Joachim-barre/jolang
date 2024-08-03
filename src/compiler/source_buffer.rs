@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::fs::read_to_string;
 use anyhow::Error;
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Copy, Clone)]
 pub struct SourcePos {
     pub index : usize,
     pub line : usize,

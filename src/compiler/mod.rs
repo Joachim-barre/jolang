@@ -1,24 +1,21 @@
 use clio::OutputPath;
-use std::fs::{File, OpenOptions};
-use std::io::Seek;
+use source_buffer::SourceBuffer;
+use std::fs::{read_to_string, File, OpenOptions};
 use anyhow::{anyhow, Result};
 use crate::cli::compile::CompileArgs;
-use crate::commons::object::Object;
-pub mod source_file;
-pub mod text_data;
+pub mod source_buffer;
 pub mod lexer;
 pub mod compiler_error;
-use text_data::TextData;
-use source_file::SourceFile;
+pub mod source_span;
 
 pub fn compile<'a>(args : CompileArgs) -> Result<()> {
     if !args.file.is_local() {
         return Err(anyhow!("please input a local file"))
     }
-    let file : File;
-    match OpenOptions::new().read(true).write(false).truncate(false).append(false).open(args.file.clone().as_os_str()) {
-        Ok(f) => {
-            file = f
+    let source : SourceBuffer;
+    match SourceBuffer::open(args.file.as_os_str().into()) {
+        Ok(s) => {
+            source = s
         }
         Err(_) => {
             return Err(anyhow!("can't open file"))
@@ -38,26 +35,6 @@ pub fn compile<'a>(args : CompileArgs) -> Result<()> {
             }
         }
     }
-    println!("building {} to {}...", args.file, object_file);
-    let mut source = SourceFile::from(file);
-    source.find_headers()?;
-    let _ = source.file.rewind();
-    let text = TextData::try_from(&source)?;
-    let _ = source.file.rewind();
-    let data = source.parse_data()?;
-    let object = Object::build(text, data)?;
-    let mut object_file = match OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .open(object_file.path().as_os_str()) {
-            Ok(f) => f,
-            Err(_) => {
-                return Err(anyhow!("failed to open object file"))
-            }
-    };
-    object.save(&mut object_file)?;
-    println!("success");
-    Ok(())
+    println!("building {} to {}...", &source.path.to_str().unwrap_or("error"), object_file);
+    todo!();
 }

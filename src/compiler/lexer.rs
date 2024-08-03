@@ -37,6 +37,6 @@ pub enum KeywordType {
 }
 
 pub struct Token<'a> {
-    kind : TokenKind,
-    span : SourceSpan<'a>
+    pub kind : TokenKind,
+    pub span : SourceSpan<'a>
 }

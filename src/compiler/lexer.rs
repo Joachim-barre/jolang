@@ -1,3 +1,5 @@
+use super::source_span::SourceSpan;
+
 pub enum TokenKind {
     LCurly,
     RCurly,
@@ -19,11 +21,11 @@ pub enum TokenKind {
     RShift,
     Comma,
     EOF,
-    Keyword(Keywords),
+    Keyword(KeywordType),
     Ident
 }
 
-pub enum Keywords {
+pub enum KeywordType {
     If,
     Else,
     While,
@@ -34,6 +36,7 @@ pub enum Keywords {
     Var
 }
 
-struct Token {
-
+pub struct Token<'a> {
+    kind : TokenKind,
+    span : SourceSpan<'a>
 }

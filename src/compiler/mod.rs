@@ -1,6 +1,5 @@
 use clio::OutputPath;
 use source_buffer::SourceBuffer;
-use std::fs::{read_to_string, File, OpenOptions};
 use anyhow::{anyhow, Result};
 use crate::cli::compile::CompileArgs;
 pub mod source_buffer;

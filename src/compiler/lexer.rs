@@ -1,4 +1,4 @@
-pub enum Tokens {
+pub enum TokenKind {
     LCurly,
     RCurly,
     LParan,

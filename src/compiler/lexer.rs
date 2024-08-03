@@ -87,4 +87,14 @@ impl Lexer {
             None
         }
     }
+
+    pub fn tokens(&mut self) -> LexerTokens {
+        LexerTokens {
+            lexer : self
+        }
+    }
+}
+
+pub struct LexerTokens<'a> {
+    lexer : &'a mut Lexer
 }

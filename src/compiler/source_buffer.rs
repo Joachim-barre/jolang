@@ -2,6 +2,12 @@ use std::path::PathBuf;
 use std::fs::read_to_string;
 use anyhow::Error;
 
+pub struct SourcePos {
+    pub index : usize,
+    pub line : usize,
+    pub collumn : usize,
+}
+
 pub struct SourceBuffer {
     pub path : PathBuf,
     pub buffer : String

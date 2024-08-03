@@ -24,4 +24,8 @@ impl SourceBuffer {
             Err(e) => Err(e.into())
         }
     }
+
+    pub fn get_line(&self, line : usize) -> Option<&str> {
+        self.buffer.lines().nth(line)
+    }
 }

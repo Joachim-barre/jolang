@@ -1,18 +1,18 @@
-use super::source_buffer::SourceBuffer;
+use super::source_buffer::{SourceBuffer, SourcePos};
 
 pub struct SourceSpan<'a> {
-    pub start : usize,
-    pub end : usize,
+    pub start : SourcePos,
+    pub end : SourcePos,
     pub data : &'a str,
     pub source : &'a SourceBuffer
 }
 
 impl SourceSpan<'_> {
-    pub fn at<'a> (source : &'a SourceBuffer, start : usize, end : usize) -> SourceSpan<'a> {
+    pub fn at<'a> (source : &'a SourceBuffer, start : SourcePos, end : SourcePos) -> SourceSpan<'a> {
         SourceSpan {
             start,
             end,
-            data : &source.buffer[start..end],
+            data : &source.buffer[start.index..end.index],
             source
         }
     }

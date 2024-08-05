@@ -101,16 +101,40 @@ pub struct LexerTokens<'a> {
 
 impl<'a> LexerTokens<'a> {
     /// ignore whitespaces
-    fn skip_whitespaces_and_commants(&mut self) -> Option<char>{
+    fn skip_whitespaces_and_commants(&mut self) -> Option<Result<char, CompilerError>>{
         let mut current_char = self.lexer.peek_char()?;
         while current_char.is_whitespace() || current_char == '/' {
             let pre_char = current_char;
             current_char = self.lexer.next_char()?;
             if pre_char == '/' {
                 if current_char == '*'  {
-                    current_char = self.lexer.next_char()?;   
-                    while current_char!='*' && self.lexer.next_char()? != '/'{
-                        current_char = self.lexer.next_char()?;
+                    let mut start_pos = self.lexer.pos;
+                    start_pos.collumn -= 1;
+                    let error = Some(Err(CompilerError::new(
+                            super::compiler_error::CompilerErrorKind::BadToken,
+                            format!("unterminated block comment").as_str(),
+                            self.lexer.source.path.to_str().unwrap(),
+                            self.lexer.source.get_line(start_pos.line).unwrap(), 
+                            start_pos.line as u32,
+                            start_pos.collumn as u32,
+                            None)));
+                    if let Some(mut current_char) = self.lexer.next_char(){
+                        if let Some(mut next_char) = self.lexer.next_char(){
+                            while current_char!='*' && next_char != '/'{
+                                if self.lexer.next_char() == None {
+                                    return error;
+                                }
+                                current_char = self.lexer.peek_char().unwrap();
+                                if self.lexer.next_char() == None {
+                                    return error;
+                                }
+                                next_char = self.lexer.peek_char().unwrap();
+                            }
+                        }else {
+                            return error
+                        }
+                    }else {
+                        return error; 
                     }
                     current_char = self.lexer.next_char()?;
                 }
@@ -123,11 +147,11 @@ impl<'a> LexerTokens<'a> {
                 }
             }
         }
-        return Some(current_char);
+        return Some(Ok(current_char));
     }
 
     /// read a span from the source file from the sgtart to the and of something that isn't a whitespace or comment
-    fn read_span(&'a mut self) -> Option<SourceSpan<'a>> {
+    fn read_span(&'a mut self) -> Option<Result<SourceSpan<'a>, CompilerError>> {
         self.skip_whitespaces_and_commants()?;
         let start_pos = self.lexer.pos;
         loop {

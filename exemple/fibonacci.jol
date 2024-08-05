@@ -50,4 +50,9 @@ loop {
         break;
     }
 }
+// test signed addition
+var test_signed_add = -1 + -2 * -1;
+if(test_signed_add != 1) {
+    return 4;
+}
 return 0;

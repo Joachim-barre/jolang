@@ -1,3 +1,6 @@
+mod builder;
+pub use builder::AstBuilder;
+
 type Ident = String;
 
 struct Program{

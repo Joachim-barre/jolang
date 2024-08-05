@@ -6,6 +6,7 @@ pub mod source_buffer;
 pub mod lexer;
 pub mod compiler_error;
 pub mod source_span;
+pub mod ast;
 
 pub fn compile<'a>(args : CompileArgs) -> Result<()> {
     if !args.file.is_local() {

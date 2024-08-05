@@ -99,15 +99,22 @@ pub struct LexerTokens<'a> {
     lexer : &'a mut Lexer
 }
 
+impl<'a> LexerTokens<'a> {
+    /// ignore whitespaces
+    fn ignore_whitespaces(&mut self) -> Option<char>{
+        let mut current_char = self.lexer.peek_char()?;
+        while current_char.is_whitespace() {
+            current_char = self.lexer.next_char()?;
+        }
+        return Some(current_char);
+    }
+}
+
 impl<'a> Iterator for LexerTokens<'a> {
     type Item = Result<Token<'a>, CompilerError>;
    
     fn next(&mut self) -> Option<Self::Item> {
-        let mut current_char = self.lexer.peek_char()?;
-        // ignore whitespace
-        while current_char.is_whitespace() {
-            current_char = self.lexer.next_char()?;
-        }
+        let mut current_char = self.ignore_whitespaces()?;
         let maybe_next_char = self.lexer.next_char();
         // ignore comments
         if current_char == '/' {

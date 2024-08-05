@@ -1,13 +1,13 @@
 mod builder;
 pub use builder::AstBuilder;
 
-type Ident = String;
+pub type Ident = String;
 
-struct Program{
+pub struct Program{
     statments : Vec<Statment>
 }
 
-enum Statment {
+pub enum Statment {
     Block(Vec<Statment>),
     /// (condition, then, else)
     If(Expr, Box<Statment>, Option<Box<Statment>>),
@@ -22,13 +22,13 @@ enum Statment {
     Call(Call)
 }
 
-enum Expr {
+pub enum Expr {
     BinExpr(Box<Expr>, Box<Expr>, BinOp),
     UnaryExpr(UnaryOp, Box<Expr>),
     PrimaryExpr(PrimaryExpr)
 }
 
-enum BinOp {
+pub enum BinOp {
     Add,
     Sub,
     Mul,
@@ -43,12 +43,12 @@ enum BinOp {
     RShift
 }
 
-enum UnaryOp {
+pub enum UnaryOp {
     Plus,
     Minus
 }
 
-enum PrimaryExpr {
+pub enum PrimaryExpr {
     Call(Call),
     Ident(Ident),
     Litteral(i64),
@@ -56,7 +56,7 @@ enum PrimaryExpr {
     Expr(Box<Expr>)
 }
 
-struct Call {
+pub struct Call {
     id : Ident,
     args : Vec<Expr>
 }

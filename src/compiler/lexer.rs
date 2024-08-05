@@ -125,6 +125,31 @@ impl<'a> LexerTokens<'a> {
         }
         return Some(current_char);
     }
+
+    /// read a span from the source file from the sgtart to the and of something that isn't a whitespace or comment
+    fn read_span(&'a mut self) -> Option<SourceSpan<'a>> {
+        self.skip_whitespaces_and_commants()?;
+        let start_pos = self.lexer.pos;
+        loop {
+            if let Some(mut c)=self.lexer.next_char(){
+                if c.is_whitespace() {
+                    break;
+                } else if c == '/' {
+                    let slash_pos = self.lexer.pos;
+                    c = self.lexer.next_char()?;
+                    if c == '*' || c == '/' {
+                        self.lexer.pos = slash_pos;
+                        break;
+                    }else {
+                        self.lexer.pos = slash_pos;
+                    }
+                }
+            }else {
+                break;
+            }
+        }
+        Some(SourceSpan::at(&self.lexer.source, start_pos, self.lexer.pos))
+    }
 }
 
 impl<'a> Iterator for LexerTokens<'a> {

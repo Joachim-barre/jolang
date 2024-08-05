@@ -206,6 +206,7 @@ impl<'a> Iterator for LexerTokens<'a> {
             {
                 let mut end_pos = current_span.start;
                 end_pos.collumn += 2;
+                end_pos.index += 2;
                 self.lexer.pos = end_pos;
                 return Some(Ok(Token{
                     kind : k,
@@ -234,6 +235,7 @@ impl<'a> Iterator for LexerTokens<'a> {
         {
             let mut end_pos = current_span.start;
             end_pos.collumn += 1;
+            end_pos.index += 1;
             self.lexer.pos = end_pos;
             return Some(Ok(Token{
                 kind : k,
@@ -251,6 +253,7 @@ impl<'a> Iterator for LexerTokens<'a> {
             }
             let mut end_pos = current_span.start;
             end_pos.collumn += end;
+            end_pos.index += end;
             self.lexer.pos = end_pos;
             let span = SourceSpan::at(current_span.source, current_span.start, end_pos);
             let kind =  match span.data {

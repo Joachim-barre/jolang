@@ -180,64 +180,13 @@ impl<'a> Iterator for LexerTokens<'a> {
     type Item = Result<Token<'a>, CompilerError>;
    
     fn next(&mut self) -> Option<Self::Item> {
-        let mut current_char = self.ignore_whitespaces()?;
-        let maybe_next_char = self.lexer.next_char();
-        // ignore comments
-        if current_char == '/' {
-            if let Some(next_char) = maybe_next_char {
-                if next_char == '/' {
-                    while self.lexer.next_char().map_or(false, |x| x!='\n') {}
-                    current_char = self.lexer.next_char()?;
-                    maybe_next_char = self.lexer.next_char();
-                }else if next_char == '*' {
-                    let start_pos = self.lexer.pos;
-                    start_pos.collumn -= 1;
-                    if let Some(c) = self.lexer.next_char(){
-                        current_char = c;
-                    }else {
-                        return Some(Err(CompilerError::new(
-                            super::compiler_error::CompilerErrorKind::BadToken,
-                            format!("unterminated block comment").as_str(),
-                            self.lexer.source.path.to_str().unwrap(),
-                            self.lexer.source.get_line(start_pos.line).unwrap(), 
-                            start_pos.line as u32,
-                            start_pos.collumn as u32,
-                            None)))
-                    }
-                    if let Some(c) = self.lexer.next_char(){
-                        next_char = c;
-                    }else {
-                        return Some(Err(CompilerError::new(
-                            super::compiler_error::CompilerErrorKind::BadToken,
-                            format!("unterminated block comment").as_str(),
-                            self.lexer.source.path.to_str().unwrap(),
-                            self.lexer.source.get_line(start_pos.line).unwrap(), 
-                            start_pos.line as u32,
-                            start_pos.collumn as u32,
-                            None)))
-                    }
-                    while current_char != '*' && next_char != '/' {
-                        if let Some(c) = self.lexer.next_char(){
-                            next_char = c;
-                        }else {
-                            return Some(Err(CompilerError::new(
-                                super::compiler_error::CompilerErrorKind::BadToken,
-                                format!("unterminated block comment").as_str(),
-                                self.lexer.source.path.to_str().unwrap(),
-                                self.lexer.source.get_line(start_pos.line).unwrap(), 
-                                start_pos.line as u32,
-                                start_pos.collumn as u32,
-                                None)))
-                        }
-                    }
-                    current_char = self.lexer.next_char()?;
-                    maybe_next_char = self.lexer.next_char();
-                }
-            }
-        }
-        let current_pos = self.lexer.pos;
+        let current_span = match self.read_span()? {
+            Ok(s) => s,
+            Err(e) => return Some(Err(e))
+        };
+
         // test for single char tokens
-        if let Some(k) = match current_char {
+        if let Some(k) = match current_span.data.chars().next()? {
                 '{' => Some(TokenKind::LCurly),
                 '}' => Some(TokenKind::RCurly),
                 '(' => Some(TokenKind::LParan),
@@ -253,7 +202,7 @@ impl<'a> Iterator for LexerTokens<'a> {
         {
             return Some(Ok(Token{
                 kind : k,
-                span : SourceSpan::at(&self.lexer.source, current_pos, self.lexer.pos)
+                span : SourceSpan::at(&self.source, current_pos, self.pos)
             }))
         }
     }

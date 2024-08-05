@@ -372,4 +372,24 @@ mod tests {
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));
     }
+
+    #[test]
+    fn test_two_char() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("== != >= <= << >> ")
+        };
+        let tokens = vec![         
+            TokenKind::DoubleEqual,
+            TokenKind::NotEqual,
+            TokenKind::GreaterEqual,
+            TokenKind::LesserEqual,
+            TokenKind::LShift,
+            TokenKind::RShift,
+        ];
+        let _ = Lexer::new(buf).tokens()
+            .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
+            .zip(tokens.iter())
+            .map(|(x,y)| assert_eq!(x, *y));
+    }
 }

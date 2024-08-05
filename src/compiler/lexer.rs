@@ -326,4 +326,26 @@ mod tests {
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));
     }
+
+    #[test]
+    fn test_keywords() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("if else while loop return break continue var ")
+        };
+        let keyword = vec![
+            TokenKind::Keyword(KeywordType::If),
+            TokenKind::Keyword(KeywordType::Else),
+            TokenKind::Keyword(KeywordType::While),
+            TokenKind::Keyword(KeywordType::Loop),
+            TokenKind::Keyword(KeywordType::Return),
+            TokenKind::Keyword(KeywordType::Break),
+            TokenKind::Keyword(KeywordType::Continue),
+            TokenKind::Keyword(KeywordType::Var)
+        ];
+        let _ = Lexer::new(buf).tokens()
+            .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
+            .zip(keyword.iter())
+            .map(|(x,y)| assert_eq!(x, *y));
+    }
 }

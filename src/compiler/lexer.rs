@@ -294,3 +294,36 @@ impl<'a> Iterator for LexerTokens<'a> {
                     None)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_single_char() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("{}();+*/-,=><")
+        };
+        let tokens = vec![
+            TokenKind::LCurly, 
+            TokenKind::RCurly, 
+            TokenKind::LParan, 
+            TokenKind::RParan, 
+            TokenKind::Semicolon, 
+            TokenKind::Plus, 
+            TokenKind::Times, 
+            TokenKind::Divider, 
+            TokenKind::Minus, 
+            TokenKind::Comma, 
+            TokenKind::Equal, 
+            TokenKind::Greater, 
+            TokenKind::Lesser
+        ];
+        let _ = Lexer::new(buf).tokens()
+            .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
+            .zip(tokens.iter())
+            .map(|(x,y)| assert_eq!(x, *y));
+    }
+}

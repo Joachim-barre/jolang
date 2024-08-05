@@ -348,4 +348,28 @@ mod tests {
             .zip(keyword.iter())
             .map(|(x,y)| assert_eq!(x, *y));
     }
+
+    #[test]
+    fn test_ident() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("_ll dqd /* sss */ ll6 ll_k_5 ssqdq 5ll 'l' lè ù")
+        };
+
+        let tokens = vec![
+            Some(TokenKind::Ident),
+            Some(TokenKind::Ident),
+            Some(TokenKind::Ident),
+            Some(TokenKind::Ident),
+            None,
+            None,
+            Some(TokenKind::Ident),
+            Some(TokenKind::Ident),
+        ];
+
+        let _ = Lexer::new(buf).tokens()
+            .map(|x| x.ok().map(|x| x.kind))
+            .zip(tokens.iter())
+            .map(|(x,y)| assert_eq!(x, *y));
+    }
 }

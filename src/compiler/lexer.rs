@@ -186,6 +186,29 @@ impl<'a> Iterator for LexerTokens<'a> {
             Err(e) => return Some(Err(e))
         };
 
+        if (current_span.start.index - current_span.end.index) > 1 {
+            // test for the two chars tokens
+            let string = current_span.data.get(..2).unwrap();
+            if let Some(k) = match string {
+                "==" => Some(TokenKind::DoubleEqual),
+                "!=" => Some(TokenKind::NotEqual),
+                ">=" => Some(TokenKind::GreaterEqual),
+                "<=" => Some(TokenKind::LesserEqual),
+                "<<" => Some(TokenKind::LShift),
+                ">>" => Some(TokenKind::RShift),
+                _ => None
+            }
+            {
+                let mut end_pos = current_span.start;
+                end_pos.collumn += 2;
+                self.lexer.pos = end_pos;
+                return Some(Ok(Token{
+                    kind : k,
+                    span : SourceSpan::at(current_span.source, current_span.start, end_pos)
+                }))
+            }
+        }
+
         // test for single char tokens
         if let Some(k) = match current_span.data.chars().next()? {
                 '{' => Some(TokenKind::LCurly),
@@ -198,6 +221,9 @@ impl<'a> Iterator for LexerTokens<'a> {
                 '/' => Some(TokenKind::Divider),
                 '-' => Some(TokenKind::Minus),
                 ',' => Some(TokenKind::Comma),
+                '=' => Some(TokenKind::Equal),
+                '>' => Some(TokenKind::Greater),
+                '<' => Some(TokenKind::Lesser),
                 _ => None
             }
         {
@@ -235,5 +261,14 @@ impl<'a> Iterator for LexerTokens<'a> {
             };
             return Some(Ok(Token { kind, span } ))
         }
+        
+        return Some(Err(CompilerError::new(
+                    super::compiler_error::CompilerErrorKind::BadToken,
+                    format!("bad token : {}", current_span.data).as_str(),
+                    self.lexer.source.path.to_str().unwrap(),
+                    self.lexer.source.get_line(current_span.start.line).unwrap(), 
+                    current_span.start.line as u32,
+                    current_span.start.collumn as u32,
+                    None)))
     }
 }

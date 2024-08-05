@@ -53,8 +53,8 @@ impl Lexer {
             source,
             pos : SourcePos {
                 index : 0,
-                line : 0,
-                collumn : 0
+                line : 1,
+                collumn : 1
             }
         }
     }

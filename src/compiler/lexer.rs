@@ -172,7 +172,7 @@ impl<'a> LexerTokens<'a> {
                 break;
             }
         }
-        Some(SourceSpan::at(&self.lexer.source, start_pos, self.lexer.pos))
+        Some(Ok(SourceSpan::at(&self.lexer.source, start_pos, self.lexer.pos)))
     }
 }
 

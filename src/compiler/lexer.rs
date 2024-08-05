@@ -22,7 +22,8 @@ pub enum TokenKind {
     RShift,
     Comma,
     Keyword(KeywordType),
-    Ident
+    Ident,
+    Int
 }
 
 #[derive(Debug)]
@@ -187,6 +188,22 @@ impl<'a> Iterator for LexerTokens<'a> {
             Ok(s) => s,
             Err(e) => return Some(Err(e))
         };
+
+        // test for integer litteral
+        if current_span.data.chars().next()?.is_ascii_digit() {
+            let mut end = 1;
+            let mut current_char = current_span.data.chars().nth(end);
+            while current_char.is_some() && (current_char?.is_ascii_digit()) {
+                end += 1;
+                current_char = current_span.data.chars().nth(end);
+            }
+            let mut end_pos = current_span.start;
+            end_pos.collumn += end;
+            end_pos.index += end;
+            self.lexer.pos = end_pos;
+            let span = SourceSpan::at(current_span.source, current_span.start, end_pos);
+            return Some(Ok(Token { kind : TokenKind::Int, span } ))
+        }
 
         if (current_span.end.index - current_span.start.index) > 1 {
             // test for the two chars tokens

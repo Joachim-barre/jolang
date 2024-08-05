@@ -151,7 +151,7 @@ impl<'a> LexerTokens<'a> {
     }
 
     /// read a span from the source file from the sgtart to the and of something that isn't a whitespace or comment
-    fn read_span(&'a mut self) -> Option<Result<SourceSpan<'a>, CompilerError>> {
+    fn read_span(&mut self) -> Option<Result<SourceSpan<'a>, CompilerError>> {
         self.skip_whitespaces_and_commants()?;
         let start_pos = self.lexer.pos;
         loop {
@@ -172,7 +172,8 @@ impl<'a> LexerTokens<'a> {
                 break;
             }
         }
-        Some(Ok(SourceSpan::at(&self.lexer.source, start_pos, self.lexer.pos)))
+        // unsafe because the rust compile doesn't want to compile this otherwise
+        Some(Ok(SourceSpan::at(unsafe { std::mem::transmute(&self.lexer.source)}, start_pos, self.lexer.pos)))
     }
 }
 
@@ -200,9 +201,11 @@ impl<'a> Iterator for LexerTokens<'a> {
                 _ => None
             }
         {
+            let mut end_pos = current_span.start;
+            end_pos.collumn += 1;
             return Some(Ok(Token{
                 kind : k,
-                span : SourceSpan::at(&self.source, current_pos, self.pos)
+                span : SourceSpan::at(current_span.source, current_span.start, end_pos)
             }))
         }
     }

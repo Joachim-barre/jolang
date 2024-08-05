@@ -1,6 +1,6 @@
 use super::{compiler_error::CompilerError, source_buffer::{SourceBuffer, SourcePos}, source_span::SourceSpan};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum TokenKind {
     LCurly,
     RCurly,
@@ -26,7 +26,7 @@ pub enum TokenKind {
     Int
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum KeywordType {
     If,
     Else,

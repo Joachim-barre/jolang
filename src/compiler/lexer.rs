@@ -203,6 +203,7 @@ impl<'a> Iterator for LexerTokens<'a> {
         {
             let mut end_pos = current_span.start;
             end_pos.collumn += 1;
+            self.lexer.pos = end_pos;
             return Some(Ok(Token{
                 kind : k,
                 span : SourceSpan::at(current_span.source, current_span.start, end_pos)
@@ -219,6 +220,7 @@ impl<'a> Iterator for LexerTokens<'a> {
             }
             let mut end_pos = current_span.start;
             end_pos.collumn += end;
+            self.lexer.pos = end_pos;
             let span = SourceSpan::at(current_span.source, current_span.start, end_pos);
             let kind =  match span.data {
                 "if" => TokenKind::Keyword(KeywordType::If),

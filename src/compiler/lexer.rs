@@ -77,7 +77,7 @@ impl Lexer {
                 },
                 '\n' => {
                     self.pos.line += 1;
-                    self.pos.collumn = 0;
+                    self.pos.collumn = 1;
                     Some(c)
                 },
                 _ => {

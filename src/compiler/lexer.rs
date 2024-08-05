@@ -188,7 +188,7 @@ impl<'a> Iterator for LexerTokens<'a> {
             Err(e) => return Some(Err(e))
         };
 
-        if (current_span.start.index - current_span.end.index) > 1 {
+        if (current_span.end.index - current_span.start.index) > 1 {
             // test for the two chars tokens
             let string = current_span.data.get(..2).unwrap();
             if let Some(k) = match string {

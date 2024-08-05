@@ -208,5 +208,30 @@ impl<'a> Iterator for LexerTokens<'a> {
                 span : SourceSpan::at(current_span.source, current_span.start, end_pos)
             }))
         }
+
+        // test for ident
+        if current_span.data.chars().next()?.is_alphabetic() || current_span.data.chars().next()? == '_' {
+            let mut end = 1;
+            let mut current_char = current_span.data.chars().nth(end);
+            while current_char.is_some() && (current_char?.is_alphanumeric() || current_char? == '_') {
+                end += 1;
+                current_char = current_span.data.chars().nth(end);
+            }
+            let mut end_pos = current_span.start;
+            end_pos.collumn += end;
+            let span = SourceSpan::at(current_span.source, current_span.start, end_pos);
+            let kind =  match span.data {
+                "if" => TokenKind::Keyword(KeywordType::If),
+                "else" => TokenKind::Keyword(KeywordType::Else),
+                "while" => TokenKind::Keyword(KeywordType::While),
+                "loop" => TokenKind::Keyword(KeywordType::Loop),
+                "return" => TokenKind::Keyword(KeywordType::Return),
+                "break" => TokenKind::Keyword(KeywordType::Break),
+                "continue" => TokenKind::Keyword(KeywordType::Continue),
+                "var" => TokenKind::Keyword(KeywordType::Var),
+                _ => TokenKind::Ident
+            };
+            return Some(Ok(Token { kind, span } ))
+        }
     }
 }

@@ -152,7 +152,7 @@ impl<'a> LexerTokens<'a> {
 
     /// read a span from the source file from the sgtart to the and of something that isn't a whitespace or comment
     fn read_span(&mut self) -> Option<Result<SourceSpan<'a>, CompilerError>> {
-        self.skip_whitespaces_and_commants()?;
+        let _ = self.skip_whitespaces_and_commants()?;
         let start_pos = self.lexer.pos;
         loop {
             if let Some(mut c)=self.lexer.next_char(){

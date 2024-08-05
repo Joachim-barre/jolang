@@ -101,10 +101,27 @@ pub struct LexerTokens<'a> {
 
 impl<'a> LexerTokens<'a> {
     /// ignore whitespaces
-    fn ignore_whitespaces(&mut self) -> Option<char>{
+    fn skip_whitespaces_and_commants(&mut self) -> Option<char>{
         let mut current_char = self.lexer.peek_char()?;
-        while current_char.is_whitespace() {
+        while current_char.is_whitespace() || current_char == '/' {
+            let pre_char = current_char;
             current_char = self.lexer.next_char()?;
+            if pre_char == '/' {
+                if current_char == '*'  {
+                    current_char = self.lexer.next_char()?;   
+                    while current_char!='*' && self.lexer.next_char()? != '/'{
+                        current_char = self.lexer.next_char()?;
+                    }
+                    current_char = self.lexer.next_char()?;
+                }
+                if current_char == '/' {
+                    current_char = self.lexer.next_char()?;
+                    while current_char != '\n' {
+                        current_char = self.lexer.next_char()?;
+                    }
+                    current_char = self.lexer.next_char()?;
+                }
+            }
         }
         return Some(current_char);
     }

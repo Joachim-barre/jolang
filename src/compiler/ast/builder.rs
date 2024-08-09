@@ -16,3 +16,24 @@ impl<'a> From<&'a mut Lexer> for AstBuilder<'a> {
         }
     }
 }
+
+impl<'a> AstBuilder<'a> {
+    pub fn parse_program(&mut self) -> Result<Program, CompilerError>{
+        let mut statments : Vec<Statement>= vec![];
+        while self.tokens.next().is_some() {
+            statments.push(parse_statment());
+        }
+        if statments.len() == 0 {
+            return Err(CompilerError::new(
+                CompilerErrorKind::Expected,
+                "expected stament",
+                self.source.borrow().path.to_str().unwrap(),
+                "",
+                0,
+                0,
+                None
+            ))
+        }
+        Ok(Program ( statments ))
+    }
+}

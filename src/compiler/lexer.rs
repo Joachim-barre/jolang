@@ -177,7 +177,7 @@ impl<'a> LexerTokens<'a> {
             }
         }
         // unsafe because the rust compile doesn't want to compile this otherwise
-        Some(Ok(SourceSpan::at(unsafe { std::mem::transmute(&self.lexer.source)}, start_pos, self.lexer.pos)))
+        Some(Ok(SourceSpan::at(unsafe { std::mem::transmute(&*self.lexer.source.borrow())}, start_pos, self.lexer.pos)))
     }
 }
 

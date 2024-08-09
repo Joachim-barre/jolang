@@ -3,9 +3,7 @@ pub use builder::AstBuilder;
 
 pub type Ident = String;
 
-pub struct Program{
-    statments : Vec<Statment>
-}
+pub struct Program (Vec<Statment>);
 
 pub enum Statment {
     Block(Vec<Statment>),
@@ -56,7 +54,4 @@ pub enum PrimaryExpr {
     Expr(Box<Expr>)
 }
 
-pub struct Call {
-    id : Ident,
-    args : Vec<Expr>
-}
+pub struct Call (Ident,Vec<Expr>);

@@ -36,4 +36,22 @@ impl<'a> AstBuilder<'a> {
         }
         Ok(Program ( statments ))
     }
+
+    pub fn parse_statment(&mut self) -> Result<Statement, CompilerError>{
+        let first_token = &self.tokens.peek().unwrap();
+        if let Err(e) = first_token {
+            return Err((*e).clone())
+        }
+        let first_token = first_token.as_ref().unwrap();
+        match first_token.kind {
+            _ => Err(CompilerError::new(
+                    CompilerErrorKind::UnexpectedToken,
+                    "Unexpected token",
+                    self.source.borrow().path.to_str().unwrap(),
+                    self.source.borrow().get_line(first_token.span.start.line).unwrap(),
+                    first_token.span.start.line as u32,
+                    first_token.span.start.collumn as u32,
+                    None))
+        }
+    }
 }

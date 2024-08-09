@@ -23,7 +23,7 @@ macro_rules! enum_str {
 }
 
 enum_str!{
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, PartialEq, Clone)]
     enum CompilerErrorKind {
         /// Unknown token
         BadToken,
@@ -35,7 +35,7 @@ enum_str!{
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CompilerError {
     kind : CompilerErrorKind,
     message : String,

@@ -1,3 +1,5 @@
+use ast::AstBuilder;
+use lexer::Lexer;
 use clio::OutputPath;
 use source_buffer::SourceBuffer;
 use anyhow::{anyhow, Result};
@@ -7,6 +9,7 @@ pub mod lexer;
 pub mod compiler_error;
 pub mod source_span;
 pub mod ast;
+use std::{cell::RefCell, rc::Rc};
 
 pub fn compile<'a>(args : CompileArgs) -> Result<()> {
     if !args.file.is_local() {
@@ -36,5 +39,9 @@ pub fn compile<'a>(args : CompileArgs) -> Result<()> {
         }
     }
     println!("building {} to {}...", &source.path.to_str().unwrap_or("error"), object_file);
+    match AstBuilder::from(&mut Lexer::new(Rc::new(RefCell::new(source)))).parse_program() {
+        Ok(p) => {dbg!(p); ()},
+        Err(e) => return Err(e.into())
+    }
     todo!();
 }

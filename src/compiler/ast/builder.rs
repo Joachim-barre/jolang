@@ -11,7 +11,6 @@ impl<'a> From<&'a mut Lexer> for AstBuilder<'a> {
     fn from(value: &'a mut Lexer) -> Self {
         let source = value.source.clone();
         Self {
-            tokens : value.tokens().peekable()
             tokens : value.tokens().peekable(),
             source 
         }

@@ -28,7 +28,7 @@ enum_str!{
         /// Unknown token
         BadToken,
         UnexpectedToken,
-        ExpectedSemicolon,
+        Expected,
         UnderlaredVariable,
         ReeclaretedVariable,
         UnknownFunction,

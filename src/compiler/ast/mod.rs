@@ -3,15 +3,15 @@ pub use builder::AstBuilder;
 
 pub type Ident = String;
 
-pub struct Program (Vec<Statment>);
+pub struct Program (Vec<Statement>);
 
-pub enum Statment {
-    Block(Vec<Statment>),
+pub enum Statement {
+    Block(Vec<Statement>),
     /// (condition, then, else)
-    If(Expr, Box<Statment>, Option<Box<Statment>>),
+    If(Expr, Box<Statement>, Option<Box<Statement>>),
     /// (condition, do)
-    While(Expr, Box<Statment>),
-    Loop(Box<Statment>),
+    While(Expr, Box<Statement>),
+    Loop(Box<Statement>),
     Return(Expr),
     Break,
     Continue,

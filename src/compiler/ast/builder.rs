@@ -21,7 +21,7 @@ impl<'a> AstBuilder<'a> {
     pub fn parse_program(&mut self) -> Result<Program, CompilerError>{
         let mut statments : Vec<Statement>= vec![];
         while self.tokens.next().is_some() {
-            statments.push(parse_statment());
+            statments.push(self.parse_statment()?);
         }
         if statments.len() == 0 {
             return Err(CompilerError::new(

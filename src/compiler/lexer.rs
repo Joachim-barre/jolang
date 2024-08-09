@@ -1,4 +1,5 @@
 use super::{compiler_error::CompilerError, source_buffer::{SourceBuffer, SourcePos}, source_span::SourceSpan};
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum TokenKind {
@@ -44,12 +45,12 @@ pub struct Token<'a> {
 }
 
 pub struct Lexer {
-    pub source : SourceBuffer,
+    pub source : Rc<RefCell<SourceBuffer>>,
     pub pos : SourcePos
 }
 
 impl Lexer {
-    pub fn new(source : SourceBuffer) -> Self {
+    pub fn new(source : Rc<RefCell<SourceBuffer>>) -> Self {
         Lexer {
             source,
             pos : SourcePos {
@@ -62,7 +63,7 @@ impl Lexer {
 
     fn peek_char(&self) -> Option<char> {
         // TODO optimize
-        self.source.buffer.chars().nth(self.pos.index)
+        self.source.borrow_mut().buffer.chars().nth(self.pos.index)
     }
 
     fn next_char(&mut self) -> Option<char> {
@@ -116,8 +117,8 @@ impl<'a> LexerTokens<'a> {
                     let error = Some(Err(CompilerError::new(
                             super::compiler_error::CompilerErrorKind::BadToken,
                             format!("unterminated block comment").as_str(),
-                            self.lexer.source.path.to_str().unwrap(),
-                            self.lexer.source.get_line(start_pos.line).unwrap(), 
+                            self.lexer.source.borrow().path.to_str().unwrap(),
+                            self.lexer.source.borrow().get_line(start_pos.line).unwrap(), 
                             start_pos.line as u32,
                             start_pos.collumn as u32,
                             None)));
@@ -287,8 +288,8 @@ impl<'a> Iterator for LexerTokens<'a> {
         return Some(Err(CompilerError::new(
                     super::compiler_error::CompilerErrorKind::BadToken,
                     format!("bad token : {}", current_span.data).as_str(),
-                    self.lexer.source.path.to_str().unwrap(),
-                    self.lexer.source.get_line(current_span.start.line).unwrap(), 
+                    self.lexer.source.borrow().path.to_str().unwrap(),
+                    self.lexer.source.borrow().get_line(current_span.start.line).unwrap(), 
                     current_span.start.line as u32,
                     current_span.start.collumn as u32,
                     None)))
@@ -321,7 +322,7 @@ mod tests {
             TokenKind::Greater, 
             TokenKind::Lesser
         ];
-        let _ = Lexer::new(buf).tokens()
+        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));
@@ -343,7 +344,7 @@ mod tests {
             TokenKind::Keyword(KeywordType::Continue),
             TokenKind::Keyword(KeywordType::Var)
         ];
-        let _ = Lexer::new(buf).tokens()
+        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
             .zip(keyword.iter())
             .map(|(x,y)| assert_eq!(x, *y));
@@ -367,7 +368,7 @@ mod tests {
             Some(TokenKind::Ident),
         ];
 
-        let _ = Lexer::new(buf).tokens()
+        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
             .map(|x| x.ok().map(|x| x.kind))
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));
@@ -387,7 +388,7 @@ mod tests {
             TokenKind::LShift,
             TokenKind::RShift,
         ];
-        let _ = Lexer::new(buf).tokens()
+        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));

@@ -92,9 +92,21 @@ impl<'a> AstBuilder<'a> {
             },
             TokenKind::Keyword(k) => match k {
                 KeywordType::If => {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                        return Err(self.expected("\"(\""))
+                    }
                     let cond = self.parse_expr()?;
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                        return Err(self.expected("\")\""))
+                    }
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("expr"))
+                    }
                     let then = Box::new(self.parse_statment()?);
-                    let _else = Some(Box::new(self.parse_statment()?));
+                    let mut _else = None;
+                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
+                        _else = Some(Box::new(self.parse_statment()?));
+                    }
                     Ok(Statement::If(cond, then, _else))
                 }
                 _ => todo!()

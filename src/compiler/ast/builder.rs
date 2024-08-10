@@ -1,4 +1,4 @@
-use crate::compiler::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{Lexer, LexerTokens, Token, TokenKind}, source_buffer::SourceBuffer};
+use crate::compiler::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, LexerTokens, Token, TokenKind}, source_buffer::SourceBuffer};
 use super::{Program, Statement};
 use std::{cell::RefCell, rc::Rc};
 
@@ -57,7 +57,7 @@ impl<'a> AstBuilder<'a> {
     pub fn parse_statment(&mut self) -> Result<Statement, CompilerError>{
         let first_token = self.peek_token();
         let first_token = first_token.as_ref().unwrap();
-        match first_token.kind {
+        match &first_token.kind {
             crate::compiler::lexer::TokenKind::LCurly  => {
                 let mut statements : Vec<Statement> = Vec::new();
                 loop {
@@ -78,6 +78,15 @@ impl<'a> AstBuilder<'a> {
                     statements.push(self.parse_statment()?)
                 }
                 Ok(Statement::Block(statements))
+            },
+            TokenKind::Keyword(k) => match k {
+                KeywordType::If => {
+                    let cond = self.parse_expr()?;
+                    let then = Box::new(self.parse_statment()?);
+                    let _else = Some(Box::new(self.parse_statment()?));
+                    Ok(Statement::If(cond, then, _else))
+                }
+                _ => todo!()
             }
             _ => Err(CompilerError::new(
                     CompilerErrorKind::UnexpectedToken,

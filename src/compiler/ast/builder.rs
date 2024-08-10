@@ -114,4 +114,8 @@ impl<'a> AstBuilder<'a> {
             _ => Err(self.unexpected(first_token, None))
         }
     }
+
+    pub fn parse_call(&mut self) -> Result<Call, CompilerError> {
+        todo!();
+    }
 }

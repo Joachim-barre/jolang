@@ -20,6 +20,32 @@ impl<'a> From<&'a mut Lexer> for AstBuilder<'a> {
 }
 
 impl<'a> AstBuilder<'a> {
+    pub fn unexpected(&self, token : &Token, name : Option<&str>) -> CompilerError {
+        let msg = match name {
+            Some(s) => format!("Unexpected token: {}", s),
+            None => "Unexpected token".to_string()
+        };
+        CompilerError::new(
+            CompilerErrorKind::UnexpectedToken,
+            msg.as_str(),
+            self.source.borrow().path.to_str().unwrap(),
+            self.source.borrow().get_line(token.span.start.line).unwrap(),
+            token.span.start.line as u32,
+            token.span.start.collumn as u32,
+            None)
+    }
+
+    pub fn expected(&self, name : &str) -> CompilerError {
+        CompilerError::new(
+            CompilerErrorKind::Expected,
+            format!("Expected : {}", name).as_str(),
+            self.source.borrow().path.to_str().unwrap(),
+            self.source.borrow().get_line(self.tokens.lexer.pos.line).unwrap(),
+            self.tokens.lexer.pos.line as u32,
+            self.tokens.lexer.pos.collumn as u32,
+            None)
+    }
+
     pub fn peek_token(&self) -> &Option<Token> {
         &self.current
     }
@@ -41,15 +67,7 @@ impl<'a> AstBuilder<'a> {
             statments.push(self.parse_statment()?);
         }
         if statments.len() == 0 {
-            return Err(CompilerError::new(
-                CompilerErrorKind::Expected,
-                "expected stament",
-                self.source.borrow().path.to_str().unwrap(),
-                "",
-                0,
-                0,
-                None
-            ))
+            return Err(self.expected("statement"))
         }
         Ok(Program ( statments ))
     }
@@ -63,14 +81,7 @@ impl<'a> AstBuilder<'a> {
                 loop {
                     let token = self.next_token()?;
                     if !token.is_some() {
-                        return Err(CompilerError::new(
-                            CompilerErrorKind::Expected,
-                            "expected token : }",
-                            self.source.borrow().path.to_str().unwrap(),
-                            self.source.borrow().get_line(self.tokens.lexer.pos.line).unwrap(),
-                            self.tokens.lexer.pos.line as u32,
-                            self.tokens.lexer.pos.collumn as u32,
-                            None))
+                        return Err(self.expected("\"}\""))
                     }
                     if token.as_ref().map(|x| x.kind == TokenKind::RCurly).unwrap() {
                         break;
@@ -88,14 +99,7 @@ impl<'a> AstBuilder<'a> {
                 }
                 _ => todo!()
             }
-            _ => Err(CompilerError::new(
-                    CompilerErrorKind::UnexpectedToken,
-                    "Unexpected token",
-                    self.source.borrow().path.to_str().unwrap(),
-                    self.source.borrow().get_line(first_token.span.start.line).unwrap(),
-                    first_token.span.start.line as u32,
-                    first_token.span.start.collumn as u32,
-                    None))
+            _ => Err(self.unexpected(first_token, None))
         }
     }
 }

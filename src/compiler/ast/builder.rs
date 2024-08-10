@@ -1,4 +1,4 @@
-use crate::compiler::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{Lexer, LexerTokens, Token}, source_buffer::SourceBuffer};
+use crate::compiler::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{Lexer, LexerTokens, Token, TokenKind}, source_buffer::SourceBuffer};
 use super::{Program, Statement};
 use std::{cell::RefCell, rc::Rc};
 
@@ -58,6 +58,27 @@ impl<'a> AstBuilder<'a> {
         let first_token = self.peek_token();
         let first_token = first_token.as_ref().unwrap();
         match first_token.kind {
+            crate::compiler::lexer::TokenKind::LCurly  => {
+                let mut statements : Vec<Statement> = Vec::new();
+                loop {
+                    let token = self.next_token()?;
+                    if !token.is_some() {
+                        return Err(CompilerError::new(
+                            CompilerErrorKind::Expected,
+                            "expected token : }",
+                            self.source.borrow().path.to_str().unwrap(),
+                            self.source.borrow().get_line(self.tokens.lexer.pos.line).unwrap(),
+                            self.tokens.lexer.pos.line as u32,
+                            self.tokens.lexer.pos.collumn as u32,
+                            None))
+                    }
+                    if token.as_ref().map(|x| x.kind == TokenKind::RCurly).unwrap() {
+                        break;
+                    }
+                    statements.push(self.parse_statment()?)
+                }
+                Ok(Statement::Block(statements))
+            }
             _ => Err(CompilerError::new(
                     CompilerErrorKind::UnexpectedToken,
                     "Unexpected token",

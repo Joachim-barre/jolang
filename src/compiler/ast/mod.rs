@@ -25,7 +25,7 @@ pub enum Statement {
 #[derive(Debug)]
 pub enum Expr {
     BinExpr(Box<Expr>, Box<Expr>, BinOp),
-    UnaryExpr(UnaryOp, Box<Expr>),
+    UnaryExpr(UnaryOp, PrimaryExpr),
     PrimaryExpr(PrimaryExpr)
 }
 

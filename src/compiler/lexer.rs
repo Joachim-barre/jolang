@@ -100,7 +100,7 @@ impl Lexer {
 }
 
 pub struct LexerTokens<'a> {
-    lexer : &'a mut Lexer
+    pub lexer : &'a mut Lexer
 }
 
 impl<'a> LexerTokens<'a> {

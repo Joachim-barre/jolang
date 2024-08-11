@@ -133,7 +133,23 @@ impl<'a> AstBuilder<'a> {
     }
 
     pub fn parse_call(&mut self) -> Result<Call, CompilerError> {
-        todo!();
+        let ident = Ident::from(self.peek_token().as_ref().unwrap().span.data); 
+            if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                return Err(self.expected("\"(\""))
+            }
+            if !self.next_token()?.is_none() {
+                return Err(self.expected("\")\""))
+            }
+            let mut args = vec![self.parse_expr()?];
+            loop {
+                if !self.next_token()?.is_none() {
+                    return Err(self.expected("\")\""))
+                }else if self.peek_token().as_ref().unwrap().kind == TokenKind::RParan {
+                    break;
+                }
+                args.push(self.parse_expr()?);
+            }
+            return Ok(Call(ident, args))
     }
 
     pub fn apply_precedence(&self, expr : Expr) -> Expr {

@@ -1,5 +1,6 @@
 use super::source_buffer::{SourceBuffer, SourcePos};
 
+#[derive(Clone)]
 pub struct SourceSpan<'a> {
     pub start : SourcePos,
     pub end : SourcePos,

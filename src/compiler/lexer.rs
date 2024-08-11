@@ -1,7 +1,7 @@
 use super::{compiler_error::CompilerError, source_buffer::{SourceBuffer, SourcePos}, source_span::SourceSpan};
 use std::{cell::RefCell, rc::Rc};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum TokenKind {
     LCurly,
     RCurly,
@@ -27,7 +27,7 @@ pub enum TokenKind {
     Int
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum KeywordType {
     If,
     Else,
@@ -39,6 +39,7 @@ pub enum KeywordType {
     Var
 }
 
+#[derive(Clone)]
 pub struct Token<'a> {
     pub kind : TokenKind,
     pub span : SourceSpan<'a>

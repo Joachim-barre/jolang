@@ -2,6 +2,27 @@ use super::{compiler_error::CompilerError, source_buffer::{SourceBuffer, SourceP
 use core::panic;
 use std::{cell::RefCell, rc::Rc};
 
+macro_rules! enum_str {
+    (
+     $(#[$meta:meta])*
+    pub enum $name:ident {
+        $($(#[$meta2:meta])? $variant:ident $(($data:ident))? $(= $val:expr)?),* $(,)?
+    }) => {
+        $(#[$meta])*
+        pub enum $name {
+            $( $(#[$meta2])* $variant $(($data))? $(= $val)?),*
+        }
+
+        impl $name {
+            pub fn to_str(&self) -> &'static str {
+                match self {
+                    $($name::$variant $(($data))? => stringify!($variant)),*
+                }
+            }
+        }
+    };
+}
+enum_str!(
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum TokenKind {
     LCurly,
@@ -26,7 +47,7 @@ pub enum TokenKind {
     Keyword(KeywordType),
     Ident,
     Int
-}
+});
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum KeywordType {

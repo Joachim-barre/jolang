@@ -20,14 +20,10 @@ impl<'a> From<&'a mut Lexer> for AstBuilder<'a> {
 }
 
 impl<'a> AstBuilder<'a> {
-    pub fn unexpected(&self, token : &Token, name : Option<&str>) -> CompilerError {
-        let msg = match name {
-            Some(s) => format!("Unexpected token: {}", s),
-            None => "Unexpected token".to_string()
-        };
+    pub fn unexpected(&self, token : &Token) -> CompilerError {
         CompilerError::new(
             CompilerErrorKind::UnexpectedToken,
-            msg.as_str(),
+            format!("Unexpected token: {}", token.kind.to_str()).as_str(),
             self.source.borrow().path.to_str().unwrap(),
             self.source.borrow().get_line(token.span.start.line).unwrap(),
             token.span.start.line as u32,
@@ -176,9 +172,9 @@ impl<'a> AstBuilder<'a> {
                     }
                     return Ok(Statement::VarDecl(ident, None))
                 },
-                _ => Err(self.unexpected(first_token, None))
+                _ => Err(self.unexpected(first_token))
             }
-            _ => Err(self.unexpected(first_token, None))
+            _ => Err(self.unexpected(first_token))
         }
     }
 
@@ -289,7 +285,7 @@ impl<'a> AstBuilder<'a> {
                         Ok(PrimaryExpr::Ident(ident))
                     }
                 },
-                _ => Err(self.unexpected(&token, None))
+                _ => Err(self.unexpected(&token))
             }?;
 
             _expr = Some(match unary_op {

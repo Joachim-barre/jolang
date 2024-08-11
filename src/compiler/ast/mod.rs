@@ -45,6 +45,25 @@ pub enum BinOp {
     RShift
 }
 
+impl BinOp {
+    pub fn precedence(&self) -> u8 {
+        match self {
+            Self::Add => 1,
+            Self::Sub => 1,
+            Self::Mul => 2,
+            Self::Div => 2,
+            Self::Equal => 0,
+            Self::NotEqual => 0,
+            Self::Greater => 0,
+            Self::GreaterEqual => 0,
+            Self::LesserEqual => 0,
+            Self::Lesser => 0,
+            Self::LShift => 0,
+            Self::RShift => 0,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum UnaryOp {
     Plus,

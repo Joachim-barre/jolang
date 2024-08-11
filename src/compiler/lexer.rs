@@ -1,4 +1,5 @@
 use super::{compiler_error::CompilerError, source_buffer::{SourceBuffer, SourcePos}, source_span::SourceSpan};
+use core::panic;
 use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -223,7 +224,6 @@ impl<'a> Iterator for LexerTokens<'a> {
                 let mut end_pos = current_span.start;
                 end_pos.collumn += 2;
                 end_pos.index += 2;
-                self.lexer.pos = end_pos;
                 return Some(Ok(Token{
                     kind : k,
                     span : SourceSpan::at(current_span.source, current_span.start, end_pos)
@@ -252,7 +252,6 @@ impl<'a> Iterator for LexerTokens<'a> {
             let mut end_pos = current_span.start;
             end_pos.collumn += 1;
             end_pos.index += 1;
-            self.lexer.pos = end_pos;
             return Some(Ok(Token{
                 kind : k,
                 span : SourceSpan::at(current_span.source, current_span.start, end_pos)

@@ -147,6 +147,18 @@ impl<'a> AstBuilder<'a> {
                     }
                     return Ok(Statement::Return(self.parse_expr()?));
 
+                },
+                KeywordType::Break => {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""))
+                    }
+                    return Ok(Statement::Break);
+                },
+                KeywordType::Continue => {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""))
+                    }
+                    return Ok(Statement::Continue);
                 }
                 _ => todo!()
             }

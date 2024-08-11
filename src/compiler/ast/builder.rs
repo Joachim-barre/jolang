@@ -119,6 +119,28 @@ impl<'a> AstBuilder<'a> {
         todo!();
     }
 
+    pub fn apply_precedence(&self, expr : Expr) -> Expr {
+        match expr {
+            // op1 is assumed to not be a bin op or to already match precedence
+            // op2 is assumed to alrdy have precedence checked
+            Expr::BinExpr(op1, op2, bin_op1) => {
+                match *op2 {
+                    Expr::BinExpr(op3, op4, bin_op2) => {
+                        let prec1 = bin_op1.precedence();
+                        let prec2 = bin_op2.precedence();
+
+                        if prec1 > prec2 {
+                            return Expr::BinExpr(Box::new(self.apply_precedence(Expr::BinExpr(op1, op3, bin_op1))), op4, bin_op2);
+                        }
+                        return Expr::BinExpr(op1, Box::new(Expr::BinExpr(op3, op4, bin_op2)), bin_op1)
+                    },
+                    _ => return Expr::BinExpr(op1, op2, bin_op1)
+                }
+            },
+            _ => return expr 
+        }
+    }
+
     #[allow(unused_assignments)]
     pub fn parse_expr(&mut self) -> Result<Expr, CompilerError> {
         let mut unary_op = None;

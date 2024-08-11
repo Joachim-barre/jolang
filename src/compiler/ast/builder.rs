@@ -159,8 +159,24 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("\";\""))
                     }
                     return Ok(Statement::Continue);
-                }
-                _ => todo!()
+                },
+                KeywordType::Var => {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Ident) {
+                        return Err(self.expected("identifier"))
+                    }
+                    let ident = Ident::from(self.peek_token().as_ref().unwrap().span.data); 
+                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                        if self.next_token()?.is_none() {
+                            return Err(self.expected("expression"))
+                        }
+                        let expr = self.parse_expr()?;
+                        return Ok(Statement::VarDecl(ident, Some(expr)));
+                    }else if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""))
+                    }
+                    return Ok(Statement::VarDecl(ident, None))
+                },
+                _ => Err(self.unexpected(first_token, None))
             }
             _ => Err(self.unexpected(first_token, None))
         }

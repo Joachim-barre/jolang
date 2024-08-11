@@ -108,7 +108,24 @@ impl<'a> AstBuilder<'a> {
                         _else = Some(Box::new(self.parse_statment()?));
                     }
                     Ok(Statement::If(cond, then, _else))
-                }
+                },
+                KeywordType::While => {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                        return Err(self.expected("\"(\""))
+                    }
+                    let cond = self.parse_expr()?;
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                        return Err(self.expected("\")\""))
+                    }
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("expr"))
+                    }
+                    let body = Box::new(self.parse_statment()?);
+                    return Ok(Statement::While(cond, body))
+                },
+                KeywordType::Loop => {
+                    return Ok(Statement::Loop(Box::new(self.parse_statment()?)));
+                },
                 _ => todo!()
             }
             _ => Err(self.unexpected(first_token, None))

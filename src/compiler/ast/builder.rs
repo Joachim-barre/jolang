@@ -142,6 +142,9 @@ impl<'a> AstBuilder<'a> {
                     if self.next_token()?.is_none() {
                         return Err(self.expected("expr"))
                     }
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""))
+                    }
                     return Ok(Statement::Return(self.parse_expr()?));
 
                 }

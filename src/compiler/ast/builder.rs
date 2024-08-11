@@ -118,4 +118,114 @@ impl<'a> AstBuilder<'a> {
     pub fn parse_call(&mut self) -> Result<Call, CompilerError> {
         todo!();
     }
+
+    #[allow(unused_assignments)]
+    pub fn parse_expr(&mut self) -> Result<Expr, CompilerError> {
+        let mut unary_op = None;
+        {
+            let token = self.peek_token().as_ref().unwrap();
+            // parse unary op
+            unary_op = match &token.kind {
+                TokenKind::Plus => Some(UnaryOp::Plus),
+                TokenKind::Minus => Some(UnaryOp::Minus),
+                _ => None
+            };
+
+            if unary_op.is_some() {
+                { 
+                    let _token = self.next_token()?;
+                    match _token {
+                        Some(_) => {},
+                        None => return Err(self.expected("expression"))
+                    }
+                }
+            }
+        }
+        let mut end_pos = SourcePos { line : 0, index : 0, collumn : 0};
+        let mut _expr = None;
+        {
+            let token = self.peek_token().as_ref().unwrap();
+            end_pos = token.span.end;
+            let start_pos = token.span.start;
+
+            // parse primary expression
+            let primary = match &token.kind {
+                TokenKind::Int => Ok(PrimaryExpr::Litteral(
+                    match FromStr::from_str(token.span.data) {
+                        Ok(i) => Ok(i),
+                        Err(_) => {
+                            return Err(CompilerError::new(
+                                CompilerErrorKind::BadToken,
+                                "cannot parse integer litteral",
+                                self.source.borrow().path.to_str().unwrap(),
+                                self.source.borrow().get_line(token.span.start.line).unwrap(),
+                                token.span.start.line as u32,
+                                token.span.start.collumn as u32,
+                                None))
+                        }
+                    }?
+                )),
+                TokenKind::LParan => {
+                        let sub_expr = self.parse_expr()?;
+                        if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                            return Err(self.expected("\")\""))
+                        }
+                        Ok(PrimaryExpr::Expr(Box::new(sub_expr)))
+                },
+                TokenKind::Ident => {
+                    let ident = Ident::from(token.span.data);
+                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                        self.tokens.lexer.pos = start_pos;
+                        Ok(PrimaryExpr::Call(self.parse_call()?))
+                    }else {
+                        self.tokens.lexer.pos = end_pos;
+                        Ok(PrimaryExpr::Ident(ident))
+                    }
+                },
+                _ => Err(self.unexpected(&token, None))
+            }?;
+
+            _expr = Some(match unary_op {
+                Some(op) => Expr::UnaryExpr(op, primary),
+                None => Expr::PrimaryExpr(primary)
+            });
+        }
+        let expr = _expr.unwrap();
+        let _token = self.next_token()?;
+        if _token.is_none() {
+            return Ok(expr)
+        }
+
+        let bin_op = match &_token.clone().unwrap().kind {
+            TokenKind::Plus => Some(BinOp::Add),
+            TokenKind::Minus => Some(BinOp::Sub),
+            TokenKind::Times => Some(BinOp::Mul),
+            TokenKind::Divider => Some(BinOp::Div),
+            TokenKind::DoubleEqual => Some(BinOp::Equal),
+            TokenKind::NotEqual => Some(BinOp::NotEqual),
+            TokenKind::Greater => Some(BinOp::Greater),
+            TokenKind::GreaterEqual => Some(BinOp::GreaterEqual),
+            TokenKind::LesserEqual => Some(BinOp::LesserEqual),
+            TokenKind::Lesser => Some(BinOp::Lesser),
+            TokenKind::LShift => Some(BinOp::LShift),
+            TokenKind::RShift => Some(BinOp::RShift),
+            _ => None
+        };
+
+        if bin_op.is_none() {
+            self.tokens.lexer.pos = end_pos;
+            return Ok(expr);
+        }
+
+        let bin_op = bin_op.unwrap();
+        
+        let _token = self.next_token()?;
+
+        if _token.is_none() {
+            return Err(self.expected("expr"))
+        }
+
+        let expr2 = self.parse_expr()?;
+        Ok(self.apply_precedence(Expr::BinExpr(Box::new(expr), Box::new(expr2), bin_op)))
+    }
 }

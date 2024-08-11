@@ -138,6 +138,13 @@ impl<'a> AstBuilder<'a> {
                     }
                     return Ok(Statement::Loop(Box::new(self.parse_statment()?)));
                 },
+                KeywordType::Return => {
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("expr"))
+                    }
+                    return Ok(Statement::Return(self.parse_expr()?));
+
+                }
                 _ => todo!()
             }
             _ => Err(self.unexpected(first_token, None))

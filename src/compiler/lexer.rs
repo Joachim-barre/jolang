@@ -1,5 +1,4 @@
 use super::{compiler_error::CompilerError, source_buffer::{SourceBuffer, SourcePos}, source_span::SourceSpan};
-use core::panic;
 use std::{cell::RefCell, rc::Rc};
 
 macro_rules! enum_str {
@@ -13,6 +12,7 @@ macro_rules! enum_str {
             $( $(#[$meta2])* $variant $(($data))? $(= $val)?),*
         }
 
+        #[allow(unused, non_snake_case)]
         impl $name {
             pub fn to_str(&self) -> &'static str {
                 match self {

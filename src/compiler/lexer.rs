@@ -188,18 +188,14 @@ impl<'a> Iterator for Lexer<'a> {
         }
 
         // test for ident
-        if current_span.data.chars().next()?.is_alphabetic() || current_span.data.chars().next()? == '_' {
-            let mut end = 1;
-            let mut current_char = current_span.data.chars().nth(end);
-            while current_char.is_some() && (current_char?.is_alphanumeric() || current_char? == '_') {
-                end += 1;
-                current_char = current_span.data.chars().nth(end);
+        if self.reader.peek_char()?.is_alphabetic() || self.reader.peek_char()? == '_' {
+            let start = self.reader.get_cursor().clone();
+            let mut size = 1;
+            while self.reader.peek_char().is_some() && (self.reader.peek_char()?.is_alphanumeric() || self.reader.peek_char()? == '_') {
+                self.reader.next_char();
+                size += 1;
             }
-            let mut end_pos = current_span.start;
-            end_pos.collumn += end;
-            end_pos.index += end;
-            self.lexer.pos = end_pos;
-            let span = SourceSpan::at(current_span.source, current_span.start, end_pos);
+            let span = SourceSpan::at(self.reader.source, start, size);
             let kind =  match span.data {
                 "if" => TokenKind::Keyword(KeywordType::If),
                 "else" => TokenKind::Keyword(KeywordType::Else),
@@ -216,11 +212,11 @@ impl<'a> Iterator for Lexer<'a> {
         
         return Some(Err(CompilerError::new(
                     super::compiler_error::CompilerErrorKind::BadToken,
-                    format!("bad token : {}", current_span.data).as_str(),
-                    self.lexer.source.borrow().path.to_str().unwrap(),
-                    self.lexer.source.borrow().get_line(current_span.start.line).unwrap(), 
-                    current_span.start.line as u32,
-                    current_span.start.collumn as u32,
+                    format!("bad token : {}", self.reader.peek_char()?).as_str(),
+                    self.reader.source.path.to_str().unwrap(),
+                    self.reader.source.get_line(self.reader.get_cursor().line).unwrap(), 
+                    self.reader.get_cursor().line as u32,
+                    self.reader.get_cursor().collumn as u32,
                     None)))
     }
 }

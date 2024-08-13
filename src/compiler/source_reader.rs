@@ -74,3 +74,9 @@ impl<'a> SourceReader<'a> {
         Some(SourceSpan::at(self.source, self.current_cursor, size))
     }
 }
+
+impl<'a> From<&'a SourceBuffer> for SourceReader<'a> {
+    fn from(value: &'a SourceBuffer) -> Self {
+        SourceReader::new(value)
+    }
+}

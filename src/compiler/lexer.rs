@@ -194,7 +194,7 @@ impl<'a> Iterator for Lexer<'a> {
                 self.reader.next_char();
                 size += 1;
             }
-            let span : SourceSpan<'a> = unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, start, size)) };
+            let span : SourceSpan<'a> = unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, start, size-1)) };
             let kind =  match span.data {
                 "if" => TokenKind::Keyword(KeywordType::If),
                 "else" => TokenKind::Keyword(KeywordType::Else),

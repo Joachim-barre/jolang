@@ -155,6 +155,8 @@ impl<'a> Iterator for Lexer<'a> {
                 _ => None
             }
             {
+            self.reader.next_char();
+            self.reader.next_char();
                 return Some(Ok(Token{
                     kind : k,
                     span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 2)) }
@@ -180,6 +182,7 @@ impl<'a> Iterator for Lexer<'a> {
                 _ => None
             }
         {
+            self.reader.next_char();
             return Some(Ok(Token{
                 kind : k,
                 span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 1)) }

@@ -226,6 +226,7 @@ impl<'a> Iterator for Lexer<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use core::panic;
     use std::path::PathBuf;
 
     #[test]
@@ -249,10 +250,10 @@ mod tests {
             TokenKind::Greater, 
             TokenKind::Lesser
         ];
-        let _ = Lexer::new(&buf)
+        let tokens2 : Vec<_> = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
-            .zip(tokens.iter())
-            .map(|(x,y)| assert_eq!(x, *y));
+            .collect();
+        assert_eq!(tokens2, tokens);
     }
 
     #[test]
@@ -271,10 +272,10 @@ mod tests {
             TokenKind::Keyword(KeywordType::Continue),
             TokenKind::Keyword(KeywordType::Var)
         ];
-        let _ = Lexer::new(&buf)
+        let tokens2 : Vec<_> = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
-            .zip(keyword.iter())
-            .map(|(x,y)| assert_eq!(x, *y));
+            .collect();
+        assert_eq!(tokens2, keyword);
     }
 
     #[test]
@@ -284,7 +285,7 @@ mod tests {
             buffer : String::from("_ll dqd /* sss */ ll6 ll_k_5 ssqdq 5ll 'l' lè ù")
         };
 
-        let tokens = vec![
+        let tokens : Vec<_> = vec![
             Some(TokenKind::Ident),
             Some(TokenKind::Ident),
             Some(TokenKind::Ident),
@@ -293,12 +294,14 @@ mod tests {
             None,
             Some(TokenKind::Ident),
             Some(TokenKind::Ident),
-        ];
+        ].iter().map(|x| (x.is_none(), x.clone().unwrap_or(TokenKind::Int)))
+            .collect();
 
-        let _ = Lexer::new(&buf)
-            .map(|x| x.ok().map(|x| x.kind))
-            .zip(tokens.iter())
-            .map(|(x,y)| assert_eq!(x, *y));
+        let tokens2 : Vec<_> = Lexer::new(&buf)
+            .map(|x| x.ok())
+            .map(|x| (x.is_none(), x.map_or(TokenKind::Int, |x| x.kind)))
+            .collect();
+        assert_eq!(tokens2, tokens);
     }
 
     #[test]
@@ -315,10 +318,10 @@ mod tests {
             TokenKind::LShift,
             TokenKind::RShift,
         ];
-        let _ = Lexer::new(&buf)
+        let tokens2 : Vec<_> = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
-            .zip(tokens.iter())
-            .map(|(x,y)| assert_eq!(x, *y));
+            .collect();
+        assert_eq!(tokens2, tokens);
     }
 
     #[test]
@@ -327,16 +330,18 @@ mod tests {
             path : PathBuf::from("test.jol"),
             buffer : String::from("я_не_говорю_по-русски 😄 私も彼らも日本語を話せません")
         };
-        let tokens = vec![
+        let tokens : Vec<_> = vec![
             Some(TokenKind::Ident),
             None,
             Some(TokenKind::Ident)
-        ];
+        ].iter().map(|x| (x.is_none(), x.clone().unwrap_or(TokenKind::Int)))
+            .collect();
 
-        let _ = Lexer::new(&buf)
-            .map(|x| x.ok().map(|x| x.kind))
-            .zip(tokens.iter())
-            .map(|(x,y)| assert_eq!(x, *y));
+        let tokens2 : Vec<_> = Lexer::new(&buf)
+            .map(|x| x.ok())
+            .map(|x| (x.is_none(), x.map_or(TokenKind::Int, |x| x.kind)))
+            .collect();
+        assert_eq!(tokens2, tokens);
     }
 
     #[test]
@@ -390,9 +395,9 @@ mod tests {
             TokenKind::Semicolon,
             TokenKind::RCurly
         ];
-        let _ = Lexer::new(&buf)
+        let tokens2 : Vec<_> = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
-            .zip(tokens.iter())
-            .map(|(x,y)| assert_eq!(x, *y));
+            .collect();
+        assert_eq!(tokens2, tokens);
     }
 }

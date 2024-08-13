@@ -1,4 +1,4 @@
-use super::{compiler_error::CompilerError, source_buffer::{SourceBuffer, SourcePos}, source_span::SourceSpan};
+use super::{compiler_error::CompilerError, source_buffer::SourceBuffer, source_reader::SourceReader, source_span::SourceSpan};
 use std::{cell::RefCell, rc::Rc};
 
 macro_rules! enum_str {
@@ -67,66 +67,17 @@ pub struct Token<'a> {
     pub span : SourceSpan<'a>
 }
 
-pub struct Lexer {
-    pub source : Rc<RefCell<SourceBuffer>>,
-    pub pos : SourcePos
+pub struct Lexer<'a> {
+    pub reader : SourceReader<'a>
 }
 
-impl Lexer {
-    pub fn new(source : Rc<RefCell<SourceBuffer>>) -> Self {
-        Lexer {
-            source,
-            pos : SourcePos {
-                index : 0,
-                line : 1,
-                collumn : 1
-            }
+impl<'a> Lexer<'a> {
+    pub fn new(source : &SourceBuffer) -> Self{
+        Self {
+            reader : SourceReader::from(source)
         }
     }
 
-    fn peek_char(&self) -> Option<char> {
-        // TODO optimize
-        self.source.borrow_mut().buffer.chars().nth(self.pos.index)
-    }
-
-    fn next_char(&mut self) -> Option<char> {
-        if self.peek_char() == None {
-            return None
-        }
-        self.pos.index += 1;
-        if let Some(c) = self.peek_char() {
-            match c {
-                // ignore cariage return
-                '\r' => {
-                    self.next_char()
-                },
-                '\n' => {
-                    self.pos.line += 1;
-                    self.pos.collumn = 0;
-                    Some(c)
-                },
-                _ => {
-                    self.pos.collumn += 1;
-                    Some(c)
-                }
-            }
-        }else {
-            None
-        }
-    }
-
-    pub fn tokens(&mut self) -> LexerTokens {
-        LexerTokens {
-            lexer : self
-        }
-    }
-}
-
-pub struct LexerTokens<'a> {
-    pub lexer : &'a mut Lexer
-}
-
-impl<'a> LexerTokens<'a> {
     /// ignore whitespaces
     fn skip_whitespaces_and_commants(&mut self) -> Option<Result<char, CompilerError>>{
         let mut current_char = self.lexer.peek_char()?;
@@ -204,7 +155,7 @@ impl<'a> LexerTokens<'a> {
     }
 }
 
-impl<'a> Iterator for LexerTokens<'a> {
+impl<'a> Iterator for Lexer<'a> {
     type Item = Result<Token<'a>, CompilerError>;
    
     fn next(&mut self) -> Option<Self::Item> {

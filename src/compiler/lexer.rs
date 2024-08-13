@@ -320,4 +320,79 @@ mod tests {
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));
     }
+
+    #[test]
+    fn test_unicode_ident() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("я_не_говорю_по-русски 😄 私も彼らも日本語を話せません")
+        };
+        let tokens = vec![
+            Some(TokenKind::Ident),
+            None,
+            Some(TokenKind::Ident)
+        ];
+
+        let _ = Lexer::new(&buf)
+            .map(|x| x.ok().map(|x| x.kind))
+            .zip(tokens.iter())
+            .map(|(x,y)| assert_eq!(x, *y));
+    }
+
+    #[test]
+    fn test_mixed_tokens() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("var _n = 0;// test commant\n _n = _n + 1; if (_n != 1) {return 0}\n /* a block comment\n// this is a comment in a comment and should do nothing\n*/ var test = 0; while (1) { test = input();\n print(test); } ")
+        };
+        let tokens = vec![         
+            TokenKind::Keyword(KeywordType::Var),
+            TokenKind::Ident,
+            TokenKind::Equal,
+            TokenKind::Int,
+            TokenKind::Semicolon,
+            TokenKind::Ident,
+            TokenKind::Equal,
+            TokenKind::Ident,
+            TokenKind::Plus,
+            TokenKind::Int,
+            TokenKind::Semicolon,
+            TokenKind::Keyword(KeywordType::If),
+            TokenKind::LParan,
+            TokenKind::Ident,
+            TokenKind::NotEqual,
+            TokenKind::Int,
+            TokenKind::RParan,
+            TokenKind::LCurly,
+            TokenKind::Keyword(KeywordType::Return),
+            TokenKind::Int,
+            TokenKind::RCurly,
+            TokenKind::Keyword(KeywordType::Var),
+            TokenKind::Ident,
+            TokenKind::Equal,
+            TokenKind::Int,
+            TokenKind::Semicolon,
+            TokenKind::Keyword(KeywordType::While),
+            TokenKind::LParan,
+            TokenKind::Int,
+            TokenKind::RParan,
+            TokenKind::LCurly,
+            TokenKind::Ident,
+            TokenKind::Equal,
+            TokenKind::Ident,
+            TokenKind::LParan,
+            TokenKind::RParan,
+            TokenKind::Semicolon,
+            TokenKind::Ident,
+            TokenKind::LParan,
+            TokenKind::Ident,
+            TokenKind::RParan,
+            TokenKind::Semicolon,
+            TokenKind::RCurly
+        ];
+        let _ = Lexer::new(&buf)
+            .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
+            .zip(tokens.iter())
+            .map(|(x,y)| assert_eq!(x, *y));
+    }
 }

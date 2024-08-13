@@ -1,6 +1,6 @@
 use super::{source_buffer::SourceBuffer, source_reader::SourceCursor};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SourceSpan<'a> {
     pub start : SourceCursor<'a>,
     pub size : usize,

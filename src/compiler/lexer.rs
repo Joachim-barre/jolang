@@ -72,7 +72,7 @@ pub struct Lexer<'a> {
 }
 
 impl<'a> Lexer<'a> {
-    pub fn new(source : &SourceBuffer) -> Self{
+    pub fn new(source : &'a SourceBuffer) -> Self{
         Self {
             reader : SourceReader::from(source)
         }

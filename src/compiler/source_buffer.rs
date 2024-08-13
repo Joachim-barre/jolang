@@ -14,6 +14,12 @@ pub struct SourceBuffer {
     pub buffer : String
 }
 
+impl std::fmt::Debug for SourceBuffer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.path)
+    }
+}
+
 impl SourceBuffer {
     pub fn open(path : PathBuf) -> Result<Self, Error>{
         match read_to_string(path.clone()) {

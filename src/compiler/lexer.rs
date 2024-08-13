@@ -137,6 +137,7 @@ impl<'a> Iterator for Lexer<'a> {
             self.reader.next_char();
             while self.reader.peek_char().is_some() && (self.reader.peek_char().unwrap().is_ascii_digit()) {
                 self.reader.next_char();
+                size += 1;
             }
             let span = SourceSpan::at(self.reader.source, start, size);
             return Some(Ok(Token { kind : TokenKind::Int, span } ))

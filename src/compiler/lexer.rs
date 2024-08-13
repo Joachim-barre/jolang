@@ -109,15 +109,15 @@ impl<'a> Lexer<'a> {
                         return error; 
                     }
                     current_char = self.reader.next_char()?;
-                    continue;
-                }
-                if current_char == '/' {
+                }else if current_char == '/' {
                     current_char = self.reader.next_char()?;
                     while current_char != '\n' {
                         current_char = self.reader.next_char()?;
                     }
                     current_char = self.reader.next_char()?;
                 }
+            }else {
+                current_char = self.reader.next_char()?
             }
         }
         return Some(Ok(current_char));

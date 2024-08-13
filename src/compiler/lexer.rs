@@ -80,33 +80,27 @@ impl<'a> Lexer<'a> {
 
     /// ignore whitespaces
     fn skip_whitespaces_and_commants(&mut self) -> Option<Result<char, CompilerError>>{
-        let mut current_char = self.lexer.peek_char()?;
+        let mut current_char = self.reader.peek_char()?;
         while current_char.is_whitespace() || current_char == '/' {
-            let pre_char = current_char;
-            current_char = self.lexer.next_char()?;
-            if pre_char == '/' {
-                if current_char == '*'  {
-                    let mut start_pos = self.lexer.pos;
-                    start_pos.collumn -= 1;
+            if current_char == '/' {
+                if self.reader.get_cursor().data_ref.chars().nth(1)? == '*'  {
                     let error = Some(Err(CompilerError::new(
                             super::compiler_error::CompilerErrorKind::BadToken,
                             format!("unterminated block comment").as_str(),
-                            self.lexer.source.borrow().path.to_str().unwrap(),
-                            self.lexer.source.borrow().get_line(start_pos.line).unwrap(), 
-                            start_pos.line as u32,
-                            start_pos.collumn as u32,
+                            self.reader.source.path.to_str().unwrap(),
+                            self.reader.source.get_line(self.reader.get_cursor().line).unwrap(), 
+                            self.reader.get_cursor().line as u32,
+                            self.reader.get_cursor().collumn as u32,
                             None)));
-                    if let Some(mut current_char) = self.lexer.next_char(){
-                        if let Some(mut next_char) = self.lexer.next_char(){
+                    let _ = self.reader.next_char();
+                    if let Some(mut current_char) = self.reader.next_char(){
+                        if let Some(mut next_char) = self.reader.next_char(){
                             while current_char!='*' && next_char != '/'{
-                                if self.lexer.next_char() == None {
+                                if self.reader.next_char() == None {
                                     return error;
                                 }
-                                current_char = self.lexer.peek_char().unwrap();
-                                if self.lexer.next_char() == None {
-                                    return error;
-                                }
-                                next_char = self.lexer.peek_char().unwrap();
+                                current_char = next_char;
+                                next_char = self.reader.peek_char().unwrap();
                             }
                         }else {
                             return error
@@ -114,14 +108,15 @@ impl<'a> Lexer<'a> {
                     }else {
                         return error; 
                     }
-                    current_char = self.lexer.next_char()?;
+                    current_char = self.reader.next_char()?;
+                    continue;
                 }
                 if current_char == '/' {
-                    current_char = self.lexer.next_char()?;
+                    current_char = self.reader.next_char()?;
                     while current_char != '\n' {
-                        current_char = self.lexer.next_char()?;
+                        current_char = self.reader.next_char()?;
                     }
-                    current_char = self.lexer.next_char()?;
+                    current_char = self.reader.next_char()?;
                 }
             }
         }

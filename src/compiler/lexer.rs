@@ -163,7 +163,7 @@ impl<'a> Iterator for Lexer<'a> {
         }
 
         // test for single char tokens
-        if let Some(k) = match current_span.data.chars().next()? {
+        if let Some(k) = match self.reader.peek_char()? {
                 '{' => Some(TokenKind::LCurly),
                 '}' => Some(TokenKind::RCurly),
                 '(' => Some(TokenKind::LParan),
@@ -180,13 +180,9 @@ impl<'a> Iterator for Lexer<'a> {
                 _ => None
             }
         {
-            let mut end_pos = current_span.start;
-            end_pos.collumn += 1;
-            end_pos.index += 1;
-            self.lexer.pos = end_pos;
             return Some(Ok(Token{
                 kind : k,
-                span : SourceSpan::at(current_span.source, current_span.start, end_pos)
+                span : SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 1)
             }))
         }
 

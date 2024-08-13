@@ -36,7 +36,7 @@ impl<'a> AstBuilder<'a> {
             CompilerErrorKind::Expected,
             format!("Expected : {}", name).as_str(),
             self.source.borrow().path.to_str().unwrap(),
-            self.source.borrow().get_line(self.tokens.lexer.pos.line-1).unwrap(),
+            self.source.borrow().get_line(self.tokens.lexer.pos.line).unwrap(),
             self.tokens.lexer.pos.line as u32,
             self.tokens.lexer.pos.collumn as u32,
             None)

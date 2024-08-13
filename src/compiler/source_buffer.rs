@@ -26,6 +26,6 @@ impl SourceBuffer {
     }
 
     pub fn get_line(&self, line : usize) -> Option<&str> {
-        self.buffer.lines().nth(line)
+        self.buffer.lines().nth(line-1)
     }
 }

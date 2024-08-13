@@ -249,7 +249,7 @@ mod tests {
             TokenKind::Greater, 
             TokenKind::Lesser
         ];
-        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
+        let _ = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));
@@ -271,7 +271,7 @@ mod tests {
             TokenKind::Keyword(KeywordType::Continue),
             TokenKind::Keyword(KeywordType::Var)
         ];
-        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
+        let _ = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
             .zip(keyword.iter())
             .map(|(x,y)| assert_eq!(x, *y));
@@ -295,7 +295,7 @@ mod tests {
             Some(TokenKind::Ident),
         ];
 
-        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
+        let _ = Lexer::new(&buf)
             .map(|x| x.ok().map(|x| x.kind))
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));
@@ -315,7 +315,7 @@ mod tests {
             TokenKind::LShift,
             TokenKind::RShift,
         ];
-        let _ = Lexer::new(Rc::new(RefCell::new(buf))).tokens()
+        let _ = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
             .zip(tokens.iter())
             .map(|(x,y)| assert_eq!(x, *y));

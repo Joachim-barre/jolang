@@ -9,7 +9,7 @@ pub struct SourceCursor<'a> {
 
 pub struct SourceReader<'a> {
     pub source : &'a SourceBuffer,
-    current_cursor : SourceCursor<'a>
+    pub current_cursor : SourceCursor<'a>
 }
 
 impl<'a> SourceReader<'a> {

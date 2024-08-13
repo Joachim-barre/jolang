@@ -127,32 +127,6 @@ impl<'a> Lexer<'a> {
         }
         return Some(Ok(current_char));
     }
-
-    /// read a span from the source file from the sgtart to the and of something that isn't a whitespace or comment
-    fn read_span(&mut self) -> Option<Result<SourceSpan<'a>, CompilerError>> {
-        let _ = self.skip_whitespaces_and_commants()?;
-        let start_pos = self.lexer.pos;
-        loop {
-            if let Some(mut c)=self.lexer.next_char(){
-                if c.is_whitespace() {
-                    break;
-                } else if c == '/' {
-                    let slash_pos = self.lexer.pos;
-                    c = self.lexer.next_char()?;
-                    if c == '*' || c == '/' {
-                        self.lexer.pos = slash_pos;
-                        break;
-                    }else {
-                        self.lexer.pos = slash_pos;
-                    }
-                }
-            }else {
-                break;
-            }
-        }
-        // unsafe because the rust compile doesn't want to compile this otherwise
-        Some(Ok(SourceSpan::at(unsafe { std::mem::transmute(&*self.lexer.source.borrow())}, start_pos, self.lexer.pos)))
-    }
 }
 
 impl<'a> Iterator for Lexer<'a> {

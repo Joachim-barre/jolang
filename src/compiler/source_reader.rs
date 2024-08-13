@@ -24,12 +24,12 @@ impl<'a> SourceReader<'a> {
         }
     }
 
-    fn peek_char(&self) -> Option<char> {
+    pub fn peek_char(&self) -> Option<char> {
         // TODO optimize
         self.current_cursor.data_ref.chars().nth(0)
     }
 
-    fn next_char(&mut self) -> Option<char> {
+    pub fn next_char(&mut self) -> Option<char> {
         let mut iter = self.current_cursor.data_ref.chars();
         iter.next();
         self.current_cursor = SourceCursor{

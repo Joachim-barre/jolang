@@ -133,7 +133,7 @@ impl<'a> Iterator for Lexer<'a> {
         if self.reader.peek_char().unwrap().is_ascii_digit() {
             let start = self.reader.get_cursor().clone();
             self.reader.next_char();
-            let size = 1;
+            let mut size = 1;
             self.reader.next_char();
             while self.reader.peek_char().is_some() && (self.reader.peek_char().unwrap().is_ascii_digit()) {
                 self.reader.next_char();

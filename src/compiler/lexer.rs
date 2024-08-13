@@ -142,9 +142,9 @@ impl<'a> Iterator for Lexer<'a> {
             return Some(Ok(Token { kind : TokenKind::Int, span } ))
         }
 
-        if (current_span.end.index - current_span.start.index) > 1 {
+        if self.reader.get_cursor().data_ref.chars().nth(1).is_some() {
             // test for the two chars tokens
-            let string = current_span.data.get(..2).unwrap();
+            let string = self.reader.get_cursor().data_ref.chars().take(2).collect::<String>().as_str();
             if let Some(k) = match string {
                 "==" => Some(TokenKind::DoubleEqual),
                 "!=" => Some(TokenKind::NotEqual),
@@ -155,13 +155,9 @@ impl<'a> Iterator for Lexer<'a> {
                 _ => None
             }
             {
-                let mut end_pos = current_span.start;
-                end_pos.collumn += 2;
-                end_pos.index += 2;
-                self.lexer.pos = end_pos;
                 return Some(Ok(Token{
                     kind : k,
-                    span : SourceSpan::at(current_span.source, current_span.start, end_pos)
+                    span : SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 2)
                 }))
             }
         }

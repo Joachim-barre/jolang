@@ -128,24 +128,17 @@ impl<'a> Iterator for Lexer<'a> {
     type Item = Result<Token<'a>, CompilerError>;
    
     fn next(&mut self) -> Option<Self::Item> {
-        let current_span = match self.read_span()? {
-            Ok(s) => s,
-            Err(e) => return Some(Err(e))
-        };
-
+        self.skip_whitespaces_and_commants()?;
         // test for integer litteral
-        if current_span.data.chars().next()?.is_ascii_digit() {
-            let mut end = 1;
-            let mut current_char = current_span.data.chars().nth(end);
-            while current_char.is_some() && (current_char?.is_ascii_digit()) {
-                end += 1;
-                current_char = current_span.data.chars().nth(end);
+        if self.reader.peek_char().unwrap().is_ascii_digit() {
+            let start = self.reader.get_cursor().clone();
+            self.reader.next_char();
+            let size = 1;
+            self.reader.next_char();
+            while self.reader.peek_char().is_some() && (self.reader.peek_char().unwrap().is_ascii_digit()) {
+                self.reader.next_char();
             }
-            let mut end_pos = current_span.start;
-            end_pos.collumn += end;
-            end_pos.index += end;
-            self.lexer.pos = end_pos;
-            let span = SourceSpan::at(current_span.source, current_span.start, end_pos);
+            let span = SourceSpan::at(self.reader.source, start, size);
             return Some(Ok(Token { kind : TokenKind::Int, span } ))
         }
 

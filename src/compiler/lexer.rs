@@ -134,19 +134,18 @@ impl<'a> Iterator for Lexer<'a> {
             let start = self.reader.get_cursor().clone();
             self.reader.next_char();
             let mut size = 1;
-            self.reader.next_char();
             while self.reader.peek_char().is_some() && (self.reader.peek_char().unwrap().is_ascii_digit()) {
                 self.reader.next_char();
                 size += 1;
             }
-            let span = SourceSpan::at(self.reader.source, start, size);
+            let span : SourceSpan<'a> = unsafe {std::mem::transmute(SourceSpan::at(self.reader.source, start, size)) };
             return Some(Ok(Token { kind : TokenKind::Int, span } ))
         }
 
         if self.reader.get_cursor().data_ref.chars().nth(1).is_some() {
             // test for the two chars tokens
-            let string = self.reader.get_cursor().data_ref.chars().take(2).collect::<String>().as_str();
-            if let Some(k) = match string {
+            let string = self.reader.get_cursor().data_ref.chars().take(2).collect::<String>();
+            if let Some(k) = match string.as_str() {
                 "==" => Some(TokenKind::DoubleEqual),
                 "!=" => Some(TokenKind::NotEqual),
                 ">=" => Some(TokenKind::GreaterEqual),
@@ -158,7 +157,7 @@ impl<'a> Iterator for Lexer<'a> {
             {
                 return Some(Ok(Token{
                     kind : k,
-                    span : SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 2)
+                    span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 2)) }
                 }))
             }
         }
@@ -183,7 +182,7 @@ impl<'a> Iterator for Lexer<'a> {
         {
             return Some(Ok(Token{
                 kind : k,
-                span : SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 1)
+                span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 1)) }
             }))
         }
 
@@ -195,7 +194,7 @@ impl<'a> Iterator for Lexer<'a> {
                 self.reader.next_char();
                 size += 1;
             }
-            let span = SourceSpan::at(self.reader.source, start, size);
+            let span : SourceSpan<'a> = unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, start, size)) };
             let kind =  match span.data {
                 "if" => TokenKind::Keyword(KeywordType::If),
                 "else" => TokenKind::Keyword(KeywordType::Else),

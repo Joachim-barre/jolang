@@ -131,7 +131,7 @@ impl<'a> Iterator for Lexer<'a> {
         self.skip_whitespaces_and_commants()?;
         // test for integer litteral
         if self.reader.peek_char().unwrap().is_ascii_digit() {
-            let start = self.reader.get_cursor().clone();
+            let start = self.reader.current_cursor;
             self.reader.next_char();
             let mut size = 1;
             while self.reader.peek_char().is_some() && (self.reader.peek_char().unwrap().is_ascii_digit()) {
@@ -188,7 +188,7 @@ impl<'a> Iterator for Lexer<'a> {
 
         // test for ident
         if self.reader.peek_char()?.is_alphabetic() || self.reader.peek_char()? == '_' {
-            let start = self.reader.get_cursor().clone();
+            let start = self.reader.current_cursor.clone();
             let mut size = 1;
             while self.reader.peek_char().is_some() && (self.reader.peek_char()?.is_alphanumeric() || self.reader.peek_char()? == '_') {
                 self.reader.next_char();

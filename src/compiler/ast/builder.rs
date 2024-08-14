@@ -92,7 +92,7 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("expr"))
                     }
                     let cond = self.parse_expr()?;
-                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
                     if self.next_token()?.is_none() {

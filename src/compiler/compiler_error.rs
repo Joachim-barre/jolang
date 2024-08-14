@@ -62,7 +62,7 @@ impl CompilerError {
             file: file.to_string(),
             line: line.to_string(),
             line_number,
-            col_number,
+            col_number : if col_number == 0 { 1 } else { col_number }, 
             hint
         }
     }

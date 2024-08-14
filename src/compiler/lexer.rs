@@ -145,6 +145,7 @@ impl<'a> Iterator for Lexer<'a> {
         }
 
         if self.reader.get_cursor().data_ref.chars().nth(1).is_some() {
+            let start = self.reader.current_cursor.clone();
             // test for the two chars tokens
             let string = self.reader.get_cursor().data_ref.chars().take(2).collect::<String>();
             if let Some(k) = match string.as_str() {
@@ -161,7 +162,7 @@ impl<'a> Iterator for Lexer<'a> {
             self.reader.next_char();
                 return Some(Ok(Token{
                     kind : k,
-                    span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 2)) }
+                    span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, start, 2)) }
                 }))
             }
         }
@@ -184,10 +185,11 @@ impl<'a> Iterator for Lexer<'a> {
                 _ => None
             }
         {
+            let start = self.reader.current_cursor.clone();
             self.reader.next_char();
             return Some(Ok(Token{
                 kind : k,
-                span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, self.reader.get_cursor().clone(), 1)) }
+                span : unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, start, 1)) }
             }))
         }
 

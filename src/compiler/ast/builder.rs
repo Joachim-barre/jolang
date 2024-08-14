@@ -135,10 +135,11 @@ impl<'a> AstBuilder<'a> {
                     if self.next_token()?.is_none() {
                         return Err(self.expected("expr"))
                     }
+                    let value = self.parse_expr()?;
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::Return(self.parse_expr()?));
+                    return Ok(Statement::Return(value));
 
                 },
                 KeywordType::Break => {

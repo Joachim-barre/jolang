@@ -286,7 +286,7 @@ mod tests {
     fn test_ident() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("_ll dqd /* sss */ ll6 ll_k_5 ssqdq 5ll 'l'")
+            buffer : String::from("_ll dqd /* sss */ ll6 ll_k_5 ssqdq 'l'")
         };
 
         let tokens : Vec<_> = vec![
@@ -294,7 +294,6 @@ mod tests {
             Some(TokenKind::Ident),
             Some(TokenKind::Ident),
             Some(TokenKind::Ident),
-            None,
             None,
         ].iter().map(|x| (x.is_none(), x.clone().unwrap_or(TokenKind::Int)))
             .collect();

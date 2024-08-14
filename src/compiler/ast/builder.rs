@@ -68,6 +68,7 @@ impl<'a> AstBuilder<'a> {
     pub fn parse_statment(&mut self) -> Result<Statement, CompilerError>{
         let first_token = self.peek_token();
         let first_token = first_token.as_ref().unwrap();
+        let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         match &first_token.kind {
             crate::compiler::lexer::TokenKind::LCurly  => {
                 let mut statements : Vec<Statement> = Vec::new();
@@ -171,7 +172,28 @@ impl<'a> AstBuilder<'a> {
                     return Ok(Statement::VarDecl(ident, None))
                 },
                 _ => Err(self.unexpected(first_token))
-            }
+            },
+            TokenKind::Ident => {
+                let ident = Ident::from(first_token.span.data);
+                let end_pos = self.lexer.reader.current_cursor;
+                if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                    self.lexer.reader.goto(start_cursor);
+                    Ok(Statement::Call(self.parse_call()?))
+                }else {
+                    self.lexer.reader.goto(end_pos);
+                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                        return Err(self.expected("\"=\""))
+                    }
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("expression"))
+                    }
+                    let expr = self.parse_expr()?;
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""))
+                    }
+                    return Ok(Statement::VarSet(ident, expr));
+                }
+            },
             _ => Err(self.unexpected(first_token))
         }
     }

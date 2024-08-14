@@ -83,7 +83,7 @@ impl<'a> Lexer<'a> {
         let mut current_char = self.reader.peek_char()?;
         while current_char.is_whitespace() || current_char == '/' {
             if current_char == '/' {
-                if self.reader.get_cursor().data_ref.chars().nth(1)? == '*'  {
+                if self.reader.get_cursor().data_ref.chars().nth(1).map_or(false, |x| x=='*')  {
                     let error = Some(Err(CompilerError::new(
                             super::compiler_error::CompilerErrorKind::BadToken,
                             format!("unterminated block comment").as_str(),
@@ -109,11 +109,13 @@ impl<'a> Lexer<'a> {
                         return error; 
                     }
                     current_char = self.reader.next_char()?;
-                }else if current_char == '/' {
+                }else if self.reader.get_cursor().data_ref.chars().nth(1).map_or(false, |x| x=='/') {
                     current_char = self.reader.next_char()?;
                     while current_char != '\n' {
                         current_char = self.reader.next_char()?;
                     }
+                    current_char = self.reader.next_char()?;
+                }else {
                     current_char = self.reader.next_char()?;
                 }
             }else {

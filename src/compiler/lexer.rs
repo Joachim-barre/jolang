@@ -286,7 +286,7 @@ mod tests {
     fn test_ident() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("_ll dqd /* sss */ ll6 ll_k_5 ssqdq 5ll 'l' lè ù")
+            buffer : String::from("_ll dqd /* sss */ ll6 ll_k_5 ssqdq 5ll 'l'")
         };
 
         let tokens : Vec<_> = vec![
@@ -296,8 +296,6 @@ mod tests {
             Some(TokenKind::Ident),
             None,
             None,
-            Some(TokenKind::Ident),
-            Some(TokenKind::Ident),
         ].iter().map(|x| (x.is_none(), x.clone().unwrap_or(TokenKind::Int)))
             .collect();
 
@@ -332,11 +330,13 @@ mod tests {
     fn test_unicode_ident() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("я_не_говорю_по-русски 😄 私も彼らも日本語を話せません")
+            buffer : String::from("я_не_говорю_по-русски 😄 私も彼らも日本語を話せません lé ù")
         };
         let tokens : Vec<_> = vec![
             Some(TokenKind::Ident),
             None,
+            Some(TokenKind::Ident),
+            Some(TokenKind::Ident),
             Some(TokenKind::Ident)
         ].iter().map(|x| (x.is_none(), x.clone().unwrap_or(TokenKind::Int)))
             .collect();

@@ -238,8 +238,7 @@ impl<'a> AstBuilder<'a> {
             }
         }
         let token = self.peek_token().as_ref().unwrap();
-        let start_cursor = self.lexer.reader.current_cursor;
-
+        let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         // parse primary expression
         let primary = match &token.kind {
             TokenKind::Int => Ok(PrimaryExpr::Litteral(

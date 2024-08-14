@@ -116,7 +116,7 @@ impl<'a> Lexer<'a> {
                     }
                     current_char = self.reader.next_char()?;
                 }else {
-                    current_char = self.reader.next_char()?;
+                    break;
                 }
             }else {
                 current_char = self.reader.next_char()?

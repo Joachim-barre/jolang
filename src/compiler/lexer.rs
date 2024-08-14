@@ -128,7 +128,7 @@ impl<'a> Iterator for Lexer<'a> {
     type Item = Result<Token<'a>, CompilerError>;
    
     fn next(&mut self) -> Option<Self::Item> {
-        self.skip_whitespaces_and_commants()?;
+        let _ = self.skip_whitespaces_and_commants()?;
         // test for integer litteral
         if self.reader.peek_char().unwrap().is_ascii_digit() {
             let start = self.reader.current_cursor;

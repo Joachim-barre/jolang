@@ -1,4 +1,4 @@
-use crate::compiler::text_data::TextData;
+//use crate::compiler::text_data::TextData;
 use super::instructions::Instructions;
 use std::{fs::File, io::{Read, Write}};
 use anyhow::{anyhow, Result};
@@ -12,7 +12,7 @@ pub struct Object {
 }
 
 impl Object {
-    pub fn build(text : TextData, data : Vec<i64>) -> Result<Self> {
+    /*pub fn build(text : TextData, data : Vec<i64>) -> Result<Self> {
         if data.len() < 1 || data[0] < 0 || data[0] >= text.jumps.len().try_into().unwrap() {
             return Err(anyhow!("bad entry point"))
         }
@@ -24,7 +24,7 @@ impl Object {
             data,
             text : text.instructions
         })
-    }
+    }*/
 
     pub fn save(&self, file : &mut File) -> Result<()> {
         let mut bytes : Vec<u8> = Vec::new();

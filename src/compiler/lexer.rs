@@ -334,7 +334,7 @@ mod tests {
     fn test_unicode_ident() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("я_не_говорю_по-русски 😄 私も彼らも日本語を話せません lé ù")
+            buffer : String::from("я_не_говорю_по_русски 😄 私も彼らも日本語を話せません lé ù")
         };
         let tokens : Vec<_> = vec![
             Some(TokenKind::Ident),

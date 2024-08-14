@@ -39,9 +39,12 @@ pub fn compile<'a>(args : CompileArgs) -> Result<()> {
         }
     }
     println!("building {} to {}...", &source.path.to_str().unwrap_or("error"), object_file);
-    match AstBuilder::from(&mut Lexer::new(Rc::new(RefCell::new(source)))).parse_program() {
+    match AstBuilder::from(&mut Lexer::new(&source)).parse_program() {
         Ok(p) => {dbg!(p); ()},
         Err(e) => return Err(e.into())
     }
+    /*for t in Lexer::new(&source) {
+        dbg!(t?);
+    }*/
     todo!();
 }

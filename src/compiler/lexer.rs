@@ -95,7 +95,7 @@ impl<'a> Lexer<'a> {
                     let _ = self.reader.next_char();
                     if let Some(mut current_char) = self.reader.next_char(){
                         if let Some(mut next_char) = self.reader.next_char(){
-                            while current_char!='*' && next_char != '/'{
+                            while current_char!='*' || next_char != '/'{
                                 if self.reader.next_char() == None {
                                     return error;
                                 }

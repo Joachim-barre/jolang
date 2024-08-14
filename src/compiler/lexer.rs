@@ -196,12 +196,14 @@ impl<'a> Iterator for Lexer<'a> {
         // test for ident
         if self.reader.peek_char()?.is_alphabetic() || self.reader.peek_char()? == '_' {
             let start = self.reader.current_cursor.clone();
-            let mut size = 1;
+            let mut size = self.reader.peek_char()?.len_utf8();
             while self.reader.peek_char().is_some() && (self.reader.peek_char()?.is_alphanumeric() || self.reader.peek_char()? == '_') {
                 self.reader.next_char();
-                size += 1;
+                if self.reader.peek_char().map_or(false, |c| c.is_alphanumeric() || c == '_') {
+                    size += self.reader.peek_char().map_or(0, |c| c.len_utf8());
+                }
             }
-            let span : SourceSpan<'a> = unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, start, size-1)) };
+            let span : SourceSpan<'a> = unsafe { std::mem::transmute(SourceSpan::at(self.reader.source, start, size)) };
             let kind =  match span.data {
                 "if" => TokenKind::Keyword(KeywordType::If),
                 "else" => TokenKind::Keyword(KeywordType::Else),

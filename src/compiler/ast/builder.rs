@@ -44,7 +44,7 @@ impl<'a> AstBuilder<'a> {
     }
 
     pub fn next_token(&mut self) -> Result<&Option<Token>, CompilerError> {
-        match self.tokens.next() {
+        match self.lexer.next() {
             Some(ret) => match ret {
                 Ok(t) => self.current = Some(t),
                 Err(e) => return Err(e)

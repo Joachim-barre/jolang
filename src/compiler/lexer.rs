@@ -215,14 +215,17 @@ impl<'a> Iterator for Lexer<'a> {
             };
             return Some(Ok(Token { kind, span } ))
         }
-        
+
+        let token = self.reader.peek_char()?;
+        let cursor = self.reader.current_cursor.clone();
+        self.reader.next_char();
         return Some(Err(CompilerError::new(
                     super::compiler_error::CompilerErrorKind::BadToken,
-                    format!("bad token : {}", self.reader.peek_char()?).as_str(),
+                    format!("bad token : {}", token).as_str(),
                     self.reader.source.path.to_str().unwrap(),
-                    self.reader.source.get_line(self.reader.get_cursor().line).unwrap(), 
-                    self.reader.get_cursor().line as u32,
-                    self.reader.get_cursor().collumn as u32,
+                    self.reader.source.get_line(cursor.line).unwrap(), 
+                    cursor.line as u32,
+                    cursor.collumn as u32,
                     None)))
     }
 }

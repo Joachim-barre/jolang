@@ -219,82 +219,76 @@ impl<'a> AstBuilder<'a> {
         }
     }
 
-    #[allow(unused_assignments)]
     pub fn parse_expr(&mut self) -> Result<Expr, CompilerError> {
-        let mut unary_op = None;
-        {
-            let token = self.peek_token().as_ref().unwrap();
-            // parse unary op
-            unary_op = match &token.kind {
-                TokenKind::Plus => Some(UnaryOp::Plus),
-                TokenKind::Minus => Some(UnaryOp::Minus),
-                _ => None
-            };
+        let token = self.peek_token().as_ref().unwrap();
+        // parse unary op
+        let unary_op = match &token.kind {
+            TokenKind::Plus => Some(UnaryOp::Plus),
+            TokenKind::Minus => Some(UnaryOp::Minus),
+            _ => None
+        };
 
-            if unary_op.is_some() {
-                { 
-                    let _token = self.next_token()?;
-                    match _token {
-                        Some(_) => {},
-                        None => return Err(self.expected("expression"))
-                    }
+        if unary_op.is_some() {
+            { 
+                let _token = self.next_token()?;
+                match _token {
+                    Some(_) => {},
+                    None => return Err(self.expected("expression"))
                 }
             }
         }
-        let mut end_pos = SourcePos { line : 0, index : 0, collumn : 0};
-        let mut _expr = None;
-        {
-            let token = self.peek_token().as_ref().unwrap();
-            end_pos = token.span.end;
-            let start_pos = token.span.start;
+        let token = self.peek_token().as_ref().unwrap();
+        let start_cursor = self.lexer.reader.current_cursor;
 
-            // parse primary expression
-            let primary = match &token.kind {
-                TokenKind::Int => Ok(PrimaryExpr::Litteral(
-                    match FromStr::from_str(token.span.data) {
-                        Ok(i) => Ok(i),
-                        Err(_) => {
-                            return Err(CompilerError::new(
-                                CompilerErrorKind::BadToken,
-                                "cannot parse integer litteral",
-                                self.source.borrow().path.to_str().unwrap(),
-                                self.source.borrow().get_line(token.span.start.line).unwrap(),
-                                token.span.start.line as u32,
-                                token.span.start.collumn as u32,
-                                None))
-                        }
-                    }?
-                )),
-                TokenKind::LParan => {
-                        let sub_expr = self.parse_expr()?;
-                        if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
-                            return Err(self.expected("\")\""))
-                        }
-                        Ok(PrimaryExpr::Expr(Box::new(sub_expr)))
-                },
-                TokenKind::Ident => {
-                    let ident = Ident::from(token.span.data);
-                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
-                        self.tokens.lexer.pos = start_pos;
-                        Ok(PrimaryExpr::Call(self.parse_call()?))
-                    }else {
-                        self.tokens.lexer.pos = end_pos;
-                        Ok(PrimaryExpr::Ident(ident))
+        // parse primary expression
+        let primary = match &token.kind {
+            TokenKind::Int => Ok(PrimaryExpr::Litteral(
+                match FromStr::from_str(token.span.data) {
+                    Ok(i) => Ok(i),
+                    Err(_) => {
+                        return Err(CompilerError::new(
+                            CompilerErrorKind::BadToken,
+                            "cannot parse integer litteral",
+                            token.span.source.path.to_str().unwrap(),
+                            token.span.source.get_line(token.span.start.line).unwrap(),
+                            token.span.start.line as u32,
+                            token.span.start.collumn as u32,
+                            None))
                     }
-                },
-                _ => Err(self.unexpected(&token))
-            }?;
+                }?
+            )),
+            TokenKind::LParan => {
+                    let sub_expr = self.parse_expr()?;
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                        return Err(self.expected("\")\""))
+                    }
+                    Ok(PrimaryExpr::Expr(Box::new(sub_expr)))
+            },
+            TokenKind::Ident => {
+                let ident = Ident::from(token.span.data);
+                let end_pos = self.lexer.reader.current_cursor;
+                if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                    self.lexer.reader.goto(start_cursor);
+                    Ok(PrimaryExpr::Call(self.parse_call()?))
+                }else {
+                    self.lexer.reader.goto(end_pos);
+                    Ok(PrimaryExpr::Ident(ident))
+                }
+            },
+            _ => Err(self.unexpected(&token))
+        }?;
 
-            _expr = Some(match unary_op {
-                Some(op) => Expr::UnaryExpr(op, primary),
-                None => Expr::PrimaryExpr(primary)
-            });
-        }
-        let expr = _expr.unwrap();
-        let _token = self.next_token()?;
+        let expr = match unary_op {
+            Some(op) => Expr::UnaryExpr(op, primary),
+            None => Expr::PrimaryExpr(primary)
+        };
+        let _ = self.next_token()?;
+        let _token = self.peek_token();
         if _token.is_none() {
             return Ok(expr)
         }
+
+        let end_pos = self.lexer.reader.current_cursor;
 
         let bin_op = match &_token.clone().unwrap().kind {
             TokenKind::Plus => Some(BinOp::Add),
@@ -313,7 +307,7 @@ impl<'a> AstBuilder<'a> {
         };
 
         if bin_op.is_none() {
-            self.tokens.lexer.pos = end_pos;
+            self.lexer.reader.goto(end_pos);
             return Ok(expr);
         }
 

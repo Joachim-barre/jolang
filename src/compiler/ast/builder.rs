@@ -116,7 +116,7 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("expr"))
                     }
                     let cond = self.parse_expr()?;
-                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
                     if self.next_token()?.is_none() {
@@ -136,7 +136,7 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("expr"))
                     }
                     let value = self.parse_expr()?;
-                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
                     return Ok(Statement::Return(value));

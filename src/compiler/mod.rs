@@ -39,7 +39,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<()> {
         }
     }
     println!("building {} to {}...", &source.path.to_str().unwrap_or("error"), object_file);
-    match AstBuilder::from(&mut Lexer::new(&source)).parse_program() {
+    match AstBuilder::from(Lexer::new(&source)).parse_program() {
         Ok(p) => {dbg!(p); ()},
         Err(e) => return Err(e.into())
     }

@@ -1,20 +1,17 @@
-use crate::compiler::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, LexerTokens, Token, TokenKind}, source_buffer::{SourceBuffer, SourcePos}};
+use crate::compiler::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, Token, TokenKind}, source_buffer::SourceBuffer};
 use super::{Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp, Call, BinOp};
 use std::{cell::RefCell, rc::Rc, str::FromStr};
 
 pub struct AstBuilder<'a> {
-    tokens : LexerTokens<'a>,
+    lexer : Lexer<'a>,
     current : Option<Token<'a>>,
-    source : Rc<RefCell<SourceBuffer>>
 }
 
-impl<'a> From<&'a mut Lexer> for AstBuilder<'a> {
-    fn from(value: &'a mut Lexer) -> Self {
-        let source = value.source.clone();
+impl<'a> From<Lexer<'a>> for AstBuilder<'a> {
+    fn from(value: Lexer<'a>) -> Self {
         Self {
-            tokens : value.tokens(),
+            lexer : value,
             current : None,
-            source 
         }
     }
 }

@@ -101,11 +101,14 @@ impl<'a> AstBuilder<'a> {
                     }
                     let then = Box::new(self.parse_statment()?);
                     let mut _else = None;
+                    let cursor = self.lexer.reader.current_cursor;
                     if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
                         if self.next_token()?.is_none() {
                             return Err(self.expected("statement"))
                         }
                         _else = Some(Box::new(self.parse_statment()?));
+                    }else {
+                        self.lexer.reader.goto(cursor);
                     }
                     Ok(Statement::If(cond, then, _else))
                 },

@@ -221,7 +221,10 @@ impl<'a> AstBuilder<'a> {
                     return Err(self.expected("\")\""))
                 }else if self.peek_token().as_ref().unwrap().kind == TokenKind::RParan {
                     break;
+                }else if !(self.peek_token().as_ref().unwrap().kind == TokenKind::Comma) {
+                    return Err(self.expected("\",\""))
                 }
+                self.next_token()?;
                 args.push(self.parse_expr()?);
             }
             return Ok(Call(ident, args))

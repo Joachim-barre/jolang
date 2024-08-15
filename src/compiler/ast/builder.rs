@@ -506,4 +506,33 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+
+    #[test]
+    fn test_unary_expr() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("print(-1);print(+2);")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::Call(Call(
+                            "print".to_string(),
+                            vec![
+                                Expr::UnaryExpr(UnaryOp::Minus, PrimaryExpr::Litteral(1))
+                            ]
+                        )),
+                        Statement::Call(Call(
+                            "print".to_string(),
+                            vec![
+                                Expr::UnaryExpr(UnaryOp::Plus, PrimaryExpr::Litteral(2))
+                            ]
+                        ))
+                    ])
+                );
+            },
+            Err(e) => panic!("{}", e)
+        }
+    }
 }

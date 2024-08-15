@@ -178,7 +178,6 @@ impl<'a> AstBuilder<'a> {
             },
             TokenKind::Ident => {
                 let ident = Ident::from(first_token.span.data);
-                let end_pos = self.lexer.reader.current_cursor;
                 if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                     self.lexer.reader.goto(start_cursor);
                     let call = self.parse_call()?;
@@ -187,8 +186,7 @@ impl<'a> AstBuilder<'a> {
                     }
                     Ok(Statement::Call(call))
                 }else {
-                    self.lexer.reader.goto(end_pos);
-                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                    if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
                         return Err(self.expected("\"=\""))
                     }
                     if self.next_token()?.is_none() {

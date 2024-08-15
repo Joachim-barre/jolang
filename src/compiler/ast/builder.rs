@@ -541,7 +541,7 @@ mod tests {
     fn test_primary_expr() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("print(1);print(input());print(n);")
+            buffer : String::from("print(1);print(input());print(n);print((-1));")
         };
         match AstBuilder::from(Lexer::new(&buf)).parse_program() {
             Ok(p) => {
@@ -567,6 +567,17 @@ mod tests {
                             vec![
                                 Expr::PrimaryExpr(PrimaryExpr::Ident("n".to_string()))
                             ]
+                        )),
+                        Statement::Call(Call(
+                                "print".to_string(),
+                                vec![
+                                    Expr::PrimaryExpr(PrimaryExpr::Expr(Box::new(
+                                        Expr::UnaryExpr(
+                                            UnaryOp::Minus,
+                                            PrimaryExpr::Litteral(1)
+                                        )
+                                    )))
+                                ]
                         ))
                     ])
                 );

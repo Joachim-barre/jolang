@@ -477,4 +477,33 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+
+    #[test]
+    fn test_while_loop() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("while (1) {} loop print(0);")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::While(
+                            Expr::PrimaryExpr(PrimaryExpr::Litteral(1)),
+                            Box::new(Statement::Block(Vec::new()))
+                        ),
+                        Statement::Loop(
+                            Box::new(Statement::Call(Call(
+                                "print".to_string(),
+                                vec![
+                                    Expr::PrimaryExpr(PrimaryExpr::Litteral(0))    
+                                ]
+                            )))
+                        )
+                    ])
+                );
+            },
+            Err(e) => panic!("{}", e)
+        }
+    }
 }

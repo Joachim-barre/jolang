@@ -391,4 +391,32 @@ mod tests {
             Err(e) => panic!("{:?}", e)
         }
     }
+
+    #[test]
+    fn test_if_else() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("if (1) {} if (0) { return 1; } else return 0;")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::If(
+                            Expr::PrimaryExpr(PrimaryExpr::Litteral(1)),
+                            Box::new(Statement::Block(Vec::new())),
+                            None),
+                        Statement::If(
+                            Expr::PrimaryExpr(PrimaryExpr::Litteral(0)),
+                            Box::new(Statement::Block(vec![
+                                Statement::Return(Expr::PrimaryExpr(PrimaryExpr::Litteral(1)))
+                            ])),
+                            Some(Box::new(Statement::Return(Expr::PrimaryExpr(PrimaryExpr::Litteral(0)))))
+                        )
+                    ])
+                );
+            },
+            Err(e) => panic!("{:?}", e)
+        }
+    }
 }

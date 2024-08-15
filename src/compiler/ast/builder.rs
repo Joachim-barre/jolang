@@ -723,4 +723,88 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+
+    #[test]
+    fn test_binexpr_precedence() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("print(-1*5+5==(+2-5)*5/8-5);")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::Call(Call(
+                            "print".to_string(),
+                            vec![
+                                Expr::BinExpr(
+                                    Box::new(Expr::BinExpr(
+                                        Box::new(
+                                            Expr::BinExpr(
+                                                Box::new(Expr::UnaryExpr(
+                                                    UnaryOp::Minus,
+                                                    PrimaryExpr::Litteral(1))),
+                                                Box::new(
+                                                    Expr::PrimaryExpr(PrimaryExpr::Litteral(5))
+                                                ),
+                                                BinOp::Mul)
+                                        ),
+                                        Box::new(Expr::PrimaryExpr(
+                                            PrimaryExpr::Litteral(5)
+                                        )),
+                                        BinOp::Add)),
+                                    Box::new(Expr::BinExpr(
+                                        Box::new(
+                                            Expr::BinExpr(
+                                                Box::new(Expr::PrimaryExpr(PrimaryExpr::Expr(
+                                                    Box::new(
+                                                        Expr::BinExpr(
+                                                            Box::new(Expr::UnaryExpr(
+                                                                UnaryOp::Plus,
+                                                                PrimaryExpr::Litteral(2)
+                                                            )),
+                                                            Box::new(
+                                                                Expr::PrimaryExpr(
+                                                                    PrimaryExpr::Litteral(5)
+                                                                )
+                                                            ),
+                                                            BinOp::Sub
+                                                        )
+                                                    )
+                                                ))),
+                                                Box::new(
+                                                    Expr::BinExpr(
+                                                        Box::new(
+                                                            Expr::PrimaryExpr(
+                                                                PrimaryExpr::Litteral(5)
+                                                            )
+                                                        ),
+                                                        Box::new(
+                                                            Expr::PrimaryExpr(
+                                                                PrimaryExpr::Litteral(8)
+                                                            )
+                                                        ),
+                                                        BinOp::Div
+                                                    )
+                                                ),
+                                                BinOp::Mul
+                                            )
+                                        ),
+                                        Box::new(
+                                            Expr::PrimaryExpr(
+                                                PrimaryExpr::Litteral(5)
+                                            )
+                                        ),
+                                        BinOp::Sub
+                                    )),
+                                    BinOp::Equal
+                                )
+                            ]
+                        ))
+                    ])
+                );
+            },
+            Err(e) => panic!("{}", e)
+        }
+    }
 }

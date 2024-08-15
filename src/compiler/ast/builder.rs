@@ -345,3 +345,30 @@ impl<'a> AstBuilder<'a> {
         Ok(self.apply_precedence(Expr::BinExpr(Box::new(expr), Box::new(expr2), bin_op)))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::compiler::ast::*;
+    use core::panic;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_var_decl() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("var n;var _m6 = 1;")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::VarDecl("n".to_string(), None),
+                        Statement::VarDecl("_m6".to_string(), Some(Expr::PrimaryExpr(PrimaryExpr::Litteral(1))))
+                    ])
+                );
+            },
+            Err(e) => panic!("{:?}", e)
+        }
+    }
+}

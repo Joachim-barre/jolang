@@ -181,7 +181,11 @@ impl<'a> AstBuilder<'a> {
                 let end_pos = self.lexer.reader.current_cursor;
                 if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                     self.lexer.reader.goto(start_cursor);
-                    Ok(Statement::Call(self.parse_call()?))
+                    let call = self.parse_call()?;
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""))
+                    }
+                    Ok(Statement::Call(call))
                 }else {
                     self.lexer.reader.goto(end_pos);
                     if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {

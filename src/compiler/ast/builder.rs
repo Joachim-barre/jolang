@@ -461,4 +461,22 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+
+    #[test]
+    fn test_var_set() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("n = 1;")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::VarSet("n".to_string(), Expr::PrimaryExpr(PrimaryExpr::Litteral(1))),
+                    ])
+                );
+            },
+            Err(e) => panic!("{}", e)
+        }
+    }
 }

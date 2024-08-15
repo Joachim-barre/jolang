@@ -368,7 +368,7 @@ mod tests {
                     ])
                 );
             },
-            Err(e) => panic!("{:?}", e)
+            Err(e) => panic!("{}", e)
         }
     }
     
@@ -388,7 +388,7 @@ mod tests {
                     ])
                 );
             },
-            Err(e) => panic!("{:?}", e)
+            Err(e) => panic!("{}", e)
         }
     }
 
@@ -416,7 +416,7 @@ mod tests {
                     ])
                 );
             },
-            Err(e) => panic!("{:?}", e)
+            Err(e) => panic!("{}", e)
         }
     }
 }

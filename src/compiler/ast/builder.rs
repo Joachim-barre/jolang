@@ -288,6 +288,7 @@ impl<'a> AstBuilder<'a> {
                 }?
             )),
             TokenKind::LParan => {
+                    self.next_token()?;
                     let sub_expr = self.parse_expr()?;
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))

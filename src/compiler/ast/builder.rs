@@ -186,7 +186,7 @@ impl<'a> AstBuilder<'a> {
                     }
                     Ok(Statement::Call(call))
                 }else {
-                    if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
                         return Err(self.expected("\"=\""))
                     }
                     if self.next_token()?.is_none() {

@@ -535,4 +535,42 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+
+    #[test]
+    fn test_primary_expr() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("print(1);print(input());print(n);")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::Call(Call(
+                            "print".to_string(),
+                            vec![
+                                Expr::PrimaryExpr(PrimaryExpr::Litteral(1))
+                            ]
+                        )),
+                        Statement::Call(Call(
+                            "print".to_string(),
+                            vec![
+                                Expr::PrimaryExpr(PrimaryExpr::Call(Call(
+                                    "input".to_string(),
+                                    Vec::new()
+                                )))
+                            ]
+                        )),
+                        Statement::Call(Call(
+                            "print".to_string(),
+                            vec![
+                                Expr::PrimaryExpr(PrimaryExpr::Ident("n".to_string()))
+                            ]
+                        ))
+                    ])
+                );
+            },
+            Err(e) => panic!("{}", e)
+        }
+    }
 }

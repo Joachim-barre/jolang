@@ -451,7 +451,7 @@ mod tests {
                                             "input".to_string(),
                                             Vec::new()
                                     ))),
-                                    Expr::PrimaryExpr(PrimaryExpr::Litteral(0))
+                                    Expr::PrimaryExpr(PrimaryExpr::Litteral(2))
                                 ]
                             )))
                         )

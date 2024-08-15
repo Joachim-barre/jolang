@@ -182,7 +182,7 @@ impl<'a> AstBuilder<'a> {
                 if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                     self.lexer.reader.goto(start_cursor);
                     let call = self.parse_call()?;
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
                     Ok(Statement::Call(call))
@@ -217,7 +217,7 @@ impl<'a> AstBuilder<'a> {
             }
             let mut args = vec![self.parse_expr()?];
             loop {
-                if self.next_token()?.is_none() {
+                if self.peek_token().is_none() {
                     return Err(self.expected("\")\""))
                 }else if self.peek_token().as_ref().unwrap().kind == TokenKind::RParan {
                     break;

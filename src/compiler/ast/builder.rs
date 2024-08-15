@@ -371,4 +371,24 @@ mod tests {
             Err(e) => panic!("{:?}", e)
         }
     }
+    
+    #[test]
+    fn test_return_break_continue() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("return 0;break;continue;")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::Return(Expr::PrimaryExpr(PrimaryExpr::Litteral(0))),
+                        Statement::Break,
+                        Statement::Continue
+                    ])
+                );
+            },
+            Err(e) => panic!("{:?}", e)
+        }
+    }
 }

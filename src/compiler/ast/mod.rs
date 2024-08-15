@@ -3,10 +3,10 @@ pub use builder::AstBuilder;
 
 pub type Ident = String;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Program (Vec<Statement>);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Statement {
     Block(Vec<Statement>),
     /// (condition, then, else)
@@ -22,14 +22,14 @@ pub enum Statement {
     Call(Call)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Expr {
     BinExpr(Box<Expr>, Box<Expr>, BinOp),
     UnaryExpr(UnaryOp, PrimaryExpr),
     PrimaryExpr(PrimaryExpr)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BinOp {
     Add,
     Sub,
@@ -64,13 +64,13 @@ impl BinOp {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum UnaryOp {
     Plus,
     Minus
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PrimaryExpr {
     Call(Call),
     Ident(Ident),
@@ -79,5 +79,5 @@ pub enum PrimaryExpr {
     Expr(Box<Expr>)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Call (Ident,Vec<Expr>);

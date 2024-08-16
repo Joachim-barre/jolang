@@ -1,5 +1,5 @@
 [package]
-name = "jolang"
+name = "jolang_shared"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,6 +8,4 @@ anyhow = "1.0.86"
 c-enum = "0.2.3"
 clap = { version = "4.5.9", features = ["derive"] }
 clio = { version = "0.3.5", features = ["clap", "clap-parse"] }
-inkwell = { version = "0.4.0", features = ["llvm17-0"] }
-llvm-sys = { version = "170", features = ["prefer-static"] }
 rand = "0.8.5"

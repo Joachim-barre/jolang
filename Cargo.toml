@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "compiler",
-    "jolang_extern"
+    "jolang_extern",
+    "shared"
 ]
 
 [workspace.package]

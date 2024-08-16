@@ -1,0 +1,11 @@
+[package]
+name = "jolang_extern"
+edition = "2021"
+version.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "2.0.27"
+quote = "1.0.36"

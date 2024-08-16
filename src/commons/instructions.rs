@@ -28,3 +28,37 @@ c_enum! {
         Rsh = 0x2D
     }
 }
+
+pub mod operand {
+    pub type Imm = i64;
+    pub type VarId = u64;
+    pub type BlkId = u64;
+    pub type Offset = u64;
+    pub type FnId = u64;
+}
+
+pub enum Instruction {
+	Exit(),
+	Mkfr(),
+	Delfr(),
+	Pushi(operand::Imm),
+	Pushv(operand::VarId),
+	Pusht(operand::Offset),
+	Br(operand::BlkId),
+	Call(operand::FnId),
+	Neg(operand::Offset),
+	Briz(operand::BlkId, operand::Offset),
+	Store(operand::VarId, operand::Offset),
+	Add(operand::Offset,operand::Offset),
+	Sub(operand::Offset,operand::Offset),
+	Mul(operand::Offset,operand::Offset),
+	Div(operand::Offset,operand::Offset),
+	Eq(operand::Offset,operand::Offset),
+	Ne(operand::Offset,operand::Offset),
+	Gt(operand::Offset,operand::Offset),
+	Ge(operand::Offset,operand::Offset),
+	Le(operand::Offset,operand::Offset),
+	Lt(operand::Offset,operand::Offset),
+	Lsh(operand::Offset,operand::Offset),
+	Rsh(operand::Offset,operand::Offset),
+}

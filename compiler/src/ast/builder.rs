@@ -1,4 +1,4 @@
-use crate::compiler::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, Token, TokenKind}, source_buffer::SourceBuffer};
+use crate::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, Token, TokenKind}, source_buffer::SourceBuffer};
 use super::{Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp, Call, BinOp};
 use std::{cell::RefCell, rc::Rc, str::FromStr};
 
@@ -70,7 +70,7 @@ impl<'a> AstBuilder<'a> {
         let first_token = first_token.as_ref().unwrap();
         let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         match &first_token.kind {
-            crate::compiler::lexer::TokenKind::LCurly  => {
+            TokenKind::LCurly  => {
                 let mut statements : Vec<Statement> = Vec::new();
                 loop {
                     let token = self.next_token()?;
@@ -358,7 +358,7 @@ impl<'a> AstBuilder<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::compiler::ast::*;
+    use crate::ast::*;
     use core::panic;
     use std::path::PathBuf;
 

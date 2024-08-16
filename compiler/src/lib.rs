@@ -42,6 +42,7 @@ pub fn compile<'a>(args : CompileArgs) -> Result<()> {
     match AstBuilder::from(Lexer::new(&source)).parse_program() {
         Ok(p) => {dbg!(p); ()},
         Err(e) => return Err(e.into())
+    
     }
     /*for t in Lexer::new(&source) {
         dbg!(t?);

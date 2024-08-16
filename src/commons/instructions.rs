@@ -2,36 +2,29 @@ use c_enum::c_enum;
 
 c_enum! {
     #[derive(Clone, PartialEq, Eq)]
-    pub enum Instructions : u8{
-        /// <
-        Backward = 0,
-        /// >
-        Forward = 1,
-        /// L
-        Load = 2,
-        /// S
-        Store = 3,
-        /// +
-        Add = 4,
-        /// -
-        Sub = 5,
-        /// *
-        Mul = 6,
-        /// /
-        Div = 7,
-        /// P
-        Print = 8,
-        /// ],
-        Jump = 10,
-        /// }
-        JumpIfZero = 11,
-        /// E
-        Exit = 12,
-        /// I
-        Inc = 13,
-        /// D
-        Dec = 14,
-        /// C
-        Compare = 15
+    pub enum Opcodes : u8{ 
+        Exit = 0x00,
+        Mkfr = 0x01,
+        Delfr = 0x02,
+        Pushi = 0x10,
+        Pushv = 0x11,
+        Pusht = 0x12,
+        Br = 0x13,
+        Call = 0x14,
+        Neg = 0x15,
+        Briz = 0x20,
+        Store = 0x21,
+        Add = 0x22,
+        Sub = 0x23,
+        Mul = 0x24,
+        Div = 0x25,
+        Eq = 0x26,
+        Ne = 0x27,
+        Gt = 0x28,
+        Ge = 0x29,
+        Le = 0x2A,
+        Lt = 0x2B,
+        Lsh = 0x2C,
+        Rsh = 0x2D
     }
 }

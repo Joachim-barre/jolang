@@ -1,7 +1,7 @@
 use c_enum::c_enum;
 
 c_enum! {
-    #[derive(Clone, PartialEq, Eq)]
+    #[derive(PartialEq, Eq, Clone, Copy)]
     pub enum Opcodes : u8{ 
         Exit = 0x00,
         Mkfr = 0x01,
@@ -37,6 +37,7 @@ pub mod operand {
     pub type FnId = u64;
 }
 
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum Instruction {
 	Exit(),
 	Mkfr(),

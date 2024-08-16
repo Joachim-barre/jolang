@@ -182,6 +182,7 @@ dependencies = [
  "anyhow",
  "clap",
  "clio",
+ "jolangc",
 ]
 
 [[package]]

@@ -1,6 +1,7 @@
-pub mod compile;
-pub mod run;
 use clap::{Parser, Subcommand};
+use crate::run::RunArgs;
+use crate::compile::CompileArgs;
+
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -13,7 +14,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// compile sources into object files
-    Compile(compile::CompileArgs),
+    Compile(CompileArgs),
     /// run objects
-    Run(run::RunArgs)
+    Run(RunArgs)
 }

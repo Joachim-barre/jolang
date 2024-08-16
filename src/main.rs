@@ -1,21 +1,39 @@
-use std::hint::black_box;
-use anyhow::Result;
 use clap::Parser;
+pub mod compile;
 mod cli;
-use cli::Commands;
-mod compiler;
-mod commons;
-//mod runtime;
-//use runtime::externs::PRINT_INT;
+pub mod run;
+use cli::{Cli, Commands};
+use jolangc::build;
+use std::path::PathBuf;
+use anyhow::{anyhow, Result};
+use clio::OutputPath;
 
 fn main() -> Result<()>{
-    //black_box(PRINT_INT);
-    let cli = cli::Cli::parse();
+    let cli = Cli::parse();
     match cli.command {
         Commands::Compile(args) => {
-            return compiler::compile(args);
+            if !args.file.is_local() {
+                return Err(anyhow!("please input a local file"))
+            }
+            let path = PathBuf::from(args.file.as_os_str());
+            let mut object_file = match args.object_file {
+                Some(p) => p,
+                None => OutputPath::std()
+            };
+            if !object_file.is_local()  {
+                let mut new_path = args.file.clone();
+                new_path.set_extension("joo");
+                object_file = match OutputPath::new(new_path.clone()) {
+                    Ok(path) => path,
+                    Err(_) => {
+                        return Err(anyhow!("failed to open output file : {}", new_path))
+                    }
+                }
+            }
+            println!("building {} to {}...", path.to_str().unwrap_or("error"), object_file);
+            return build(path, PathBuf::from(object_file.path().as_os_str()));
         }
-        Commands::Run(args) => {
+        Commands::Run(_args) => {
             //return runtime::run(args);
             todo!();
         }

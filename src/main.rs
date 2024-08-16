@@ -5,18 +5,19 @@ mod cli;
 use cli::Commands;
 mod compiler;
 mod commons;
-mod runtime;
-use runtime::externs::PRINT_INT;
+//mod runtime;
+//use runtime::externs::PRINT_INT;
 
 fn main() -> Result<()>{
-    black_box(PRINT_INT);
+    //black_box(PRINT_INT);
     let cli = cli::Cli::parse();
     match cli.command {
         Commands::Compile(args) => {
             return compiler::compile(args);
         }
         Commands::Run(args) => {
-            return runtime::run(args);
+            //return runtime::run(args);
+            todo!();
         }
     }
 }

@@ -63,3 +63,32 @@ pub enum Instruction<'a> {
     Rsh(operand::Result<'a>,operand::Result<'a>),
     Briz(operand::BlkId,operand::BlkId,operand::Result<'a>)
 }
+
+impl<'a> Instruction<'a> {
+    pub fn opcode(&self) -> Opcodes {
+        match self {
+            Self::Ret() => Opcodes::Ret,
+            Self::Reti(_) => Opcodes::Reti,
+            Self::Varget(_) => Opcodes::Varget,
+            Self::Iconst(_) => Opcodes::Iconst,
+            Self::Br(_) => Opcodes::Br,
+            Self::Pusharg(_) => Opcodes::Pusharg,
+            Self::Call(_) => Opcodes::Call,
+            Self::Neg(_) => Opcodes::Neg,
+            Self::Varset(_, _) => Opcodes::Varset,
+            Self::Add(_, _) => Opcodes::Add,
+            Self::Sub(_, _) => Opcodes::Sub,
+            Self::Mul(_, _) => Opcodes::Mul,
+            Self::Div(_, _) => Opcodes::Div,
+            Self::Eq(_, _) => Opcodes::Eq,
+            Self::Ne(_, _) => Opcodes::Ne,
+            Self::Gt(_, _) => Opcodes::Gt,
+            Self::Ge(_, _) => Opcodes::Ge,
+            Self::Le(_, _) => Opcodes::Le,
+            Self::Lt(_, _) => Opcodes::Lt,
+            Self::Lsh(_, _) => Opcodes::Lsh,
+            Self::Rsh(_, _) => Opcodes::Rsh,
+            Self::Briz(_, _, _) => Opcodes::Briz
+        }
+    }
+}

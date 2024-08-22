@@ -209,14 +209,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jolang_extern"
-version = "0.2.0"
-dependencies = [
- "quote",
- "syn",
-]
-
-[[package]]
 name = "jolang_shared"
 version = "0.1.0"
 dependencies = [

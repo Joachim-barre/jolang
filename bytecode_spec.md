@@ -38,43 +38,45 @@ for each block:
 
 ## instructions table
 
-the vm uses a stack for temporary values, it is separated by frames, most of the time each statemnt uses it's own frame<br>
+each instruction in the bytecode is either : 
+- exiting from the block/program
+- returning a value
+the only exception is call of a void function
 
 an instruction is composed of an opcode then the operands<br>
 there is multiple types of operands : 
 - imm (immediate) 8-bytes raw integer value
 - varid (variable id) 8-bytes id of a variable stored on the stack
 - blkid (block id) 8-bytes id of a block
-- offset 8-bytes offset from the bottom of the stack frame
+- result 8-bytes id of a instruction that output a value
 - fnid (function id) 8-bytes id of a function
 
 there are the following opcodes : 
 
-| id | name       | operands         | description                                                 |
-| -- | --         | --               | --                                                          |
-| 00 | exit       |                  | exit the programe with the following exit code              |
-| 01 | mkfr       |                  | create a new stack frame                                    |
-| 02 | delfr      |                  | delete the current stack frame                              | 
-| 10 | pushi      | imm              | push the immediate value on top of the stack                |
-| 11 | pushv      | varid            | push a variable on top of the stack                         |
-| 12 | pusht      | offset           | push a stack value on top of the stack                      |
-| 13 | br         | blkid            | unconditionally branch to a block                           |
-| 14 | call       | fnid             | call a function passing the top of the stack as argument    |
-| 15 | neg        | offset           | negate the value at the offset and push it on the stack     |
-| 20 | briz       | blkid, offset    | branch to a block if the value at the offset is zero        |
-| 21 | store      | varid, offset    | store the value at the offset in the variable               |
-| 22 | add        | offset,offset    | add the two value and push the result on top of the stack   |
-| 23 | sub        | offset,offset    | do val1-val2 and push the result on top of the stack        |
-| 24 | mul        | offset,offset    | do val1*val2 and push the result on top of the stack        |
-| 25 | div        | offset,offset    | do val1/val2 and push the result on top of the stack        |
-| 26 | eq         | offset,offset    | do val1==val2 and push the result on top of the stack       |
-| 27 | ne         | offset,offset    | do val1!=val2 and push the result on top of the stack       |
-| 28 | gt         | offset,offset    | do val1>val2 and push the result on top of the stack        |
-| 29 | ge         | offset,offset    | do val1>=val2 and push the result on top of the stack       |
-| 2A | le         | offset,offset    | do val1<=val2 and push the result on top of the stack       |
-| 2B | lt         | offset,offset    | do val1<val2 and push the result on top of the stack        |
-| 2C | lsh        | offset,offset    | do val1<<val2 and push the result on top of the stack       |
-| 2D | rsh        | offset,offset    | do val1>>val2 and push the result on top of the stack       |
+| id | name       | operands                | description                                                                |
+| -- | --         | --                      | --                                                                         |
+| 00 | ret        |                         | return nothing from the function                                           |
+| 10 | reti       | result                  | return a value from the function                                           |
+| 11 | varget     | varid                   | get the value of a variable                                                | 
+| 12 | iconst     | imm                     | an integer constant                                                        |
+| 13 | br         | blkid                   | unconditionally branch to a block                                          |
+| 14 | pusharg    | result                  | add a argument to the argument list                                        |
+| 15 | call       | fnid                    | call a function pass the argument list and clear it after the call         |
+| 16 | neg        | result                  | negate the value                                                           |
+| 20 | varset     | varid, result           | set the value of a variable                                                |
+| 21 | add        | result,result           | add the two values                                                         |
+| 22 | sub        | result,result           | do val1-val2                                                               |
+| 23 | mul        | result,result           | do val1*val2                                                               |
+| 24 | div        | result,result           | do val1/val2                                                               |
+| 25 | eq         | result,result           | do val1==val2                                                              |
+| 26 | ne         | result,result           | do val1!=val2                                                              |
+| 27 | gt         | result,result           | do val1>val2                                                               |
+| 28 | ge         | result,result           | do val1>=val2                                                              |
+| 29 | le         | result,result           | do val1<=val2                                                              |
+| 2A | lt         | result,result           | do val1<val2                                                               |
+| 2B | lsh        | result,result           | do val1<<val2                                                              |
+| 2C | rsh        | result,result           | do val1>>val2                                                              |
+| 30 | briz       | blkid, blkid, result    | branch to the first block if the value is 0 otherwise branch to the second |
 
 as you can see the first byte of an opcode is the number of operand (this might change later)<br>
 for each instruction there is the opcode and then the operands

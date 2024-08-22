@@ -20,6 +20,6 @@ impl<'a> IrObject<'a> {
 
     pub fn append_block(&mut self) -> BlkId{
         self.blocks.push(Block::new());
-        return self.blocks.len() as u64
+        return self.blocks.len() as BlkId
     }
 }

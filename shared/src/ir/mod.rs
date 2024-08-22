@@ -1,4 +1,4 @@
-use instructions::Instruction;
+use instructions::{operand::BlkId, Instruction};
 pub mod instructions;
 use block::Block;
 pub mod block;
@@ -16,5 +16,10 @@ impl<'a> IrObject<'a> {
             variables : Vec::new(),
             blocks : Vec::new()
         }
+    }
+
+    pub fn append_block(&mut self) -> BlkId{
+        self.blocks.push(Block::new());
+        return self.blocks.len() as u64
     }
 }

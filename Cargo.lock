@@ -225,6 +225,7 @@ name = "jolangc"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "jolang_shared",
 ]
 
 [[package]]

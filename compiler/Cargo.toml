@@ -4,3 +4,4 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.86"
+jolang_shared = { version = "0.1.0", path = "../shared" }

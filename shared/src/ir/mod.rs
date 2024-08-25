@@ -1,9 +1,10 @@
+use index_list::IndexList;
 use instructions::{operand::{BlkId, FnId, VarId}, Instruction};
 pub mod instructions;
-use block::Block;
-pub mod block;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
+
+type Block = IndexList<Instruction>;
 
 pub struct IrObject {
     ext_fn : Vec<(String, u8, bool)>,

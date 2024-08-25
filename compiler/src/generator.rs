@@ -4,13 +4,15 @@ use index_list::ListIndex;
 
 pub struct IrGenerator {
     object : IrObject,
-    current_pos : Option<(BlkId, ListIndex)>
+    current_block : Option<BlkId>,
+    current_pos : Option<ListIndex>
 }
 
 impl IrGenerator {
     pub fn new() -> Self {
         Self {
             object : IrObject::new(),
+            current_block : None,
             current_pos : None
         }
     }
@@ -24,11 +26,11 @@ impl IrGenerator {
     }
 
     pub fn get_current_block<'b>(&'b self) -> Option<Ref<'b, Block>> {
-        self.current_pos.as_ref().map(|id| self.object.get_block(id.0))
+        self.current_block.as_ref().map(|id| self.object.get_block(id))
     }
 
     pub fn get_current_block_mut<'b>(&'b self) -> Option<RefMut<'b, Block>> {
-        self.current_pos.as_ref().map(|id| self.object.get_block_mut(id.0))
+        self.current_block.as_ref().map(|id| self.object.get_block_mut(id))
     }
 
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {

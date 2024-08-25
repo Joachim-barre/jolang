@@ -50,14 +50,16 @@ impl IrGenerator {
         self.object.append_block()
     }
     
-    pub fn goto(&mut self, block : BlkId) {
+    pub fn goto_end(&mut self, block : BlkId) {
         self.current_block = Some(block);
         let pos = self.get_current_block().map(|x| x.last_index());
         self.current_pos = pos;
     }
 
-    pub fn add_after(&mut self) {
-        
+    pub fn goto_begin(&mut self, block : BlkId) {
+        self.current_block = Some(block);
+        let pos = self.get_current_block().map(|x| x.first_index());
+        self.current_pos = pos;
     }
 }
 

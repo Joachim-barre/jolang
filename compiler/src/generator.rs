@@ -1,4 +1,4 @@
-use jolang_shared::ir::{instructions::operand::BlkId, IrObject};
+use jolang_shared::ir::{instructions::operand::{BlkId, VarId}, IrObject};
 
 struct IrGenerator<'a> {
     object : IrObject<'a>,
@@ -11,5 +11,9 @@ impl<'a> IrGenerator<'a> {
             object : IrObject::new(),
             current_block : None
         }
+    }
+
+    pub fn decl_var(&mut self, value : i64) {
+        self.object.decl_var(value);
     }
 }

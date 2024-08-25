@@ -1,4 +1,4 @@
-use instructions::{operand::BlkId, Instruction};
+use instructions::{operand::{VarId, BlkId}, Instruction};
 pub mod instructions;
 use block::Block;
 pub mod block;
@@ -30,5 +30,10 @@ impl<'a> IrObject<'a> {
 
     pub fn get_block_mut<'b>(&'b self, id : BlkId) -> RefMut<'b, Block<'a>> {
         self.blocks[id as usize].borrow_mut()
+    }
+
+    pub fn decl_var(&mut self, value : i64) -> VarId {
+        self.variables.push(value);
+        (self.variables.len() - 1) as VarId
     }
 }

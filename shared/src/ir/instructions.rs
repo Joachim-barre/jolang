@@ -29,42 +29,44 @@ c_enum! {
 }
 
 pub mod operand {
+    use index_list::ListIndex;
+
     use super::Instruction;
 
     pub type Imm = i64;
     pub type VarId = u64;
     pub type BlkId = u64;
-    pub type Result<'a> = &'a Instruction<'a>;
+    pub type Result = ListIndex;
     pub type FnId = u64;
 }
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
-pub enum Instruction<'a> {
+pub enum Instruction {
     Ret(),
-    Reti(operand::Result<'a>),
+    Reti(operand::Result),
     Varget(operand::VarId),
     Iconst(operand::Imm),
     Br(operand::BlkId),
-    Pusharg(operand::Result<'a>),
+    Pusharg(operand::Result),
     Call(operand::FnId),
-    Neg(operand::Result<'a>),
-    Varset(operand::VarId,operand::Result<'a>),
-    Add(operand::Result<'a>,operand::Result<'a>),
-    Sub(operand::Result<'a>,operand::Result<'a>),
-    Mul(operand::Result<'a>,operand::Result<'a>),
-    Div(operand::Result<'a>,operand::Result<'a>),
-    Eq(operand::Result<'a>,operand::Result<'a>),
-    Ne(operand::Result<'a>,operand::Result<'a>),
-    Gt(operand::Result<'a>,operand::Result<'a>),
-    Ge(operand::Result<'a>,operand::Result<'a>),
-    Le(operand::Result<'a>,operand::Result<'a>),
-    Lt(operand::Result<'a>,operand::Result<'a>),
-    Lsh(operand::Result<'a>,operand::Result<'a>),
-    Rsh(operand::Result<'a>,operand::Result<'a>),
-    Briz(operand::BlkId,operand::BlkId,operand::Result<'a>)
+    Neg(operand::Result),
+    Varset(operand::VarId,operand::Result),
+    Add(operand::Result,operand::Result),
+    Sub(operand::Result,operand::Result),
+    Mul(operand::Result,operand::Result),
+    Div(operand::Result,operand::Result),
+    Eq(operand::Result,operand::Result),
+    Ne(operand::Result,operand::Result),
+    Gt(operand::Result,operand::Result),
+    Ge(operand::Result,operand::Result),
+    Le(operand::Result,operand::Result),
+    Lt(operand::Result,operand::Result),
+    Lsh(operand::Result,operand::Result),
+    Rsh(operand::Result,operand::Result),
+    Briz(operand::BlkId,operand::BlkId,operand::Result)
 }
 
-impl<'a> Instruction<'a> {
+impl Instruction {
     pub fn opcode(&self) -> Opcodes {
         match self {
             Self::Ret() => Opcodes::Ret,

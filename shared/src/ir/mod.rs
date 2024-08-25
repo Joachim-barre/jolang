@@ -5,13 +5,13 @@ pub mod block;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
 
-pub struct IrObject<'a> {
+pub struct IrObject {
     ext_fn : Vec<(String, u8, bool)>,
     variables : Vec<i64>,
-    blocks : Vec<RefCell<Block<'a>>>
+    blocks : Vec<RefCell<Block>>
 }
 
-impl<'a> IrObject<'a> {
+impl IrObject {
     pub fn new() -> Self {
         Self{
             ext_fn : Vec::new(),
@@ -25,11 +25,11 @@ impl<'a> IrObject<'a> {
         return self.blocks.len() as BlkId
     }
 
-    pub fn get_block<'b>(&'b self, id : BlkId) -> Ref<'b, Block<'a>> {
+    pub fn get_block<'b>(&'b self, id : BlkId) -> Ref<'b, Block> {
         self.blocks[id as usize].borrow()
     }
 
-    pub fn get_block_mut<'b>(&'b self, id : BlkId) -> RefMut<'b, Block<'a>> {
+    pub fn get_block_mut<'b>(&'b self, id : BlkId) -> RefMut<'b, Block> {
         self.blocks[id as usize].borrow_mut()
     }
 

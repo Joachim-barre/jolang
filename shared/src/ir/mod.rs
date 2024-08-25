@@ -4,7 +4,7 @@ pub mod instructions;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
 
-type Block = IndexList<Instruction>;
+pub type Block = IndexList<Instruction>;
 
 pub struct IrObject {
     ext_fn : Vec<(String, u8, bool)>,

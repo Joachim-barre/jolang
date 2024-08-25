@@ -29,4 +29,13 @@ impl<'a> IrGenerator<'a> {
     pub fn get_current_block_mut<'b>(&'b self) -> Option<RefMut<'b, Block<'a>>> {
         self.current_block.as_ref().map(|id| self.object.get_block_mut(*id))
     }
+
+    pub fn append(&mut self, i : Instruction<'a>) -> Option<&Instruction> {
+        match self.get_current_block_mut() {
+            Some(mut blk) => {
+                Some(unsafe { std::mem::transmute(blk.push(i)) })
+            },
+            None => None
+        }
+    }
 }

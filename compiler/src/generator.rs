@@ -45,5 +45,5 @@ impl<'a> IrGenerator<'a> {
 }
 
 pub trait Generate {
-    fn generate(&mut self, generator : IrGenerator);
+    fn generate(&mut self, generator : &mut IrGenerator);
 }

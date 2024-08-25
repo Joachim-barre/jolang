@@ -1,8 +1,9 @@
-use instructions::{operand::{VarId, BlkId}, Instruction};
+use instructions::{operand::{BlkId, FnId, VarId}, Instruction};
 pub mod instructions;
 use block::Block;
 pub mod block;
 use std::cell::{Ref, RefCell, RefMut};
+use crate::ffi::JolangExtern;
 
 pub struct IrObject<'a> {
     ext_fn : Vec<(String, u8, bool)>,
@@ -35,5 +36,11 @@ impl<'a> IrObject<'a> {
     pub fn decl_var(&mut self, value : i64) -> VarId {
         self.variables.push(value);
         (self.variables.len() - 1) as VarId
+    }
+
+    pub fn decl_extern<T>(&mut self, name : String, func : T) -> FnId 
+    where T : JolangExtern{
+        self.ext_fn.push((name, func.arg_count(), func.returns()));
+        (self.ext_fn.len() -1) as FnId
     }
 }

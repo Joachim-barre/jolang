@@ -31,13 +31,10 @@ impl IrGenerator {
         self.current_pos.as_ref().map(|id| self.object.get_block_mut(id.0))
     }
 
-    pub fn append(&mut self, i : Instruction) -> Option<&Instruction> {
-        match self.get_current_block_mut() {
-            Some(mut blk) => {
-                Some(unsafe { std::mem::transmute(blk.push(i)) })
-            },
-            None => None
-        }
+    pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {
+        self.current_pos.as_ref().map(|(_, pre)| {
+            self.get_current_block_mut().unwrap().insert_after(*pre, i)
+        })
     }
 
     pub fn append_block(&mut self) -> BlkId {

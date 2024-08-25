@@ -14,8 +14,8 @@ impl<'a> IrGenerator<'a> {
         }
     }
 
-    pub fn decl_var(&mut self, value : i64) {
-        self.object.decl_var(value);
+    pub fn decl_var(&mut self, value : i64) -> VarId {
+        self.object.decl_var(value)
     }
 
     pub fn into_ir(self) -> IrObject<'a>{

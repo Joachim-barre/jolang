@@ -10,4 +10,11 @@ impl<'a> Block<'a> {
             instructions : Vec::new()
         }
     }
+
+    pub fn push(&mut self, i : Instruction<'a>) -> &'a Instruction<'a> {
+        self.instructions.push(i);
+        unsafe {
+            std::mem::transmute(&self.instructions[self.instructions.len() - 1])
+        }
+    }
 }

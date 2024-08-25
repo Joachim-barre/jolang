@@ -1,4 +1,5 @@
-use jolang_shared::ir::{instructions::operand::{BlkId, VarId}, IrObject};
+use jolang_shared::ir::{block::Block, instructions::operand::{BlkId, VarId}, IrObject};
+use std::cell::{Ref, RefMut};
 
 struct IrGenerator<'a> {
     object : IrObject<'a>,
@@ -19,5 +20,13 @@ impl<'a> IrGenerator<'a> {
 
     pub fn into_ir(self) -> IrObject<'a>{
         self.object
+    }
+
+    pub fn get_current_block<'b>(&'b self) -> Option<Ref<'b, Block<'a>>> {
+        self.current_block.as_ref().map(|id| self.object.get_block(*id))
+    }
+
+    pub fn get_current_block_mut<'b>(&'b self) -> Option<RefMut<'b, Block<'a>>> {
+        self.current_block.as_ref().map(|id| self.object.get_block_mut(*id))
     }
 }

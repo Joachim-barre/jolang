@@ -51,7 +51,9 @@ impl IrGenerator {
     }
     
     pub fn goto(&mut self, block : BlkId) {
-        self.current_block = Some(block)
+        self.current_block = Some(block);
+        let pos = self.get_current_block().map(|x| x.last_index());
+        self.current_pos = pos;
     }
 
     pub fn add_after(&mut self) {

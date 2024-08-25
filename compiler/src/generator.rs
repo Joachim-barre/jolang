@@ -38,4 +38,8 @@ impl<'a> IrGenerator<'a> {
             None => None
         }
     }
+
+    pub fn append_block(&mut self) -> BlkId {
+        self.object.append_block()
+    }
 }

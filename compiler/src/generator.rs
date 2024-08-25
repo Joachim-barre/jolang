@@ -34,9 +34,16 @@ impl IrGenerator {
     }
 
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {
-        self.current_pos.as_ref().map(|(_, pre)| {
-            self.get_current_block_mut().unwrap().insert_after(*pre, i)
-        })
+        let pos = self.get_current_block_mut().map(|mut b| match self.current_pos{
+            Some(pos) => {
+                b.insert_after(pos, i)
+            },
+            None => {
+                b.insert_first(i)
+            }
+        });
+        self.current_pos = pos;
+        pos
     }
 
     pub fn append_block(&mut self) -> BlkId {

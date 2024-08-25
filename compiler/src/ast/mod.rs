@@ -1,4 +1,5 @@
 mod builder;
+mod generators;
 pub use builder::AstBuilder;
 
 // TODO : Include SourceCursors into ast nodes to be able to generate error during IR generation

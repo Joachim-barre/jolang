@@ -1,7 +1,7 @@
 use jolang_shared::ir::{block::Block, instructions::{operand::{BlkId, VarId}, Instruction}, IrObject};
 use std::cell::{Ref, RefMut};
 
-struct IrGenerator<'a> {
+pub struct IrGenerator<'a> {
     object : IrObject<'a>,
     current_block : Option<BlkId>
 }

@@ -1,4 +1,4 @@
-use jolang_shared::ir::{block::Block, instructions::{operand::{BlkId, VarId}, Instruction}, IrObject};
+use jolang_shared::ir::{Block, instructions::{operand::{BlkId, VarId}, Instruction}, IrObject};
 use std::cell::{Ref, RefMut};
 
 pub struct IrGenerator {

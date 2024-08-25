@@ -26,11 +26,11 @@ impl IrGenerator {
     }
 
     pub fn get_current_block<'b>(&'b self) -> Option<Ref<'b, Block>> {
-        self.current_block.as_ref().map(|id| self.object.get_block(id))
+        self.current_block.as_ref().map(|id| self.object.get_block(*id))
     }
 
     pub fn get_current_block_mut<'b>(&'b self) -> Option<RefMut<'b, Block>> {
-        self.current_block.as_ref().map(|id| self.object.get_block_mut(id))
+        self.current_block.as_ref().map(|id| self.object.get_block_mut(*id))
     }
 
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {

@@ -43,3 +43,7 @@ impl<'a> IrGenerator<'a> {
         self.object.append_block()
     }
 }
+
+pub trait Generate {
+    fn generate(&mut self, generator : IrGenerator);
+}

@@ -13,12 +13,12 @@ impl Generate for Program {
         let scope = Scope::new(ScopeKind::Root, Some(exit_block));
         generator.enter_scope(scope);
         generator.goto_begin(blk);
-        generator.add(Instruction::Br(exit_block));
-        generator.goto_begin(blk);
         for s in &self.0 {
             s.generate(generator);
         }
         generator.exit_scope();
+        generator.goto_end(blk);
+        generator.add(Instruction::Br(exit_block));
     }
 }
 

@@ -81,6 +81,10 @@ impl IrGenerator {
     pub fn exit_scope(&mut self) {
         self.current_scopes.remove_first();
     }
+
+    pub fn get_scopes(&self) -> &IndexList<Scope> {
+        &self.current_scopes
+    }
 }
 
 pub trait Generate {

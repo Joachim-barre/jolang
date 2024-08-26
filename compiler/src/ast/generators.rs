@@ -1,8 +1,8 @@
 use jolang_shared::ffi::jolang_std::JOLANG_STD;
 use jolang_shared::ir::instructions::Instruction;
 use crate::scope::{Scope, ScopeKind};
-use crate::generator::{Generate, IrGenerator};
-use super::{Expr, Program, Statement, Call};
+use crate::generator::{self, Generate, IrGenerator};
+use super::{Call, Expr, Ident, PrimaryExpr, Program, Statement};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
@@ -151,7 +151,27 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
 
 impl Generate for Expr {
     fn generate(&self, generator : &mut IrGenerator) {
-        todo!()
+        match self {
+            Expr::PrimaryExpr(p) => p.generate(generator),
+            _ => todo!()
+        }
+    }
+}
+
+impl Generate for PrimaryExpr {
+    fn generate(&self, generator : &mut IrGenerator) {
+        match self {
+            PrimaryExpr::Call(c) => c.generate(generator),
+            PrimaryExpr::Ident(name) => {
+                let id = generator.get_varid(name.to_string()).expect(format!("unknown variable : {}", name).as_str());
+                generator.add(Instruction::Varget(id));
+            },
+            PrimaryExpr::Litteral(val) => {
+                generator.add(Instruction::Iconst(*val));
+                ()
+            },
+            PrimaryExpr::Expr(e) => e.generate(generator)
+        }
     }
 }
 

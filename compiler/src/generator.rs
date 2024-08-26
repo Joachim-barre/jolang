@@ -77,6 +77,10 @@ impl IrGenerator {
             .map(|s| s.get_var(&name))
             .next()?
     }
+
+    pub fn exit_scope(&mut self) {
+        self.current_scopes.remove_first();
+    }
 }
 
 pub trait Generate {

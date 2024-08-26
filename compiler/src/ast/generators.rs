@@ -1,3 +1,4 @@
+use crate::scope::{Scope, ScopeKind};
 use crate::generator::{Generate, IrGenerator};
 use super::{Program, Statement};
 
@@ -15,9 +16,12 @@ impl Generate for Statement {
     fn generate(&mut self, generator : &mut IrGenerator) {
         match self {
             Self::Block(stmts) => {
+                let scope = Scope::new(ScopeKind::Block);
+                generator.enter_scope(scope);
                 for s in stmts {
                     s.generate(generator);
                 }
+                generator.exit_scope();
             },
             _ => todo!()
         }

@@ -1,3 +1,4 @@
+use jolang_shared::ir::instructions::Instruction;
 use crate::scope::{Scope, ScopeKind};
 use crate::generator::{Generate, IrGenerator};
 use super::{Expr, Program, Statement};
@@ -28,6 +29,15 @@ impl Generate for Statement {
             },
             Self::If(expr, then, _else) => {
                 expr.generate(generator);
+                let cond = generator.get_current_block().unwrap().last_index();
+                let then_block = generator.append_block();
+                let else_block = generator.append_block();
+                let after_block = match _else {
+                    Some(_) => generator.append_block(),
+                    None => else_block
+                };
+                generator.add(Instruction::Briz(then_block, else_block, cond));
+                generator.goto_begin(then_block);
                 match **then {
                     Self::Block(_) => then.generate(generator),
                     _ => {
@@ -37,6 +47,8 @@ impl Generate for Statement {
                         generator.exit_scope();
                     }
                 }
+                generator.add(Instruction::Br(after_block));
+                generator.goto_begin(else_block);
                 if let Some(_else) = _else {
                     match **_else {
                         Self::Block(_) => then.generate(generator),
@@ -47,6 +59,8 @@ impl Generate for Statement {
                             generator.exit_scope();
                         }
                     }
+                    generator.add(Instruction::Br(after_block));
+                    generator.goto_begin(after_block);
                 }
             },
             _ => todo!()

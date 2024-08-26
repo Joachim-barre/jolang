@@ -7,7 +7,7 @@ use crate::ffi::JolangExtern;
 pub type Block = IndexList<Instruction>;
 
 pub struct IrObject {
-    ext_fn : Vec<(String, u8, bool)>,
+    pub ext_fn : Vec<(String, u8, bool)>,
     variables : Vec<i64>,
     blocks : Vec<RefCell<Block>>
 }

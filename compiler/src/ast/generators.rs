@@ -1,6 +1,6 @@
 use crate::scope::{Scope, ScopeKind};
 use crate::generator::{Generate, IrGenerator};
-use super::{Program, Statement};
+use super::{Expr, Program, Statement};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
@@ -23,7 +23,36 @@ impl Generate for Statement {
                 }
                 generator.exit_scope();
             },
+            Self::If(expr, then, _else) => {
+                expr.generate(generator);
+                match **then {
+                    Self::Block(_) => then.generate(generator),
+                    _ => {
+                        let scope = Scope::new(ScopeKind::Block);
+                        generator.enter_scope(scope);
+                        then.generate(generator);
+                        generator.exit_scope();
+                    }
+                }
+                if let Some(_else) = _else {
+                    match **_else {
+                        Self::Block(_) => then.generate(generator),
+                        _ => {
+                            let scope = Scope::new(ScopeKind::Block);
+                            generator.enter_scope(scope);
+                            _else.generate(generator);
+                            generator.exit_scope();
+                        }
+                    }
+                }
+            },
             _ => todo!()
         }
+    }
+}
+
+impl Generate for Expr {
+    fn generate(&self, generator : &mut IrGenerator) {
+        todo!()
     }
 }

@@ -1,11 +1,14 @@
 use jolang_shared::ir::{Block, instructions::{operand::{BlkId, VarId}, Instruction}, IrObject};
 use std::cell::{Ref, RefMut};
-use index_list::ListIndex;
+use index_list::{IndexList, ListIndex};
+use crate::scope::Scope;
 
 pub struct IrGenerator {
     object : IrObject,
     current_block : Option<BlkId>,
-    current_pos : Option<ListIndex>
+    current_pos : Option<ListIndex>,
+    // data for the generation
+    current_scopes : IndexList<Scope>
 }
 
 impl IrGenerator {
@@ -13,7 +16,8 @@ impl IrGenerator {
         Self {
             object : IrObject::new(),
             current_block : None,
-            current_pos : None
+            current_pos : None,
+            current_scopes : IndexList::new()
         }
     }
 

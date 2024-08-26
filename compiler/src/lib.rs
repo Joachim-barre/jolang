@@ -10,6 +10,7 @@ pub mod source_span;
 pub mod ast;
 pub mod source_reader;
 pub mod generator;
+pub mod scope;
 
 pub fn build(source_path : PathBuf, _output_path : PathBuf) -> Result<()> {
     let source = SourceBuffer::open(source_path)?;

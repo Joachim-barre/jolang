@@ -134,6 +134,12 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
                     let val = generator.get_current_block().unwrap().last_index();
                     generator.add(Instruction::Varset(id, val));
                 }
+            },
+            Self::VarSet(name, value) => {
+                value.generate(generator);
+                let val = generator.get_current_block().unwrap().last_index();
+                let id = generator.get_varid(name.to_string()).expect(format!("unknown variable : {}", name).as_str());
+                generator.add(Instruction::Varset(id, val));
             }
             _ => todo!()
         }

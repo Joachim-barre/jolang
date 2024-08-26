@@ -2,7 +2,7 @@ use jolang_shared::ffi::jolang_std::JOLANG_STD;
 use jolang_shared::ir::instructions::Instruction;
 use crate::scope::{Scope, ScopeKind};
 use crate::generator::{self, Generate, IrGenerator};
-use super::{Call, Expr, Ident, PrimaryExpr, Program, Statement};
+use super::{Call, Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
@@ -153,6 +153,17 @@ impl Generate for Expr {
     fn generate(&self, generator : &mut IrGenerator) {
         match self {
             Expr::PrimaryExpr(p) => p.generate(generator),
+            Expr::UnaryExpr(op, p) => {
+                p.generate(generator);
+                match op {
+                    UnaryOp::Plus => (),
+                    UnaryOp::Minus => {
+                        let val = generator.get_current_block().unwrap().last_index();
+                        generator.add(Instruction::Neg(val));
+                        ()
+                    }
+                };
+            },
             _ => todo!()
         }
     }

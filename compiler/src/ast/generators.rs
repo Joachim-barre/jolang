@@ -83,6 +83,7 @@ impl Generate for Statement {
                 body.generate(generator);
                 generator.add(Instruction::Br(while_cond));
                 generator.exit_scope();
+                generator.goto_begin(after_block);
             },
             _ => todo!()
         }

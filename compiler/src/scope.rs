@@ -12,3 +12,12 @@ pub struct Scope {
     variables : HashMap<String, VarId>,
     kind : ScopeKind
 }
+
+impl Scope {
+    pub fn new(kind : ScopeKind) -> Self {
+        Self { 
+            variables: HashMap::new(), 
+            kind
+        }
+    }
+}

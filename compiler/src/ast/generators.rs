@@ -42,7 +42,7 @@ impl Generate for Statement {
                     Some(_) => generator.append_block(),
                     None => else_block
                 };
-                generator.add(Instruction::Briz(then_block, else_block, cond));
+                generator.add(Instruction::Briz(else_block, then_block, cond));
                 generator.goto_begin(then_block);
                 match **then {
                     Self::Block(_) => then.generate(generator),

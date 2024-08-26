@@ -104,6 +104,14 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
                 let value = generator.get_current_block().unwrap().last_index();
                 generator.add(Instruction::Reti(value));
             },
+            Self::Continue => {
+                generator.add(Instruction::Br(generator.get_scopes()
+                    .iter()
+                    .filter(|x| x.kind == ScopeKind::Loop)
+                    .next()
+                    .expect("can't continue outside a loop")
+                    .block));
+            }
             _ => todo!()
         }
     }

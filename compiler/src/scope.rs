@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use jolang_shared::ir::instructions::operand::{BlkId, VarId};
 
+#[derive(PartialEq)]
 pub enum ScopeKind {
     // the first Scope contains globals
     Root,
@@ -10,9 +11,9 @@ pub enum ScopeKind {
 
 pub struct Scope {
     variables : HashMap<String, VarId>,
-    kind : ScopeKind,
-    block : BlkId,
-    exit : BlkId
+    pub kind : ScopeKind,
+    pub block : BlkId,
+    pub exit : BlkId
 }
 
 impl Scope {

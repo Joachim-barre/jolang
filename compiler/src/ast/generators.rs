@@ -69,6 +69,21 @@ impl Generate for Statement {
                     generator.goto_begin(after_block);
                 }
             },
+            Statement::While(expr, body) => {
+                let while_cond = generator.append_block();
+                generator.add(Instruction::Br(while_cond));
+                let while_body = generator.append_block();
+                let after_block = generator.append_block();
+                let scope = Scope::new(ScopeKind::Loop, Some(after_block));
+                generator.enter_scope(scope);
+                expr.generate(generator);
+                let cond = generator.get_current_block().unwrap().last_index();
+                generator.add(Instruction::Briz(after_block, while_body, cond));
+                generator.goto_begin(while_body);
+                body.generate(generator);
+                generator.add(Instruction::Br(while_cond));
+                generator.exit_scope();
+            },
             _ => todo!()
         }
     }

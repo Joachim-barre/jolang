@@ -11,14 +11,16 @@ pub enum ScopeKind {
 pub struct Scope {
     variables : HashMap<String, VarId>,
     kind : ScopeKind,
-    exit : Option<BlkId>
+    block : BlkId,
+    exit : BlkId
 }
 
 impl Scope {
-    pub fn new(kind : ScopeKind, exit : Option<BlkId>) -> Self {
+    pub fn new(kind : ScopeKind, block : BlkId, exit : BlkId) -> Self {
         Self { 
             variables: HashMap::new(), 
             kind,
+            block,
             exit
         }
     }

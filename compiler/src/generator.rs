@@ -74,8 +74,8 @@ impl IrGenerator {
 
     pub fn get_varid(&mut self, name : String) -> Option<VarId> {
         self.current_scopes.iter()
-            .map(|s| s.get_var(&name))
-            .next()?
+            .filter_map(|s| s.get_var(&name))
+            .next()
     }
 
     pub fn exit_scope(&mut self) {

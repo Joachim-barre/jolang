@@ -84,6 +84,16 @@ impl Generate for Statement {
                 generator.exit_scope();
                 generator.goto_begin(after_block);
             },
+            Self::Loop(body) => {
+                let loop_body = generator.append_block();
+                let after_block = generator.append_block();
+                let scope = Scope::new(ScopeKind::Loop, Some(after_block));
+                generator.enter_scope(scope);
+                generator.goto_begin(loop_body);
+                body.generate(generator);
+                generator.add(Instruction::Br(after_block));
+                generator.goto_begin(after_block);
+            }
             _ => todo!()
         }
     }

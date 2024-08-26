@@ -6,6 +6,7 @@ use crate::ffi::JolangExtern;
 
 pub type Block = IndexList<Instruction>;
 
+#[derive(Debug)]
 pub struct IrObject {
     pub ext_fn : Vec<(String, u8, bool)>,
     variables : Vec<i64>,

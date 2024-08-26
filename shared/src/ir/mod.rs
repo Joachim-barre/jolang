@@ -24,7 +24,7 @@ impl IrObject {
 
     pub fn append_block(&mut self) -> BlkId{
         self.blocks.push(RefCell::new(Block::new()));
-        return self.blocks.len() as BlkId
+        return (self.blocks.len() as BlkId) -1
     }
 
     pub fn get_block<'b>(&'b self, id : BlkId) -> Ref<'b, Block> {

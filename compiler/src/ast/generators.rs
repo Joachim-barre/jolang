@@ -1,7 +1,8 @@
+use jolang_shared::ffi::jolang_std::JOLANG_STD;
 use jolang_shared::ir::instructions::Instruction;
 use crate::scope::{Scope, ScopeKind};
 use crate::generator::{Generate, IrGenerator};
-use super::{Expr, Program, Statement};
+use super::{Expr, Program, Statement, Call};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
@@ -140,8 +141,10 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
                 let val = generator.get_current_block().unwrap().last_index();
                 let id = generator.get_varid(name.to_string()).expect(format!("unknown variable : {}", name).as_str());
                 generator.add(Instruction::Varset(id, val));
+            },
+            Self::Call(call) => {
+                call.generate(generator);
             }
-            _ => todo!()
         }
     }
 }
@@ -149,5 +152,25 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
 impl Generate for Expr {
     fn generate(&self, generator : &mut IrGenerator) {
         todo!()
+    }
+}
+
+impl Generate for Call {
+    fn generate(&self, generator : &mut IrGenerator) {
+        for arg in &self.1 {
+            arg.generate(generator);
+            let val = generator.get_current_block().unwrap().last_index();
+            generator.add(Instruction::Pusharg(val));
+        }
+        if let Some(id) = generator.get_externs().iter().enumerate().filter(|x| x.1.0 == self.0).next().map(|x| x.0) {
+            generator.add(Instruction::Call(id as u64));
+        }else {
+            let sig = JOLANG_STD.iter()
+                .filter(|x| x.0 == self.0)
+                .next().map(|x| &x.1)
+                .expect(format!("unknown function : {}", self.0).as_str());
+            let id = generator.decl_extern(self.0.clone(), sig);
+            generator.add(Instruction::Call(id));
+        }
     }
 }

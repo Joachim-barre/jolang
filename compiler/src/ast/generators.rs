@@ -164,7 +164,50 @@ impl Generate for Expr {
                     }
                 };
             },
-            _ => todo!()
+            Expr::BinExpr(e1, e2, op) => {
+                e1.generate(generator);
+                let val1 = generator.get_current_block().unwrap().last_index();
+                e2.generate(generator);
+                let val2 = generator.get_current_block().unwrap().last_index();
+                match op {
+                    super::BinOp::Add => {
+                        generator.add(Instruction::Add(val1, val2))
+                    },
+                    super::BinOp::Sub => {
+                        generator.add(Instruction::Sub(val1, val2))
+                    },
+                    super::BinOp::Mul => {
+                        generator.add(Instruction::Mul(val1, val2))
+                    },
+                    super::BinOp::Div => {
+                        generator.add(Instruction::Div(val1, val2))
+                    },
+                    super::BinOp::Equal => {
+                        generator.add(Instruction::Eq(val1, val2))
+                    },
+                    super::BinOp::NotEqual => {
+                        generator.add(Instruction::Ne(val1, val2))
+                    },
+                    super::BinOp::Greater => {
+                        generator.add(Instruction::Gt(val1, val2))
+                    },
+                    super::BinOp::GreaterEqual => {
+                        generator.add(Instruction::Ge(val1, val2))
+                    },
+                    super::BinOp::LesserEqual => {
+                        generator.add(Instruction::Le(val1, val2))
+                    },
+                    super::BinOp::Lesser => {
+                        generator.add(Instruction::Lt(val1, val2))
+                    },
+                    super::BinOp::LShift => {
+                        generator.add(Instruction::Lsh(val1, val2))
+                    },
+                    super::BinOp::RShift => {
+                        generator.add(Instruction::Rsh(val1, val2))
+                    }
+                };
+            }
         }
     }
 }

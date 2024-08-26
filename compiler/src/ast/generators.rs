@@ -10,3 +10,16 @@ impl Generate for Program {
         }
     }
 }
+
+impl Generate for Statement {
+    fn generate(&mut self, generator : &mut IrGenerator) {
+        match self {
+            Self::Block(stmts) => {
+                for s in stmts {
+                    s.generate(generator);
+                }
+            },
+            _ => todo!()
+        }
+    }
+}

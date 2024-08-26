@@ -1,4 +1,5 @@
 use ast::AstBuilder;
+use generator::{Generate, IrGenerator};
 use lexer::Lexer;
 use source_buffer::SourceBuffer;
 use anyhow::Result;
@@ -15,12 +16,12 @@ pub mod scope;
 pub fn build(source_path : PathBuf, _output_path : PathBuf) -> Result<()> {
     let source = SourceBuffer::open(source_path)?;
     match AstBuilder::from(Lexer::new(&source)).parse_program() {
-        Ok(p) => {dbg!(p); ()},
+        Ok(p) => {
+            let mut generator = IrGenerator::new();
+            p.generate(&mut generator);
+            dbg!(generator.into_ir());
+            Ok(())
+        },
         Err(e) => return Err(e.into())
-    
     }
-    /*for t in Lexer::new(&source) {
-        dbg!(t?);
-    }*/
-    todo!();
 }

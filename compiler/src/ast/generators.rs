@@ -98,7 +98,12 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
                 body.generate(generator);
                 generator.add(Instruction::Br(after_block));
                 generator.goto_begin(after_block);
-            }
+            },
+            Self::Return(expr) => {
+                expr.generate(generator);
+                let value = generator.get_current_block().unwrap().last_index();
+                generator.add(Instruction::Reti(value));
+            },
             _ => todo!()
         }
     }

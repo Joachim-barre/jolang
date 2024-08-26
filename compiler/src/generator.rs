@@ -67,6 +67,10 @@ impl IrGenerator {
         let pos = self.get_current_block().map(|x| x.first_index());
         self.current_pos = pos;
     }
+
+    pub fn enter_scope(&mut self, scope : Scope) {
+        self.current_scopes.insert_first(scope);
+    }
 }
 
 pub trait Generate {

@@ -20,4 +20,12 @@ impl Scope {
             kind
         }
     }
+
+    pub fn decl_var(&mut self, name : String, id : VarId) {
+        self.variables.insert(name, id);
+    }
+
+    pub fn get_var(&mut self, name : String) -> Option<VarId> {
+        self.variables.get(&name).copied()
+    }
 }

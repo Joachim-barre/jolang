@@ -21,8 +21,10 @@ impl IrGenerator {
         }
     }
 
-    pub fn decl_var(&mut self, value : i64) -> VarId {
-        self.object.decl_var(value)
+    pub fn decl_var(&mut self, name : String, value : i64) -> VarId {
+        let id = self.object.decl_var(value);
+        self.current_scopes.get_mut_last().map(|x| x.decl_var(name, id));
+        id
     }
 
     pub fn into_ir(self) -> IrObject{

@@ -119,6 +119,21 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
                     .next()
                     .expect("can't continue outside a loop")
                     .exit));
+            },
+            Self::VarDecl(name, value) => {
+                let default_value = match value {
+                    Some(Expr::PrimaryExpr(p)) => match p {
+                        super::PrimaryExpr::Litteral(v) => v.clone(),
+                        _ => 0
+                    },
+                    _ => 0
+                };
+                let id = generator.decl_var(name.to_string(), default_value);
+                if default_value == 0 && value.is_some() {
+                    value.as_ref().unwrap().generate(generator);
+                    let val = generator.get_current_block().unwrap().last_index();
+                    generator.add(Instruction::Varset(id, val));
+                }
             }
             _ => todo!()
         }

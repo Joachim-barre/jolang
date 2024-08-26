@@ -71,6 +71,12 @@ impl IrGenerator {
     pub fn enter_scope(&mut self, scope : Scope) {
         self.current_scopes.insert_first(scope);
     }
+
+    pub fn get_varid(&mut self, name : String) -> Option<VarId> {
+        self.current_scopes.iter()
+            .map(|s| s.get_var(&name))
+            .next()?
+    }
 }
 
 pub trait Generate {

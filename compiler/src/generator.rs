@@ -23,7 +23,7 @@ impl IrGenerator {
 
     pub fn decl_var(&mut self, name : String, value : i64) -> VarId {
         let id = self.object.decl_var(value);
-        self.current_scopes.get_mut_last().map(|x| x.decl_var(name, id));
+        self.current_scopes.get_mut_first().map(|x| x.decl_var(name, id));
         id
     }
 

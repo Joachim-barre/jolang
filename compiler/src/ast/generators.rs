@@ -4,11 +4,14 @@ use super::{Expr, Program, Statement};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
+        let scope = Scope::new(ScopeKind::Root);
+        generator.enter_scope(scope);
         let blk = generator.append_block();
         generator.goto_begin(blk);
         for s in &self.0 {
             s.generate(generator);
         }
+        generator.exit_scope();
     }
 }
 

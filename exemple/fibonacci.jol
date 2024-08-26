@@ -32,7 +32,7 @@ if(precedence_test != 4){
 }
 
 // test the pow builtin function
-var pow_tes = pow(3,3);
+var pow_test = pow(3,3);
 if (pow_test != 21) {
     return 2;
 }

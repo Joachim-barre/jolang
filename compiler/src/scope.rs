@@ -25,7 +25,7 @@ impl Scope {
         self.variables.insert(name, id);
     }
 
-    pub fn get_var(&mut self, name : String) -> Option<VarId> {
-        self.variables.get(&name).copied()
+    pub fn get_var(&self, name : &String) -> Option<VarId> {
+        self.variables.get(name).copied()
     }
 }

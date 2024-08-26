@@ -26,7 +26,7 @@ impl Generate for Statement {
     fn generate(&self, generator : &mut IrGenerator) {
         match self {
             Self::Block(stmts) => {
-                let scope = Scope::new(ScopeKind::Block);
+                let scope = Scope::new(ScopeKind::Block, None);
                 generator.enter_scope(scope);
                 for s in stmts {
                     s.generate(generator);
@@ -47,7 +47,7 @@ impl Generate for Statement {
                 match **then {
                     Self::Block(_) => then.generate(generator),
                     _ => {
-                        let scope = Scope::new(ScopeKind::Block);
+                        let scope = Scope::new(ScopeKind::Block, Some(after_block));
                         generator.enter_scope(scope);
                         then.generate(generator);
                         generator.exit_scope();
@@ -59,7 +59,7 @@ impl Generate for Statement {
                     match **_else {
                         Self::Block(_) => then.generate(generator),
                         _ => {
-                            let scope = Scope::new(ScopeKind::Block);
+                            let scope = Scope::new(ScopeKind::Block, Some(after_block));
                             generator.enter_scope(scope);
                             _else.generate(generator);
                             generator.exit_scope();

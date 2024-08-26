@@ -17,7 +17,6 @@ impl Generate for Program {
             s.generate(generator);
         }
         generator.exit_scope();
-        generator.goto_end(blk);
         generator.add(Instruction::Br(exit_block));
     }
 }

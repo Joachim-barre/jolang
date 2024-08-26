@@ -90,8 +90,7 @@ impl IrGenerator {
         &self.object.ext_fn
     }
 
-    pub fn decl_extern<T>(&mut self, name : String, func : T) -> FnId
-        where T : JolangExtern {
+    pub fn decl_extern(&mut self, name : String, func : &Box<dyn JolangExtern>) -> FnId{
         self.object.decl_extern(name, func)
     }
 }

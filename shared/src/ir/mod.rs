@@ -39,8 +39,7 @@ impl IrObject {
         (self.variables.len() - 1) as VarId
     }
 
-    pub fn decl_extern<T>(&mut self, name : String, func : T) -> FnId 
-    where T : JolangExtern{
+    pub fn decl_extern(&mut self, name : String, func : &Box<dyn JolangExtern>) -> FnId {
         self.ext_fn.push((name, func.arg_count(), func.returns()));
         (self.ext_fn.len() -1) as FnId
     }

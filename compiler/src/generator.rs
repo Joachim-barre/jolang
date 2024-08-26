@@ -1,4 +1,4 @@
-use jolang_shared::ir::{Block, instructions::{operand::{BlkId, VarId}, Instruction}, IrObject};
+use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId, VarId}, Instruction}, Block, IrObject}};
 use std::cell::{Ref, RefMut};
 use index_list::{IndexList, ListIndex};
 use crate::scope::Scope;
@@ -84,6 +84,15 @@ impl IrGenerator {
 
     pub fn get_scopes(&self) -> &IndexList<Scope> {
         &self.current_scopes
+    }
+
+    pub fn get_externs(&self) -> &Vec<(String, u8, bool)> {
+        &self.object.ext_fn
+    }
+
+    pub fn decl_extern<T>(&mut self, name : String, func : T) -> FnId
+        where T : JolangExtern {
+        self.object.decl_extern(name, func)
     }
 }
 

@@ -5,9 +5,15 @@ use super::{Expr, Program, Statement};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
-        let scope = Scope::new(ScopeKind::Root);
-        generator.enter_scope(scope);
         let blk = generator.append_block();
+        let exit_block = generator.append_block();
+        generator.goto_begin(exit_block);
+        let code = generator.add(Instruction::Iconst(0)).unwrap();
+        generator.add(Instruction::Reti(code));
+        let scope = Scope::new(ScopeKind::Root, Some(exit_block));
+        generator.enter_scope(scope);
+        generator.goto_begin(blk);
+        generator.add(Instruction::Br(exit_block));
         generator.goto_begin(blk);
         for s in &self.0 {
             s.generate(generator);

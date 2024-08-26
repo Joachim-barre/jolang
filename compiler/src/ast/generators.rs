@@ -111,6 +111,14 @@ generator.add(Instruction::Briz(after_block, while_body, cond));
                     .next()
                     .expect("can't continue outside a loop")
                     .block));
+            },
+            Self::Break => {
+                generator.add(Instruction::Br(generator.get_scopes()
+                    .iter()
+                    .filter(|x| x.kind == ScopeKind::Loop)
+                    .next()
+                    .expect("can't continue outside a loop")
+                    .exit));
             }
             _ => todo!()
         }

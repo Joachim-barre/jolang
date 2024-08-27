@@ -77,6 +77,7 @@ impl IrGenerator {
                 | Instruction::Call(_)
                 | Instruction::Neg()
                 | Instruction::Briz(_, _)
+                | Instruction::Swap()
                 => None
         };
         let pos = self.get_current_block_mut().map(|mut b| match self.current_pos{

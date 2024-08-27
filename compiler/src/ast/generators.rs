@@ -45,36 +45,39 @@ impl Generate for Statement {
             },
             Self::If(expr, then, _else) => {
                 expr.generate(generator);
-                let cond = generator.get_current_block().unwrap().last_index();
+                let cond = generator.stack_size().unwrap() -1;
                 let then_block = generator.append_block();
                 let else_block = generator.append_block();
                 let after_block = match _else {
                     Some(_) => generator.append_block(),
                     None => else_block
                 };
-                generator.add(Instruction::Briz(else_block, then_block, cond));
-                generator.goto_begin(then_block);
-                match **then {
-                    Self::Block(_) => then.generate(generator),
-                    _ => {
-                        let scope = Scope::new(ScopeKind::Block, then_block, after_block);
-                        generator.enter_scope(scope);
-                        then.generate(generator);
-                        generator.exit_scope();
-                    }
-                }
-                generator.add(Instruction::Br(after_block));
+                generator.pass_vars();
+                generator.add(Instruction::Dupx(cond as i64));
+                generator.add(Instruction::Briz(else_block, then_block));
                 generator.goto_begin(else_block);
+                generator.recive_vars();
+                if _else.is_some() {
+                    generator.goto_begin(after_block);
+                    generator.recive_vars();
+                }
+                generator.goto_begin(then_block);
+                generator.recive_vars();
+                
+                let scope = Scope::new(ScopeKind::Block, then_block, after_block);
+                generator.enter_scope(scope);
+                then.generate(generator);
+                generator.exit_scope();
+                generator.pass_vars();
+                generator.add(Instruction::Br(after_block));
+                
+                generator.goto_end(else_block);
                 if let Some(_else) = _else {
-                    match **_else {
-                        Self::Block(_) => then.generate(generator),
-                        _ => {
-                            let scope = Scope::new(ScopeKind::Block, else_block, after_block);
-                            generator.enter_scope(scope);
-                            _else.generate(generator);
-                            generator.exit_scope();
-                        }
-                    }
+                    let scope = Scope::new(ScopeKind::Block, else_block, after_block);
+                    generator.enter_scope(scope);
+                    _else.generate(generator);
+                    generator.exit_scope();
+                    generator.pass_vars();
                     generator.add(Instruction::Br(after_block));
                     generator.goto_begin(after_block);
                 }

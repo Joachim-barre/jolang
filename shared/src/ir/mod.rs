@@ -5,6 +5,7 @@ use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
 pub mod printer;
 pub mod block;
+pub mod writer;
 use block::Block;
 
 pub struct IrObject {

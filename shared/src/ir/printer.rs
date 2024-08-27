@@ -9,8 +9,8 @@ pub fn write_ir(format : &mut std::fmt::Formatter, ir : &IrObject) -> fmt::Resul
 
     write!(format, "fn main () -> i64 {{")?;
     for b in ir.blocks.iter().map(|b| b.take()).enumerate() {
-        write!(format, ".B{} : \n", b.0)?;
-        for i in b.1.iter() {
+        write!(format, ".B{}({}) : \n", b.0, "i64 ".repeat(b.1.argc as usize))?;
+        for i in b.1.instructions.iter() {
             write!(format, "\t")?;
             match i {
                 super::instructions::Instruction::Ret() => write!(format, "ret"),

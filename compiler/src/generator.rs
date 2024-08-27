@@ -30,12 +30,13 @@ impl IrGenerator {
 
     pub fn update_var(&mut self, name : String) -> u64 {
         let offset = self.get_current_block().unwrap().stack_size;
-        let index = self.current_scopes.first_index();
+        let mut index = self.current_scopes.first_index();
         while index.is_some(){
             let scope = self.current_scopes.get_mut(index).unwrap();
             if scope.get_var(&name).is_some() {
                 scope.update_var(&name, offset);
             }
+            index = self.current_scopes.next_index(index);
         }
         panic!("unknown variable : {}", name);
     }

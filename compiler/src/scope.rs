@@ -12,7 +12,7 @@ pub enum ScopeKind {
 #[derive(Debug)]
 pub struct Scope {
     // the Imm is the offset from the start of the stack not the top
-    variables : HashMap<String, Imm>,
+    variables : HashMap<String, u64>,
     pub kind : ScopeKind,
     pub block : BlkId,
     pub exit : BlkId
@@ -28,11 +28,11 @@ impl Scope {
         }
     }
 
-    pub fn decl_var(&mut self, name : String, offset : Imm) {
+    pub fn decl_var(&mut self, name : String, offset : u64) {
         self.variables.insert(name, offset);
     }
 
-    pub fn get_var(&self, name : &String) -> Option<Imm> {
+    pub fn get_var(&self, name : &String) -> Option<u64> {
         self.variables.get(name).copied()
     }
 }

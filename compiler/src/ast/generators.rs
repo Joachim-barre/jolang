@@ -192,53 +192,53 @@ impl Generate for Expr {
                 match op {
                     UnaryOp::Plus => (),
                     UnaryOp::Minus => {
-                        let val = generator.get_current_block().unwrap().last_index();
-                        generator.add(Instruction::Neg(val));
+                        generator.add(Instruction::Neg());
                         ()
                     }
                 };
             },
             Expr::BinExpr(e1, e2, op) => {
                 e1.generate(generator);
-                let val1 = generator.get_current_block().unwrap().last_index();
+                let e1_offset = generator.stack_size().unwrap() -1;
                 e2.generate(generator);
-                let val2 = generator.get_current_block().unwrap().last_index();
+                generator.add(Instruction::Dupx(e1_offset as i64));
+                generator.add(Instruction::Swap());
                 match op {
                     super::BinOp::Add => {
-                        generator.add(Instruction::Add(val1, val2))
+                        generator.add(Instruction::Add())
                     },
                     super::BinOp::Sub => {
-                        generator.add(Instruction::Sub(val1, val2))
+                        generator.add(Instruction::Sub())
                     },
                     super::BinOp::Mul => {
-                        generator.add(Instruction::Mul(val1, val2))
+                        generator.add(Instruction::Mul())
                     },
                     super::BinOp::Div => {
-                        generator.add(Instruction::Div(val1, val2))
+                        generator.add(Instruction::Div())
                     },
                     super::BinOp::Equal => {
-                        generator.add(Instruction::Eq(val1, val2))
+                        generator.add(Instruction::Eq())
                     },
                     super::BinOp::NotEqual => {
-                        generator.add(Instruction::Ne(val1, val2))
+                        generator.add(Instruction::Ne())
                     },
                     super::BinOp::Greater => {
-                        generator.add(Instruction::Gt(val1, val2))
+                        generator.add(Instruction::Gt())
                     },
                     super::BinOp::GreaterEqual => {
-                        generator.add(Instruction::Ge(val1, val2))
+                        generator.add(Instruction::Ge())
                     },
                     super::BinOp::LesserEqual => {
-                        generator.add(Instruction::Le(val1, val2))
+                        generator.add(Instruction::Le())
                     },
                     super::BinOp::Lesser => {
-                        generator.add(Instruction::Lt(val1, val2))
+                        generator.add(Instruction::Lt())
                     },
                     super::BinOp::LShift => {
-                        generator.add(Instruction::Lsh(val1, val2))
+                        generator.add(Instruction::Lsh())
                     },
                     super::BinOp::RShift => {
-                        generator.add(Instruction::Rsh(val1, val2))
+                        generator.add(Instruction::Rsh())
                     }
                 };
             }

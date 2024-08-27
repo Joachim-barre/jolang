@@ -261,6 +261,7 @@ version = "0.2.0"
 dependencies = [
  "anyhow",
  "inkwell",
+ "jolang_shared",
  "llvm-sys",
 ]
 

@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.86"
 inkwell = { version = "0.4.0", features = ["llvm17-0"] }
+jolang_shared = { version = "0.2.0", path = "../shared" }
 llvm-sys = { version = "170", features = ["prefer-static"] }

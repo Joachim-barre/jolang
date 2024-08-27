@@ -53,7 +53,7 @@ impl Generate for Statement {
                     None => else_block
                 };
                 generator.pass_vars();
-                generator.add(Instruction::Dupx(cond as i64));
+                generator.add(Instruction::Dupx(generator.to_stack_index(cond) as i64));
                 generator.add(Instruction::Briz(else_block, then_block));
                 generator.goto_begin(then_block);
                 generator.recive_vars();
@@ -91,7 +91,7 @@ impl Generate for Statement {
                 expr.generate(generator);
                 let cond = generator.stack_size().unwrap() -1;
                 generator.pass_vars();
-                generator.add(Instruction::Dupx(cond as i64));
+                generator.add(Instruction::Dupx(generator.to_stack_index(cond) as i64));
                 generator.add(Instruction::Briz(after_block, while_body));
                 generator.goto_begin(while_body);
                 generator.recive_vars();
@@ -195,7 +195,7 @@ impl Generate for Expr {
                 e1.generate(generator);
                 let e1_offset = generator.stack_size().unwrap() -1;
                 e2.generate(generator);
-                generator.add(Instruction::Dupx(e1_offset as i64));
+                generator.add(Instruction::Dupx(generator.to_stack_index(e1_offset) as i64));
                 generator.add(Instruction::Swap());
                 match op {
                     super::BinOp::Add => {
@@ -246,7 +246,7 @@ impl Generate for PrimaryExpr {
             PrimaryExpr::Call(c) => c.generate(generator),
             PrimaryExpr::Ident(name) => {
                 let offset = generator.get_var_offset(name.to_string()).expect(format!("unknown variable : {}", name).as_str());
-                generator.add(Instruction::Dupx(offset as i64));
+                generator.add(Instruction::Dupx(generator.to_stack_index(offset) as i64));
             },
             PrimaryExpr::Litteral(val) => {
                 generator.add(Instruction::Iconst(*val));
@@ -262,11 +262,11 @@ impl Generate for Call {
         let mut args_offsets = Vec::new();
         for arg in &self.1 {
             arg.generate(generator);
-            args_offsets.push((generator.stack_size().unwrap() -1) as i64);
+            args_offsets.push(generator.stack_size().unwrap() -1);
         }
         if let Some(id) = generator.get_externs().iter().enumerate().filter(|x| x.1.0 == self.0).next().map(|x| x.0) {
             for o in args_offsets.iter().rev() {
-                generator.add(Instruction::Dupx(*o));
+                generator.add(Instruction::Dupx(generator.to_stack_index(*o) as i64));
             }
             generator.add(Instruction::Call(id as u64));
         }else {
@@ -276,7 +276,7 @@ impl Generate for Call {
                 .expect(format!("unknown function : {}", self.0).as_str());
             let id = generator.decl_extern(self.0.clone(), sig);
             for o in args_offsets.iter().rev() {
-                generator.add(Instruction::Dupx(*o));
+                generator.add(Instruction::Dupx(generator.to_stack_index(*o) as i64));
             }
             generator.add(Instruction::Call(id));
         }

@@ -3,8 +3,8 @@ use instructions::{operand::{BlkId, FnId}, Instruction};
 pub mod instructions;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
-pub mod printer;
 pub type Block = IndexList<Instruction>;
+//pub mod printer;
 
 #[derive(Debug)]
 pub struct IrObject {

@@ -127,6 +127,10 @@ impl IrGenerator {
         &self.current_scopes
     }
 
+    pub fn get_scopes_mut(&mut self) -> &mut IndexList<Scope> {
+        &mut self.current_scopes
+    }
+
     pub fn get_externs(&self) -> &Vec<(String, u8, bool)> {
         &self.object.ext_fn
     }

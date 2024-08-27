@@ -18,4 +18,5 @@ edition = "2021"
 anyhow = "1.0.86"
 clap = { version = "4.5.9", features = ["derive"] }
 clio = { version = "0.3.5", features = ["clap", "clap-parse"] }
+jolang_runtime = { version = "0.2.0", path = "runtime" }
 jolangc = { path = "compiler" }

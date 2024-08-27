@@ -251,6 +251,7 @@ dependencies = [
  "anyhow",
  "clap",
  "clio",
+ "jolang_runtime",
  "jolangc",
 ]
 

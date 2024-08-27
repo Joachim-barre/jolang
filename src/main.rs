@@ -7,6 +7,7 @@ use jolangc::build;
 use std::path::PathBuf;
 use anyhow::{anyhow, Result};
 use clio::OutputPath;
+use jolang_runtime::run;
 
 fn main() -> Result<()>{
     let cli = Cli::parse();
@@ -33,9 +34,13 @@ fn main() -> Result<()>{
             println!("building {} to {}...", path.to_str().unwrap_or("error"), object_file);
             return build(path, PathBuf::from(object_file.path().as_os_str()));
         }
-        Commands::Run(_args) => {
-            //return runtime::run(args);
-            todo!();
+        Commands::Run(args) => {
+            if !args.file.is_local() {
+                return Err(anyhow!("please input a local file"))
+            }
+            let path = PathBuf::from(args.file.as_os_str());
+            println!("loading {}...", path.to_str().unwrap_or("error"));
+            return run(path);
         }
     }
 }

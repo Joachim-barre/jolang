@@ -122,31 +122,47 @@ impl Generate for Statement {
                 generator.add(Instruction::Reti());
             },
             Self::Continue => {
-                let mut exited = Vec::new();
-                for s in generator.get_scopes() {
-                    generator.exit_scope();
-                    exited.push(s);
-                    if s.kind == ScopeKind::Loop {
-                        generator.pass_vars();
-                        generator.add(Instruction::Br(s.block));
+                let mut to_exit = Vec::new();
+                let mut found = false;
+                for s in generator.get_scopes_mut().drain_iter() {
+                    to_exit.push(s);
+                    if to_exit[to_exit.len()-1].kind == ScopeKind::Loop {
+                        found = true;
+                        break;
                     }
                 }
-                for s in exited.iter().rev() {
-                    generator.enter_scope(**s);
+                if !found {
+                    panic!("can't continue outside a loop");
+                }
+                for s in &mut to_exit[..]{
+                    generator.exit_scope();
+                    generator.pass_vars();
+                    generator.add(Instruction::Br(s.block));
+                }
+                for s in to_exit.into_iter().rev() {
+                    generator.enter_scope(s);
                 }
             },
             Self::Break => {
-                let mut exited = Vec::new();
-                for s in generator.get_scopes() {
-                    generator.exit_scope();
-                    exited.push(s);
-                    if s.kind == ScopeKind::Loop {
-                        generator.pass_vars();
-                        generator.add(Instruction::Br(s.exit));
+               let mut to_exit = Vec::new();
+                let mut found = false;
+                for s in generator.get_scopes_mut().drain_iter() {
+                    to_exit.push(s);
+                    if to_exit[to_exit.len()-1].kind == ScopeKind::Loop {
+                        found = true;
+                        break;
                     }
                 }
-                for s in exited.iter().rev() {
-                    generator.enter_scope(**s);
+                if !found {
+                    panic!("can't break outside a loop");
+                }
+                for s in &mut to_exit[..]{
+                    generator.exit_scope();
+                    generator.pass_vars();
+                    generator.add(Instruction::Br(s.exit));
+                }
+                for s in to_exit.into_iter().rev() {
+                    generator.enter_scope(s);
                 }
             },
             Self::VarDecl(name, value) => {

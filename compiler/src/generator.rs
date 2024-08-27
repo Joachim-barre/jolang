@@ -186,6 +186,11 @@ impl IrGenerator {
             index =  self.current_scopes.next_index(index);
         }
     }
+
+    // convert an offset from the bottom of the stack to an offset to the top of the stack
+    pub fn to_stack_index(&self, offset : u64) -> u64 {
+        self.get_current_block().unwrap().stack_size - offset
+    }
 }
 
 pub trait Generate {

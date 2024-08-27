@@ -57,20 +57,21 @@ there are the following opcodes :
 | 03 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
 | 04 | dup        |                         | duplicate the top of the stack                                                 |
 | 05 | dupx       | imm                     | duplicate the value st[offset] where offset is the immediate value             |
-| 05 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
-| 06 | neg        |                         | pop the top of the stack and push the negated value                            |
-| 07 | add        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 08 | sub        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 09 | mul        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 0A | div        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 0B | eq         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 0C | ne         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 0D | gt         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 0E | ge         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 0F | le         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 10 | lt         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 11 | lsh        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 12 | rsh        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 13 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
+| 06 | swap       |                         | swap the two values on top of the stack                                        |
+| 07 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
+| 08 | neg        |                         | pop the top of the stack and push the negated value                            |
+| 09 | add        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0A | sub        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0B | mul        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0C | div        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0D | eq         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0E | ne         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0F | gt         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 10 | ge         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 11 | le         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 12 | lt         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 13 | lsh        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 14 | rsh        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 15 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
 
 for each instruction there is the opcode and then the operands

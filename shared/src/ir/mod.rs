@@ -3,7 +3,7 @@ use instructions::{operand::{BlkId, FnId}, Instruction};
 pub mod instructions;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
-//pub mod printer;
+pub mod printer;
 pub mod block;
 use block::Block;
 

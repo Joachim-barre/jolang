@@ -101,6 +101,41 @@ impl IrGenerator {
             .map(|x| x.var_count())
             .reduce(|x1, x2| x1 + x2).unwrap_or(0)
     }
+
+    pub fn inc_stack(&mut self) -> Option<u64>{
+        self.get_current_block_mut()
+            .map(|mut x| {x.stack_size = x.stack_size + 1; x.stack_size})
+    }
+
+    pub fn dec_stack(&mut self) -> Option<u64>{
+        self.get_current_block_mut()
+            .map(|mut x| {x.stack_size = x.stack_size - 1; x.stack_size})
+    }
+
+
+    pub fn pass_vars(&mut self) {
+        let offsets : Vec<_> = self.current_scopes.iter()
+            .flat_map(|s| s.get_vars().values())
+            .map(|v| self.get_current_block().unwrap().stack_size - v)
+            .collect();
+        for v in offsets{
+            self.add(Instruction::Dupx(v as i64));
+            self.inc_stack();
+        }
+    }
+
+    pub fn recive_vars(&mut self) {
+        let mut ssize : u64 = self.get_current_block().unwrap().argc as u64;
+        let mut index = self.current_scopes.first_index();
+        while index.is_some() {
+            self.current_scopes.get_mut(index).unwrap().get_vars_mut().values_mut()
+                .for_each(|x| {
+                    *x = ssize;
+                    ssize = ssize - 1;
+                });
+            index =  self.current_scopes.next_index(index);
+        }
+    }
 }
 
 pub trait Generate {

@@ -45,7 +45,7 @@ impl Generate for Statement {
             },
             Self::If(expr, then, _else) => {
                 expr.generate(generator);
-                let cond = generator.stack_size().unwrap() -1;
+                let cond = generator.stack_size().unwrap();
                 let then_block = generator.append_block();
                 let else_block = generator.append_block();
                 let after_block = match _else {
@@ -89,7 +89,7 @@ impl Generate for Statement {
                 let scope = Scope::new(ScopeKind::Loop, while_cond, after_block);
                 generator.enter_scope(scope);
                 expr.generate(generator);
-                let cond = generator.stack_size().unwrap() -1;
+                let cond = generator.stack_size().unwrap();
                 generator.pass_vars();
                 generator.add(Instruction::Dupx(generator.to_stack_index(cond) as i64));
                 generator.add(Instruction::Briz(after_block, while_body));
@@ -193,7 +193,7 @@ impl Generate for Expr {
             },
             Expr::BinExpr(e1, e2, op) => {
                 e1.generate(generator);
-                let e1_offset = generator.stack_size().unwrap() -1;
+                let e1_offset = generator.stack_size().unwrap();
                 e2.generate(generator);
                 generator.add(Instruction::Dupx(generator.to_stack_index(e1_offset) as i64));
                 generator.add(Instruction::Swap());
@@ -262,7 +262,7 @@ impl Generate for Call {
         let mut args_offsets = Vec::new();
         for arg in &self.1 {
             arg.generate(generator);
-            args_offsets.push(generator.stack_size().unwrap() -1);
+            args_offsets.push(generator.stack_size().unwrap());
         }
         if let Some(id) = generator.get_externs().iter().enumerate().filter(|x| x.1.0 == self.0).next().map(|x| x.0) {
             for o in args_offsets.iter().rev() {

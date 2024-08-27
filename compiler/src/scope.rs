@@ -39,4 +39,12 @@ impl Scope {
     pub fn var_count(&self) -> usize {
         self.variables.len()
     }
+
+    pub fn get_vars(&self) -> &HashMap<String, u64> {
+        &self.variables
+    }
+
+    pub fn get_vars_mut(&mut self) -> &mut HashMap<String, u64> {
+        &mut self.variables
+    }
 }

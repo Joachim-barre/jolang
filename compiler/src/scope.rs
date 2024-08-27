@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use jolang_shared::ir::instructions::operand::{BlkId, VarId};
+use jolang_shared::ir::instructions::operand::{BlkId, Imm};
 
 #[derive(PartialEq, Debug)]
 pub enum ScopeKind {
@@ -11,7 +11,8 @@ pub enum ScopeKind {
 
 #[derive(Debug)]
 pub struct Scope {
-    variables : HashMap<String, VarId>,
+    // the Imm is the offset from the start of the stack not the top
+    variables : HashMap<String, Imm>,
     pub kind : ScopeKind,
     pub block : BlkId,
     pub exit : BlkId
@@ -27,11 +28,11 @@ impl Scope {
         }
     }
 
-    pub fn decl_var(&mut self, name : String, id : VarId) {
-        self.variables.insert(name, id);
+    pub fn decl_var(&mut self, name : String, offset : Imm) {
+        self.variables.insert(name, offset);
     }
 
-    pub fn get_var(&self, name : &String) -> Option<VarId> {
+    pub fn get_var(&self, name : &String) -> Option<Imm> {
         self.variables.get(name).copied()
     }
 }

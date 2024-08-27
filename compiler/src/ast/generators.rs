@@ -265,12 +265,15 @@ impl Generate for PrimaryExpr {
 
 impl Generate for Call {
     fn generate(&self, generator : &mut IrGenerator) {
+        let mut args_offsets = Vec::new();
         for arg in &self.1 {
             arg.generate(generator);
-            let val = generator.get_current_block().unwrap().last_index();
-            generator.add(Instruction::Pusharg(val));
+            args_offsets.push((generator.stack_size().unwrap() -1) as i64);
         }
         if let Some(id) = generator.get_externs().iter().enumerate().filter(|x| x.1.0 == self.0).next().map(|x| x.0) {
+            for o in args_offsets.iter().rev() {
+                generator.add(Instruction::Dupx(*o));
+            }
             generator.add(Instruction::Call(id as u64));
         }else {
             let sig = JOLANG_STD.iter()
@@ -278,6 +281,9 @@ impl Generate for Call {
                 .next().map(|x| &x.1)
                 .expect(format!("unknown function : {}", self.0).as_str());
             let id = generator.decl_extern(self.0.clone(), sig);
+            for o in args_offsets.iter().rev() {
+                generator.add(Instruction::Dupx(*o));
+            }
             generator.add(Instruction::Call(id));
         }
     }

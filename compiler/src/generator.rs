@@ -23,7 +23,7 @@ impl IrGenerator {
     }
 
     pub fn decl_var(&mut self, name : String) -> u64 {
-        let offset = self.get_current_block().unwrap().stack_size;
+        let offset = self.get_current_block().unwrap().stack_size - 1;
         self.current_scopes.get_mut_first().map(|x| x.decl_var(name, offset));
         offset
     }

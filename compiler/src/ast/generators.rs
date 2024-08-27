@@ -150,25 +150,15 @@ impl Generate for Statement {
                 }
             },
             Self::VarDecl(name, value) => {
-                let default_value = match value {
-                    Some(Expr::PrimaryExpr(p)) => match p {
-                        super::PrimaryExpr::Litteral(v) => v.clone(),
-                        _ => 0
-                    },
-                    _ => 0
-                };
-                let id = generator.decl_var(name.to_string(), default_value);
-                if default_value == 0 && value.is_some() {
-                    value.as_ref().unwrap().generate(generator);
-                    let val = generator.get_current_block().unwrap().last_index();
-                    generator.add(Instruction::Varset(id, val));
+                match value {
+                    Some(v) => v.generate(generator),
+                    None => { generator.add(Instruction::Iconst(0)); }
                 }
+                let offset = generator.decl_var(name.to_string());
             },
             Self::VarSet(name, value) => {
                 value.generate(generator);
-                let val = generator.get_current_block().unwrap().last_index();
-                let id = generator.get_varid(name.to_string()).expect(format!("unknown variable : {}", name).as_str());
-                generator.add(Instruction::Varset(id, val));
+                generator.update_var(name.to_string());
             },
             Self::Call(call) => {
                 call.generate(generator);

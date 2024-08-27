@@ -6,8 +6,8 @@ use super::{Call, Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
-        let blk = generator.append_block(0);
-        let exit_block = generator.append_block(0);
+        let blk = generator.append_block();
+        let exit_block = generator.append_block();
         generator.goto_begin(exit_block);
         generator.add(Instruction::Iconst(0)).unwrap();
         generator.add(Instruction::Reti());

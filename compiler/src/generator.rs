@@ -78,8 +78,8 @@ impl IrGenerator {
         pos
     }
 
-    pub fn append_block(&mut self, argc : u8) -> BlkId {
-        self.object.append_block(argc)
+    pub fn append_block(&mut self) -> BlkId {
+        self.object.append_block(self.var_count() as u8)
     }
     
     pub fn goto_end(&mut self, block : BlkId) {

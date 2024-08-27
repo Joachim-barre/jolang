@@ -76,11 +76,17 @@ impl IrGenerator {
             Instruction::Ret()
                 | Instruction::Reti()
                 | Instruction::Br(_)
-                | Instruction::Call(_)
                 | Instruction::Neg()
                 | Instruction::Briz(_, _)
                 | Instruction::Swap()
-                => None
+                => None,
+            Instruction::Call(f) => {
+                if self.object.ext_fn.get(f as usize).map_or(false, |x| x.2) {
+                    self.inc_stack()
+                }else{
+                    None
+                }
+            }
         };
         let pos = self.get_current_block_mut().map(|mut b| match self.current_pos{
             Some(pos) => {

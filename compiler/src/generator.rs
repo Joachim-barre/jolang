@@ -186,8 +186,8 @@ impl IrGenerator {
         while index.is_some() {
             self.current_scopes.get_mut(index).unwrap().get_vars_mut().values_mut()
                 .for_each(|x| {
-                    *x = ssize;
                     ssize = ssize - 1;
+                    *x = ssize;
                 });
             index =  self.current_scopes.next_index(index);
         }

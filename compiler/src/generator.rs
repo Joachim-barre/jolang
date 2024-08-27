@@ -40,6 +40,32 @@ impl IrGenerator {
     }
 
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {
+        match i {
+            Instruction::Iconst(_)
+                | Instruction::Dup()
+                | Instruction::Dupx(_)
+                => self.inc_stack(),
+            Instruction::Add()
+                | Instruction::Sub()
+                | Instruction::Mul()
+                | Instruction::Div()
+                | Instruction::Eq()
+                | Instruction::Ne()
+                | Instruction::Gt()
+                | Instruction::Ge()
+                | Instruction::Lt()
+                | Instruction::Le()
+                | Instruction::Lsh()
+                | Instruction::Rsh()
+                => self.dec_stack(),
+            Instruction::Ret()
+                | Instruction::Reti()
+                | Instruction::Br(_)
+                | Instruction::Call(_)
+                | Instruction::Neg()
+                | Instruction::Briz(_, _)
+                => None
+        };
         let pos = self.get_current_block_mut().map(|mut b| match self.current_pos{
             Some(pos) => {
                 b.instructions.insert_after(pos, i)

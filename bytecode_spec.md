@@ -34,7 +34,7 @@ for each block:
 
 ## instructions table
 
-each instruction is 17-bytes (1 for the opcode and 16 for the operands)
+each instruction is 32-bytes (7 padding bytes then 1 for the opcode and then 24 for the operands)
 
 stack is not kept between blocks but blocks arguments are pushed on top of the stack.
 
@@ -52,25 +52,25 @@ there are the following opcodes :
 | id | name       | operands                | description                                                                    |
 | -- | --         | --                      | --                                                                             |
 | 00 | ret        |                         | return nothing from the function                                               |
-| 10 | reti       |                         | return the top of the stack                                                    |
-| 12 | iconst     | imm                     | push a integer constant                                                        |
-| 13 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
-| 14 | dup        |                         | duplicate the top of the stack                                                 |
-| 15 | dupx       | imm                     | duplicate the value st[offset] where offset is the immediate value             |
-| 15 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
-| 16 | neg        |                         | pop the top of the stack and push the negated value                            |
-| 21 | add        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 22 | sub        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 23 | mul        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 24 | div        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 25 | eq         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 26 | ne         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 27 | gt         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 28 | ge         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 29 | le         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 2A | lt         |                         | do st[0] + st[1] pop them and push the result                                  |
-| 2B | lsh        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 2C | rsh        |                         | do st[0] + st[1] pop them and push the result                                  |
-| 30 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
+| 01 | reti       |                         | return the top of the stack                                                    |
+| 02 | iconst     | imm                     | push a integer constant                                                        |
+| 03 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
+| 04 | dup        |                         | duplicate the top of the stack                                                 |
+| 05 | dupx       | imm                     | duplicate the value st[offset] where offset is the immediate value             |
+| 05 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
+| 06 | neg        |                         | pop the top of the stack and push the negated value                            |
+| 07 | add        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 08 | sub        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 09 | mul        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0A | div        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0B | eq         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0C | ne         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0D | gt         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0E | ge         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 0F | le         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 10 | lt         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 11 | lsh        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 12 | rsh        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 13 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
 
 for each instruction there is the opcode and then the operands

@@ -1,6 +1,5 @@
 use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId, VarId}, Instruction}, Block, IrObject}};
 use std::cell::{Ref, RefMut};
-use index_list::{IndexList, ListIndex};
 use crate::scope::Scope;
 
 pub struct IrGenerator {

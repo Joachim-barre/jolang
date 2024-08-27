@@ -122,20 +122,32 @@ impl Generate for Statement {
                 generator.add(Instruction::Reti());
             },
             Self::Continue => {
-                generator.add(Instruction::Br(generator.get_scopes()
-                    .iter()
-                    .filter(|x| x.kind == ScopeKind::Loop)
-                    .next()
-                    .expect("can't continue outside a loop")
-                    .block));
+                let mut exited = Vec::new();
+                for s in generator.get_scopes() {
+                    generator.exit_scope();
+                    exited.push(s);
+                    if s.kind == ScopeKind::Loop {
+                        generator.pass_vars();
+                        generator.add(Instruction::Br(s.block));
+                    }
+                }
+                for s in exited.iter().rev() {
+                    generator.enter_scope(**s);
+                }
             },
             Self::Break => {
-                generator.add(Instruction::Br(generator.get_scopes()
-                    .iter()
-                    .filter(|x| x.kind == ScopeKind::Loop)
-                    .next()
-                    .expect("can't continue outside a loop")
-                    .exit));
+                let mut exited = Vec::new();
+                for s in generator.get_scopes() {
+                    generator.exit_scope();
+                    exited.push(s);
+                    if s.kind == ScopeKind::Loop {
+                        generator.pass_vars();
+                        generator.add(Instruction::Br(s.exit));
+                    }
+                }
+                for s in exited.iter().rev() {
+                    generator.enter_scope(**s);
+                }
             },
             Self::VarDecl(name, value) => {
                 let default_value = match value {

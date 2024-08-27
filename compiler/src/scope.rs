@@ -36,6 +36,10 @@ impl Scope {
         self.variables.get(name).copied()
     }
 
+    pub fn update_var(&mut self, name : &String, offset : u64) {
+        *self.variables.get_mut(name).unwrap() = offset;
+    }
+
     pub fn var_count(&self) -> usize {
         self.variables.len()
     }

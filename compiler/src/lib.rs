@@ -4,7 +4,7 @@ use lexer::Lexer;
 use source_buffer::SourceBuffer;
 use anyhow::Result;
 use std::path::PathBuf;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use jolang_shared::ir::writer::write;
 pub mod source_buffer;
 pub mod lexer;
@@ -21,7 +21,10 @@ pub fn build(source_path : PathBuf, _output_path : PathBuf) -> Result<()> {
         Ok(p) => {
             let mut generator = IrGenerator::new();
             p.generate(&mut generator);
-            let mut obj_file = File::open(_output_path)?;
+            let mut obj_file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .open(_output_path)?;
             write(generator.into_ir(), &mut obj_file)?;
             Ok(())
         },

@@ -11,3 +11,4 @@ clio = { version = "0.3.5", features = ["clap", "clap-parse"] }
 index_list = "0.2.13"
 lazy_static = "1.5.0"
 rand = "0.8.5"
+semver = "1.0.23"

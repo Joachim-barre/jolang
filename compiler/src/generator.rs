@@ -95,6 +95,12 @@ impl IrGenerator {
     pub fn decl_extern(&mut self, name : String, func : &Box<dyn JolangExtern>) -> FnId{
         self.object.decl_extern(name, func)
     }
+
+    pub fn var_count(&self) -> usize {
+        self.current_scopes.iter()
+            .map(|x| x.var_count())
+            .reduce(|x1, x2| x1 + x2).unwrap_or(0)
+    }
 }
 
 pub trait Generate {

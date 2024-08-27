@@ -35,4 +35,8 @@ impl Scope {
     pub fn get_var(&self, name : &String) -> Option<u64> {
         self.variables.get(name).copied()
     }
+
+    pub fn var_count(&self) -> usize {
+        self.variables.len()
+    }
 }

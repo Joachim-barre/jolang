@@ -35,6 +35,7 @@ impl IrGenerator {
             let scope = self.current_scopes.get_mut(index).unwrap();
             if scope.get_var(&name).is_some() {
                 scope.update_var(&name, offset);
+                return offset;
             }
             index = self.current_scopes.next_index(index);
         }

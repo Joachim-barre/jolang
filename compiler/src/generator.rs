@@ -1,4 +1,5 @@
 use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId}, Instruction}, block::Block, IrObject}};
+use core::panic;
 use std::cell::{Ref, RefMut};
 use index_list::{IndexList, ListIndex};
 use crate::scope::Scope;
@@ -25,6 +26,18 @@ impl IrGenerator {
         let offset = self.get_current_block().unwrap().stack_size;
         self.current_scopes.get_mut_first().map(|x| x.decl_var(name, offset));
         offset
+    }
+
+    pub fn update_var(&mut self, name : String) -> u64 {
+        let offset = self.get_current_block().unwrap().stack_size;
+        let index = self.current_scopes.first_index();
+        while index.is_some(){
+            let scope = self.current_scopes.get_mut(index).unwrap();
+            if scope.get_var(&name).is_some() {
+                scope.update_var(&name, offset);
+            }
+        }
+        panic!("unknown variable : {}", name);
     }
 
     pub fn into_ir(self) -> IrObject{

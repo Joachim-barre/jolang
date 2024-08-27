@@ -3,7 +3,7 @@ use instructions::{operand::{BlkId, FnId, VarId}, Instruction};
 pub mod instructions;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
-
+pub mod printer;
 pub type Block = IndexList<Instruction>;
 
 #[derive(Debug)]

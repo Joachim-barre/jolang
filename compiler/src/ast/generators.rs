@@ -134,11 +134,8 @@ impl Generate for Statement {
                 if !found {
                     panic!("can't continue outside a loop");
                 }
-                for s in &mut to_exit[..]{
-                    generator.exit_scope();
-                    generator.pass_vars();
-                    generator.add(Instruction::Br(s.block));
-                }
+                generator.pass_vars();
+                generator.add(Instruction::Br(to_exit[to_exit.len()-1].block));
                 for s in to_exit.into_iter().rev() {
                     generator.enter_scope(s);
                 }
@@ -156,11 +153,8 @@ impl Generate for Statement {
                 if !found {
                     panic!("can't break outside a loop");
                 }
-                for s in &mut to_exit[..]{
-                    generator.exit_scope();
-                    generator.pass_vars();
-                    generator.add(Instruction::Br(s.exit));
-                }
+                generator.pass_vars();
+                generator.add(Instruction::Br(to_exit[to_exit.len()-1].block));
                 for s in to_exit.into_iter().rev() {
                     generator.enter_scope(s);
                 }

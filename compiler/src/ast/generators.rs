@@ -6,11 +6,11 @@ use super::{Call, Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp};
 
 impl Generate for Program {
     fn generate(&self, generator : &mut IrGenerator) {
-        let blk = generator.append_block();
-        let exit_block = generator.append_block();
+        let blk = generator.append_block(0);
+        let exit_block = generator.append_block(0);
         generator.goto_begin(exit_block);
-        let code = generator.add(Instruction::Iconst(0)).unwrap();
-        generator.add(Instruction::Reti(code));
+        generator.add(Instruction::Iconst(0)).unwrap();
+        generator.add(Instruction::Reti());
         let scope = Scope::new(ScopeKind::Root, blk, exit_block);
         generator.enter_scope(scope);
         generator.goto_begin(blk);

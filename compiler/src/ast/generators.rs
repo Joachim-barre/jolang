@@ -246,7 +246,7 @@ impl Generate for PrimaryExpr {
             PrimaryExpr::Call(c) => c.generate(generator),
             PrimaryExpr::Ident(name) => {
                 let offset = generator.get_var_offset(name.to_string()).expect(format!("unknown variable : {}", name).as_str());
-                generator.add(Instruction::Dupx(generator.to_stack_index(offset) as i64));
+                generator.add(Instruction::Dupx(offset as i64));
             },
             PrimaryExpr::Litteral(val) => {
                 generator.add(Instruction::Iconst(*val));

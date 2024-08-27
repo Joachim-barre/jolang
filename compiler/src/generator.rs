@@ -29,7 +29,7 @@ impl IrGenerator {
     }
 
     pub fn update_var(&mut self, name : String) -> u64 {
-        let offset = self.get_current_block().unwrap().stack_size;
+        let offset = self.get_current_block().unwrap().stack_size - 1;
         let mut index = self.current_scopes.first_index();
         while index.is_some(){
             let scope = self.current_scopes.get_mut(index).unwrap();
@@ -125,7 +125,7 @@ impl IrGenerator {
         self.current_scopes.iter()
             .filter_map(|s| s.get_var(&name))
             .next()
-            .map(|x| self.get_current_block().unwrap().stack_size - x)
+            .map(|x| x)
     }
 
     pub fn exit_scope(&mut self) {
@@ -172,7 +172,7 @@ impl IrGenerator {
     pub fn pass_vars(&mut self) {
         let offsets : Vec<_> = self.current_scopes.iter()
             .flat_map(|s| s.get_vars().values())
-            .map(|v| self.get_current_block().unwrap().stack_size - v)
+            .map(|v| *v)
             .collect();
         for v in offsets{
             self.add(Instruction::Dupx(v as i64));
@@ -181,22 +181,17 @@ impl IrGenerator {
     }
 
     pub fn recive_vars(&mut self) {
-        let mut ssize : u64 = self.get_current_block().unwrap().argc as u64;
+        let mut pos : u64 = 0;
         let mut index = self.current_scopes.first_index();
         while index.is_some() {
             self.current_scopes.get_mut(index).unwrap().get_vars_mut().values_mut()
                 .for_each(|x| {
-                    ssize = ssize - 1;
-                    *x = ssize;
+                    *x = pos;
+                    pos = pos + 1;
                 });
             index =  self.current_scopes.next_index(index);
         }
-    }
-
-    // convert an offset from the bottom of the stack to an offset to the top of the stack
-    pub fn to_stack_index(&self, offset : u64) -> u64 {
-        self.get_current_block().unwrap().stack_size - offset
-    }
+    } 
 }
 
 pub trait Generate {

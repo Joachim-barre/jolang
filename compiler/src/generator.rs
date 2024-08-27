@@ -1,4 +1,4 @@
-use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId, VarId}, Instruction}, Block, IrObject}};
+use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId}, Instruction}, block::Block, IrObject}};
 use std::cell::{Ref, RefMut};
 use index_list::{IndexList, ListIndex};
 use crate::scope::Scope;
@@ -21,10 +21,10 @@ impl IrGenerator {
         }
     }
 
-    pub fn decl_var(&mut self, name : String, value : i64) -> VarId {
-        let id = self.object.decl_var(value);
-        self.current_scopes.get_mut_first().map(|x| x.decl_var(name, id));
-        id
+    pub fn decl_var(&mut self, name : String) -> u64 {
+        let offset = self.get_current_block().unwrap().stack_size;
+        self.current_scopes.get_mut_first().map(|x| x.decl_var(name, offset));
+        offset
     }
 
     pub fn into_ir(self) -> IrObject{
@@ -42,29 +42,29 @@ impl IrGenerator {
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {
         let pos = self.get_current_block_mut().map(|mut b| match self.current_pos{
             Some(pos) => {
-                b.insert_after(pos, i)
+                b.instructions.insert_after(pos, i)
             },
             None => {
-                b.insert_first(i)
+                b.instructions.insert_first(i)
             }
         });
         self.current_pos = pos;
         pos
     }
 
-    pub fn append_block(&mut self) -> BlkId {
-        self.object.append_block()
+    pub fn append_block(&mut self, argc : u8) -> BlkId {
+        self.object.append_block(argc)
     }
     
     pub fn goto_end(&mut self, block : BlkId) {
         self.current_block = Some(block);
-        let pos = self.get_current_block().map(|x| x.last_index());
+        let pos = self.get_current_block().map(|x| x.instructions.last_index());
         self.current_pos = pos;
     }
 
     pub fn goto_begin(&mut self, block : BlkId) {
         self.current_block = Some(block);
-        let pos = self.get_current_block().map(|x| x.first_index());
+        let pos = self.get_current_block().map(|x| x.instructions.first_index());
         self.current_pos = pos;
     }
 
@@ -72,10 +72,12 @@ impl IrGenerator {
         self.current_scopes.insert_first(scope);
     }
 
-    pub fn get_varid(&mut self, name : String) -> Option<VarId> {
+    // get a variable offset from the top of the stack
+    pub fn get_var_offset(&mut self, name : String) -> Option<u64> {
         self.current_scopes.iter()
             .filter_map(|s| s.get_var(&name))
             .next()
+            .map(|x| self.get_current_block().unwrap().stack_size - x)
     }
 
     pub fn exit_scope(&mut self) {

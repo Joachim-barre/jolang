@@ -1,3 +1,4 @@
+use index_list::IndexList;
 use instructions::{operand::{BlkId, FnId}, Instruction};
 pub mod instructions;
 use std::cell::{Ref, RefCell, RefMut};

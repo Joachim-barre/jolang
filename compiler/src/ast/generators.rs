@@ -55,12 +55,6 @@ impl Generate for Statement {
                 generator.pass_vars();
                 generator.add(Instruction::Dupx(cond as i64));
                 generator.add(Instruction::Briz(else_block, then_block));
-                generator.goto_begin(else_block);
-                generator.recive_vars();
-                if _else.is_some() {
-                    generator.goto_begin(after_block);
-                    generator.recive_vars();
-                }
                 generator.goto_begin(then_block);
                 generator.recive_vars();
                 
@@ -73,6 +67,7 @@ impl Generate for Statement {
                 
                 generator.goto_end(else_block);
                 if let Some(_else) = _else {
+                    generator.pass_vars();
                     let scope = Scope::new(ScopeKind::Block, else_block, after_block);
                     generator.enter_scope(scope);
                     _else.generate(generator);
@@ -81,6 +76,7 @@ impl Generate for Statement {
                     generator.add(Instruction::Br(after_block));
                     generator.goto_begin(after_block);
                 }
+                generator.recive_vars();
             },
             Statement::While(expr, body) => {
                 let while_cond = generator.append_block();

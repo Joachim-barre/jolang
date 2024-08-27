@@ -10,10 +10,9 @@
     - 8-bytes entry count for the table
     - 8-bytes offset for start to the table
 
-there are 3 tables in the header and they should be in this order:
+there are 2 tables in the header and they should be in this order:
 
 1. external functions
-2. variables
 3. blocks
 
 ## external functions table
@@ -25,58 +24,53 @@ each entry has the following fields:
 - 1-byte arg count
 - bool (1-byte) does the object expect a return
 
-## variables table
-
-for each variable : 8-bytes for the default value
-
 ## block table
 
 for each block:
 
 - 8-bytes quantity of instructions in the block
+- 1-bytes block argument count
 - 8-bytes offset for the start of file to the block's instructions
 
 ## instructions table
 
-each instruction in the bytecode is either : 
-- exiting from the block/program
-- returning a value
-the only exception is call of a void function
+each instruction is 17-bytes (1 for the opcode and 16 for the operands)
+
+stack is not kept between blocks but blocks arguments are pushed on top of the stack.
+
+st[x] indicate a value on the stack with a offset from the top of x.
+for exemple st[0] is the top of the stack 
 
 an instruction is composed of an opcode then the operands<br>
 there is multiple types of operands : 
 - imm (immediate) 8-bytes raw integer value
-- varid (variable id) 8-bytes id of a variable stored on the stack
 - blkid (block id) 8-bytes id of a block
-- result 8-bytes id of a instruction that output a value
 - fnid (function id) 8-bytes id of a function
 
 there are the following opcodes : 
 
-| id | name       | operands                | description                                                                |
-| -- | --         | --                      | --                                                                         |
-| 00 | ret        |                         | return nothing from the function                                           |
-| 10 | reti       | result                  | return a value from the function                                           |
-| 11 | varget     | varid                   | get the value of a variable                                                | 
-| 12 | iconst     | imm                     | an integer constant                                                        |
-| 13 | br         | blkid                   | unconditionally branch to a block                                          |
-| 14 | pusharg    | result                  | add a argument to the argument list                                        |
-| 15 | call       | fnid                    | call a function pass the argument list and clear it after the call         |
-| 16 | neg        | result                  | negate the value                                                           |
-| 20 | varset     | varid, result           | set the value of a variable                                                |
-| 21 | add        | result,result           | add the two values                                                         |
-| 22 | sub        | result,result           | do val1-val2                                                               |
-| 23 | mul        | result,result           | do val1*val2                                                               |
-| 24 | div        | result,result           | do val1/val2                                                               |
-| 25 | eq         | result,result           | do val1==val2                                                              |
-| 26 | ne         | result,result           | do val1!=val2                                                              |
-| 27 | gt         | result,result           | do val1>val2                                                               |
-| 28 | ge         | result,result           | do val1>=val2                                                              |
-| 29 | le         | result,result           | do val1<=val2                                                              |
-| 2A | lt         | result,result           | do val1<val2                                                               |
-| 2B | lsh        | result,result           | do val1<<val2                                                              |
-| 2C | rsh        | result,result           | do val1>>val2                                                              |
-| 30 | briz       | blkid, blkid, result    | branch to the first block if the value is 0 otherwise branch to the second |
+| id | name       | operands                | description                                                                    |
+| -- | --         | --                      | --                                                                             |
+| 00 | ret        |                         | return nothing from the function                                               |
+| 10 | reti       |                         | return the top of the stack                                                    |
+| 12 | iconst     | imm                     | push a integer constant                                                        |
+| 13 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
+| 14 | dup        |                         | duplicate the top of the stack                                                 |
+| 15 | dupx       | imm                     | duplicate the value st[offset] where offset is the immediate value             |
+| 15 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
+| 16 | neg        |                         | pop the top of the stack and push the negated value                            |
+| 21 | add        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 22 | sub        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 23 | mul        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 24 | div        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 25 | eq         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 26 | ne         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 27 | gt         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 28 | ge         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 29 | le         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 2A | lt         |                         | do st[0] + st[1] pop them and push the result                                  |
+| 2B | lsh        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 2C | rsh        |                         | do st[0] + st[1] pop them and push the result                                  |
+| 30 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
 
-as you can see the first byte of an opcode is the number of operand (this might change later)<br>
 for each instruction there is the opcode and then the operands

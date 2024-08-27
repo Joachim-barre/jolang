@@ -128,6 +128,10 @@ impl IrGenerator {
             .reduce(|x1, x2| x1 + x2).unwrap_or(0)
     }
 
+    pub fn stack_size(&self) -> Option<u64> {
+        self.get_current_block().map(|b| b.stack_size)
+    }
+
     pub fn inc_stack(&mut self) -> Option<u64>{
         self.get_current_block_mut()
             .map(|mut x| {x.stack_size = x.stack_size + 1; x.stack_size})

@@ -104,12 +104,18 @@ impl Generate for Statement {
             Self::Loop(body) => {
                 let loop_body = generator.append_block();
                 let after_block = generator.append_block();
-                let scope = Scope::new(ScopeKind::Loop, loop_body, after_block);
-                generator.enter_scope(scope);
+                generator.pass_vars();
+                generator.add(Instruction::Br(loop_body));
                 generator.goto_begin(loop_body);
+                generator.recive_vars();
+                let scope = Scope::new(ScopeKind::Loop, loop_body, after_block);
+                generator.enter_scope(scope);                
                 body.generate(generator);
-                generator.add(Instruction::Br(after_block));
+                generator.exit_scope();
+                generator.pass_vars();
+                generator.add(Instruction::Br(loop_body));
                 generator.goto_begin(after_block);
+                generator.recive_vars();
             },
             Self::Return(expr) => {
                 expr.generate(generator);

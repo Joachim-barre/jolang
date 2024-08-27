@@ -27,16 +27,21 @@ impl Generate for Statement {
         match self {
             Self::Block(stmts) => {
                 let block = generator.append_block();
+                generator.pass_vars();
                 generator.add(Instruction::Br(block));
                 generator.goto_begin(block);
+                generator.recive_vars();
                 let after_block = generator.append_block();
                 let scope = Scope::new(ScopeKind::Block, block, after_block);
                 generator.enter_scope(scope);
                 for s in stmts {
                     s.generate(generator);
                 }
-                generator.add(Instruction::Br(after_block));
                 generator.exit_scope();
+                generator.pass_vars();
+                generator.add(Instruction::Br(after_block));
+                generator.goto_begin(after_block);
+                generator.recive_vars();
             },
             Self::If(expr, then, _else) => {
                 expr.generate(generator);

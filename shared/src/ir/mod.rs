@@ -3,8 +3,9 @@ use instructions::{operand::{BlkId, FnId}, Instruction};
 pub mod instructions;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
-pub type Block = IndexList<Instruction>;
 //pub mod printer;
+pub mod block;
+use block::Block;
 
 #[derive(Debug)]
 pub struct IrObject {
@@ -20,8 +21,8 @@ impl IrObject {
         }
     }
 
-    pub fn append_block(&mut self) -> BlkId{
-        self.blocks.push(RefCell::new(Block::new()));
+    pub fn append_block(&mut self, argc : u8) -> BlkId{
+        self.blocks.push(RefCell::new(Block::new(argc)));
         return (self.blocks.len() as BlkId) -1
     }
 

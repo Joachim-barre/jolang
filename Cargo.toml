@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "compiler",
-    "shared"
+    "shared",
+    "runtime"
 ]
 
 [workspace.package]

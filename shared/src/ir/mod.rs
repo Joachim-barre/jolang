@@ -7,7 +7,6 @@ pub mod printer;
 pub mod block;
 use block::Block;
 
-#[derive(Debug)]
 pub struct IrObject {
     pub ext_fn : Vec<(String, u8, bool)>,
     blocks : Vec<RefCell<Block>>

@@ -1,4 +1,5 @@
 use core::fmt;
+use std::fmt::Debug;
 
 use super::IrObject;
 
@@ -20,4 +21,10 @@ pub fn write_ir(format : &mut std::fmt::Formatter, ir : &IrObject) -> fmt::Resul
     }
     write!(format, "}}")?;
     Ok(())
+}
+
+impl Debug for IrObject {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write_ir(f, self)
+    }
 }

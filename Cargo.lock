@@ -216,7 +216,7 @@ dependencies = [
 
 [[package]]
 name = "jolang_shared"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "c-enum",
@@ -230,7 +230,7 @@ dependencies = [
 
 [[package]]
 name = "jolangc"
-version = "0.0.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "index_list",

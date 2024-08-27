@@ -1,8 +1,9 @@
 [package]
 name = "jolangc"
+version.workspace = true
 edition = "2021"
 
 [dependencies]
 anyhow = "1.0.86"
 index_list = "0.2.13"
-jolang_shared = { version = "0.1.0", path = "../shared" }
+jolang_shared = { path = "../shared" }

@@ -4,7 +4,7 @@ mod cli;
 pub mod run;
 use cli::{Cli, Commands};
 use jolangc::build;
-use std::path::PathBuf;
+use std::{i32, path::PathBuf, process::exit};
 use anyhow::{anyhow, Result};
 use clio::OutputPath;
 use jolang_runtime::run;
@@ -40,7 +40,14 @@ fn main() -> Result<()>{
             }
             let path = PathBuf::from(args.file.as_os_str());
             println!("loading {}...", path.to_str().unwrap_or("error"));
-            return run(path);
+            let code = run(path)?;
+            if code >= i32::MAX {
+                exit(i32::MAX)
+            }else if code <= i32::MIN {
+                exit(i32::MIN)
+            }else {
+                exit(code as i32);
+            }
         }
     }
 }

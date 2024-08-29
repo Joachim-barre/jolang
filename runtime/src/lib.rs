@@ -9,7 +9,7 @@ pub trait Runtime {
     fn run(&mut self) -> i64;
 }
 
-pub fn run(file : PathBuf) -> Result<()> {
+pub fn run(file : PathBuf) -> Result<i64> {
     let mut file = OpenOptions::new()
         .read(true)
         .write(false)

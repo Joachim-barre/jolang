@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use inkwell::{context::Context, module::Module, builder::Builder, OptimizationLevel, execution_engine::JitFunction};
+use inkwell::{context::Context, module::Module, OptimizationLevel, execution_engine::JitFunction};
 use crate::Runtime;
 
 pub struct LLVMRuntime<'ctx> {
@@ -19,7 +19,11 @@ impl<'a> Runtime for LLVMRuntime<'a> {
         if self.module.is_some() {
             return Err(anyhow!("module is already initialized"))
         }
-
+        unsafe {
+            self.module = Some(std::mem::transmute(self.ctx.create_module("jolang_main")));
+        }
+        let module = self.module.as_mut().unwrap();
+        let builder = self.ctx.create_builder();
         todo!()
     }
 

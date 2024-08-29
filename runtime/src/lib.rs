@@ -4,8 +4,9 @@ use jolang_shared::ir::{reader::read, IrObject};
 mod llvm;
 
 pub trait Runtime {
-    fn load(&mut self, object : IrObject);
-
+    fn new() -> Self
+        where Self : Sized;
+    fn load(&mut self, object : IrObject) -> Result<()>;
     fn run(&mut self) -> i64;
 }
 

@@ -42,19 +42,20 @@ target.write(&[blk.borrow().argc][..])?;
         let entry_pos = target.stream_position()?;
         let instr_pos = target.seek(SeekFrom::End(0))?;
         for i in &blk.borrow().instructions {
+            target.write_all(&[0;7][..])?;
             target.write(&[i.opcode().into()][..])?;
             match i {
                 Instruction::Iconst(op)
                     | Instruction::Dupx(op)
                     => {
                         target.write(&op.to_le_bytes())?;
-                        target.write(&[0x00;24])
+                        target.write(&[0x00;16])
                     },
                 Instruction::Br(op)
                     | Instruction::Call(op)
                     => {
                         target.write(&op.to_le_bytes())?;
-                        target.write(&[0x00;24])
+                        target.write(&[0x00;16])
                     },
                 Instruction::Briz(b1, b2) => {
                     target.write(&b1.to_le_bytes())?;

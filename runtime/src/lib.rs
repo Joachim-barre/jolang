@@ -1,6 +1,7 @@
 use std::{fs::OpenOptions, path::PathBuf};
 use anyhow::Result;
 use jolang_shared::ir::{reader::read, IrObject};
+use llvm::LLVMRuntime;
 mod llvm;
 
 pub trait Runtime {
@@ -16,6 +17,8 @@ pub fn run(file : PathBuf) -> Result<i64> {
         .write(false)
         .create(false)
         .open(file)?;
-    dbg!(read(&mut file)?);
-    todo!()
+    let object = read(&mut file)?;
+    let mut runtime : Box<dyn Runtime> = Box::new(LLVMRuntime::new());
+    runtime.load(object)?;
+    Ok(runtime.run())
 }

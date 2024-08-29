@@ -1,6 +1,12 @@
 use std::{fs::OpenOptions, path::PathBuf};
 use anyhow::Result;
-use jolang_shared::ir::reader::read;
+use jolang_shared::ir::{reader::read, IrObject};
+
+pub trait Runtime {
+    fn load(&mut self, object : IrObject);
+
+    fn run(&mut self) -> i64;
+}
 
 pub fn run(file : PathBuf) -> Result<()> {
     let mut file = OpenOptions::new()

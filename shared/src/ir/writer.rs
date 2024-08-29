@@ -14,16 +14,16 @@ where T : Write + Seek {
     target.write(&version[..])?;
     target.write(&(ir.ext_fn.len() as u64).to_le_bytes())?;
     let ext_pos = target.stream_position()?;
-    target.write(&[0][..])?;
+    target.write(&[0;8][..])?;
     target.write(&(ir.blocks.len() as u64).to_le_bytes())?;
     let block_pos = target.stream_position()?;
-    target.write(&[0][..])?;
+    target.write(&[0;8][..])?;
     let pos = target.stream_position()?;
     target.seek(SeekFrom::Start(ext_pos))?;
     target.write(&pos.to_le_bytes())?;
     target.seek(SeekFrom::Start(pos))?;
     for f in ir.ext_fn {
-        target.write(&(f.0.len() as u64).to_le_bytes())?;
+        target.write(&(f.0.len() as u32).to_le_bytes())?;
         target.write(f.0.as_bytes())?;
         target.write(&[f.1][..])?;
         target.write(&[f.2 as u8][..])?;

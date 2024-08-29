@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use inkwell::{context::Context, module::Module, builder::Builder, OptimizationLevel, execution_engine::JitFunction};
 use crate::Runtime;
 
@@ -12,6 +13,14 @@ impl<'a> Runtime for LLVMRuntime<'a> {
             ctx : Context::create(),
             module : None
         }
+    }
+
+    fn load(&mut self, object : jolang_shared::ir::IrObject) -> anyhow::Result<()> {
+        if self.module.is_some() {
+            return Err(anyhow!("module is already initialized"))
+        }
+
+        todo!()
     }
 
     fn run(&mut self) -> i64 {

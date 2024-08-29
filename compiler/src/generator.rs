@@ -170,6 +170,10 @@ impl IrGenerator {
 
 
     pub fn pass_vars(&mut self) {
+        // the var to pass are alredy passed so we do not need to duplicate them
+        if self.get_current_block().unwrap().instructions.is_empty() {
+            return
+        }
         let offsets : Vec<_> = self.current_scopes.iter()
             .flat_map(|s| s.get_vars().values())
             .map(|v| *v)

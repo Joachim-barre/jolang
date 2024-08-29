@@ -41,9 +41,9 @@ fn main() -> Result<()>{
             let path = PathBuf::from(args.file.as_os_str());
             println!("loading {}...", path.to_str().unwrap_or("error"));
             let code = run(path)?;
-            if code >= i32::MAX {
+            if code >= i32::MAX.into() {
                 exit(i32::MAX)
-            }else if code <= i32::MIN {
+            }else if code <= i32::MIN.into() {
                 exit(i32::MIN)
             }else {
                 exit(code as i32);

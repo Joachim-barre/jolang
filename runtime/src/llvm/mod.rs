@@ -1,9 +1,16 @@
 use inkwell::{context::Context, module::Module, builder::Builder};
 
-struct LLVMRuntime<'a> {
+pub struct LLVMRuntime<'ctx> {
     ctx : Context,
-    module : Module<'a>,
-    builder : Builder<'a>
+    module : Option<Module<'ctx>>,
 }
 
+impl<'a> LLVMRuntime<'a> {
+    pub fn new() -> Self {
+        Self {
+            ctx : Context::create(),
+            module : None
+        }
+    }
+}
 

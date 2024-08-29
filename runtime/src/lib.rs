@@ -1,6 +1,7 @@
 use std::{fs::OpenOptions, path::PathBuf};
 use anyhow::Result;
 use jolang_shared::ir::{reader::read, IrObject};
+mod llvm;
 
 pub trait Runtime {
     fn load(&mut self, object : IrObject);

@@ -37,7 +37,7 @@ where T: Read + Seek {
         let mut info_buf = [0;2];
         input.read_exact(&mut info_buf)?;
         let argc = info_buf[0];
-        let returns = info_buf[0] != 0;
+        let returns = info_buf[1] != 0;
         object.ext_fn.push((name, argc, returns));
     }
     input.seek(SeekFrom::Start(block_pos))?;

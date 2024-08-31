@@ -44,7 +44,7 @@ impl LLVMRuntime {
         return Ok(())
     }
 
-    pub fn gen_function(&self, blocks : &Vec<RefCell<Block>>, fn_value : FunctionValue, builder : &Builder) -> Result<()>{
+    pub fn gen_function(&self, blocks : &Vec<RefCell<Block>>, fn_value : FunctionValue, module : &Module, builder : &Builder) -> Result<()>{
         let i64_type = self.ctx.i64_type();
 
         let blocks = blocks.iter().map(|x| x.take()).collect::<Vec<_>>();
@@ -122,6 +122,26 @@ impl LLVMRuntime {
                         }else {
                             return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
                             }
+                    },
+                    Instruction::Call(id) => {
+                        if let Some(function) = JOLANG_STD.get(*id as usize)
+                            .map(|x| x.0)
+                            .and_then(|x| module.get_function(x)){
+                            let mut args = Vec::new();
+                            for _ in 0..function.count_params() {
+                                if let Some(arg) = stack.pop_back(){
+                                    args.push(arg.into());
+                                }else {
+                                    return Err(anyhow!("tried to call a function but the stack is too small"))
+                                }
+                            }
+                            let value = builder.build_call(function, &args[..], "value")?;
+                            if let Some(val) = value.try_as_basic_value().left() {
+                                stack.push_back(val);
+                            }
+                        }else {
+                            return Err(anyhow!("call of unregistered function : {}", id))
+                        }
                     }
                     _ => todo!()
                 }
@@ -144,7 +164,7 @@ impl Runtime for LLVMRuntime {
         self.load_externs(&object.ext_fn, &module, &builder)?;
         let main_sig = self.ctx.i64_type().fn_type(&[], false);
         let main_value = module.add_function("main", main_sig, None);
-        self.gen_function(&object.blocks, main_value, &builder)?;
+        self.gen_function(&object.blocks, main_value, &module, &builder)?;
 
         let execution_engine = module.create_jit_execution_engine(OptimizationLevel::Default).unwrap();
 

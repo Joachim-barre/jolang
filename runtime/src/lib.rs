@@ -7,8 +7,7 @@ mod llvm;
 pub trait Runtime {
     fn new() -> Self
         where Self : Sized;
-    fn load(&mut self, object : IrObject) -> Result<()>;
-    fn run(&mut self) -> i64;
+    fn run(&mut self, object : IrObject) -> Result<i64>;
 }
 
 pub fn run(file : PathBuf) -> Result<i64> {
@@ -19,6 +18,5 @@ pub fn run(file : PathBuf) -> Result<i64> {
         .open(file)?;
     let object = read(&mut file)?;
     let mut runtime : Box<dyn Runtime> = Box::new(LLVMRuntime::new());
-    runtime.load(object)?;
-    Ok(runtime.run())
+    Ok(runtime.run(object)?)
 }

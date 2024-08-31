@@ -1,7 +1,8 @@
 use anyhow::{anyhow, Result};
-use inkwell::{builder::Builder, context::Context, execution_engine::JitFunction, module::Module, types::{BasicMetadataTypeEnum, BasicType}, values::{BasicMetadataValueEnum, BasicValue}, AddressSpace, OptimizationLevel};
+use inkwell::{builder::Builder, context::Context, execution_engine::JitFunction, module::Module, types::{BasicMetadataTypeEnum, BasicType}, values::{BasicMetadataValueEnum, BasicValue, FunctionValue, PhiValue}, AddressSpace, OptimizationLevel, basic_block::BasicBlock};
 use crate::Runtime;
-use jolang_shared::ffi::jolang_std::JOLANG_STD;
+use jolang_shared::{ffi::jolang_std::JOLANG_STD, ir::block::Block};
+use std::cell::RefCell;
 
 pub struct LLVMRuntime {
     ctx : Context,
@@ -42,6 +43,25 @@ impl LLVMRuntime {
         }
         return Ok(())
     }
+
+    pub fn gen_function(&self, blocks : &Vec<RefCell<Block>>, fn_value : FunctionValue, builder : &Builder) -> Result<()>{
+        let i64_type = self.ctx.i64_type();
+
+        let blocks = blocks.iter().map(|x| x.take()).collect::<Vec<_>>();
+        let mut llvm_blocks : Vec<(Vec<PhiValue>, BasicBlock)> = Vec::new();
+        // init blocks and args as phi
+        for blk in blocks.iter(){
+            let llvm_blk = self.ctx.append_basic_block(fn_value, "");
+            builder.position_at_end(llvm_blk);
+            let mut args = Vec::new();
+            for i in 0..blk.argc {
+                let arg = builder.build_phi(i64_type, "")?;
+                args.push(arg);
+            }
+            llvm_blocks.push((args, llvm_blk));
+        }
+        Ok(())
+    }
 }
 
 impl Runtime for LLVMRuntime {
@@ -55,7 +75,9 @@ impl Runtime for LLVMRuntime {
         let module = self.ctx.create_module("jolang_main");
         let builder = self.ctx.create_builder();
         self.load_externs(&object.ext_fn, &module, &builder)?;
-        // TODO : generate main
+        let main_sig = self.ctx.i64_type().fn_type(&[], false);
+        let main_value = module.add_function("main", main_sig, None);
+        self.gen_function(&object.blocks, main_value, &builder)?;
 
         let execution_engine = module.create_jit_execution_engine(OptimizationLevel::Default).unwrap();
 

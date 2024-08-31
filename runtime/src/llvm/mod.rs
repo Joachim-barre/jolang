@@ -108,7 +108,7 @@ impl LLVMRuntime {
                         if let Some(value) = stack.iter().nth(*offset as usize) {
                             stack.push_back(*value)
                         }else {
-                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building dup"))
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building dupx"))
                         }
                     },
                     Instruction::Swap() => {

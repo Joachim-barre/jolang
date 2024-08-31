@@ -60,6 +60,17 @@ impl LLVMRuntime {
             }
             llvm_blocks.push((args, llvm_blk));
         }
+
+        // add instructions
+        for (blk,(args,llvm_blk)) in blocks.iter()
+        .zip(llvm_blocks){
+            builder.position_at_end(llvm_blk);
+            for i in &blk.instructions {
+                match i  {
+                    _ => todo!()
+                }
+            }
+        }
         Ok(())
     }
 }

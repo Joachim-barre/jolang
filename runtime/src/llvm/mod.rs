@@ -3,21 +3,20 @@ use inkwell::{builder::Builder, context::Context, execution_engine::JitFunction,
 use crate::Runtime;
 use jolang_shared::ffi::jolang_std::JOLANG_STD;
 
-pub struct LLVMRuntime<'ctx> {
+pub struct LLVMRuntime {
     ctx : Context,
-    module : Option<Module<'ctx>>,
 }
 
-impl<'a> LLVMRuntime<'a> {
-    fn load_externs(&self, table : &Vec<(String, u8, bool)>, module : &Module, builder : &Builder) -> Result<()>{
+impl LLVMRuntime {
+    fn load_externs<'b>(&'b self, table : &Vec<(String, u8, bool)>, module : &Module<'b>, builder : &Builder) -> Result<()>{
         for (name, argc, returns) in table {
             let std_sig = JOLANG_STD.iter()
                 .filter(|x| x.0 == name)
                 .next().map(|x| &x.1)
                 .map_or_else(|| Err(anyhow!("unknown function : {}", name)), |x| Ok(x))?;
-            let context : &Context = unsafe { std::mem::transmute(&self.ctx) };
+            let context : &Context = &self.ctx;
             if std_sig.returns() != *returns || std_sig.arg_count() != *argc {
-                return Err(anyhow!("singnature of the function {} is not the same between the runtime and the object", name));
+                return Err(anyhow!("singnature of the function : \"{}\" is not the same between the runtime and the object", name));
             }
             let i64_type = context.i64_type();
             let args = vec![BasicMetadataTypeEnum::from(i64_type); *argc as usize];
@@ -45,38 +44,25 @@ impl<'a> LLVMRuntime<'a> {
     }
 }
 
-impl<'a> Runtime for LLVMRuntime<'a> {
+impl Runtime for LLVMRuntime {
     fn new() -> Self {
         Self {
-            ctx : Context::create(),
-            module : None
+            ctx : Context::create()
         }
     }
 
-    fn load(&mut self, object : jolang_shared::ir::IrObject) -> anyhow::Result<()> {
-        if self.module.is_some() {
-            return Err(anyhow!("module is already initialized"))
-        }
-        unsafe {
-            self.module = Some(std::mem::transmute(self.ctx.create_module("jolang_main")));
-        }
-        let module = self.module.as_ref().unwrap();
+    fn run(&mut self, object : jolang_shared::ir::IrObject) -> anyhow::Result<i64> {
+        let module = self.ctx.create_module("jolang_main");
         let builder = self.ctx.create_builder();
-        self.load_externs(&object.ext_fn, module, &builder);
-        todo!()
-    }
+        self.load_externs(&object.ext_fn, &module, &builder)?;
+        // TODO : generate main
 
-    fn run(&mut self) -> i64 {
-        if self.module.is_none() {
-            panic!("tried to run an unitialized module");
-        }
-        let module = self.module.as_mut().unwrap();
         let execution_engine = module.create_jit_execution_engine(OptimizationLevel::Default).unwrap();
 
         unsafe {
             type MainFn = unsafe extern "C" fn() -> i64;
             let main_fn: JitFunction<MainFn> = execution_engine.get_function("main").unwrap();
-            main_fn.call()
+            Ok(main_fn.call())
         }
     }
 }

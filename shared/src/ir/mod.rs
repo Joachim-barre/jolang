@@ -11,7 +11,7 @@ use block::Block;
 
 pub struct IrObject {
     pub ext_fn : Vec<(String, u8, bool)>,
-    blocks : Vec<RefCell<Block>>
+    pub blocks : Vec<RefCell<Block>>
 }
 
 impl IrObject {

@@ -81,6 +81,12 @@ impl LLVMRuntime {
                             return Err(anyhow!("tried to get a value from an empty stack\nwhile building reti"))
                         }
                     },
+                    Instruction::Iconst(value) => {
+                        stack.push_back(
+                            i64_type.const_int(u64::from_le_bytes(value.to_le_bytes())
+                            , false).into()
+                        )
+                    },
                     _ => todo!()
                 }
             }
@@ -113,3 +119,4 @@ impl Runtime for LLVMRuntime {
         }
     }
 }
+

@@ -63,8 +63,8 @@ impl LLVMRuntime {
 
         // add instructions
         for (blk,(args,llvm_blk)) in blocks.iter()
-        .zip(llvm_blocks){
-            builder.position_at_end(llvm_blk);
+        .zip(llvm_blocks.iter()){
+            builder.position_at_end(*llvm_blk);
             let mut stack = LinkedList::new();
             for a in args {
                 stack.push_back(a.as_basic_value());
@@ -119,4 +119,3 @@ impl Runtime for LLVMRuntime {
         }
     }
 }
-

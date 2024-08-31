@@ -87,6 +87,16 @@ impl LLVMRuntime {
                             , false).into()
                         )
                     },
+                    Instruction::Br(id) => {
+                        if let Some(other_blk) = llvm_blocks.get(*id as usize) {
+                            builder.build_unconditional_branch(other_blk.1)?;
+                            for arg in other_blk.0.iter().rev().zip(stack.iter().rev()) {
+                                arg.0.add_incoming(&[(arg.1, *llvm_blk)]);
+                            }
+                        }else {
+                            return Err(anyhow!("tried to branch to a non existant block : {}", *id))
+                        }
+                    },
                     _ => todo!()
                 }
             }
@@ -119,3 +129,4 @@ impl Runtime for LLVMRuntime {
         }
     }
 }
+

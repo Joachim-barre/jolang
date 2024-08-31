@@ -142,6 +142,17 @@ impl LLVMRuntime {
                         }else {
                             return Err(anyhow!("call of unregistered function : {}", id))
                         }
+                    },
+                    Instruction::Neg() => {
+                        if let Some(value) = stack.back() {
+                            let result = builder.build_int_sub(
+                                i64_type.const_zero(),
+                                value.into_int_value() ,
+                                "result")?;
+                            stack.push_back(result.into())
+                        }else {
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building neg"))
+                        }
                     }
                     _ => todo!()
                 }

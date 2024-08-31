@@ -302,6 +302,8 @@ impl LLVMRuntime {
                                     for arg in blk2.0.iter().rev().zip(stack.iter().rev()) {
                                         arg.0.add_incoming(&[(arg.1, *llvm_blk)]);
                                     }
+                                }else {
+                                    return Err(anyhow!("tried to get a value from an empty stack\nwhile building briz"))
                                 }
                             }else {
                                 return Err(anyhow!("tried to branch to a non existant block : {}", *id2))

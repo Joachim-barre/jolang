@@ -282,7 +282,34 @@ impl LLVMRuntime {
                             return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
                         }
                     },
-                    _ => todo!()
+                    Instruction::Briz(id1, id2) => {
+                        if let Some(blk1) = llvm_blocks.get(*id1 as usize) {
+                            if let Some(blk2) = llvm_blocks.get(*id2 as usize){
+                                if let Some(cond) = stack.pop_back() {
+                                    let cond = builder.build_int_compare(
+                                        inkwell::IntPredicate::EQ,
+                                        cond.into_int_value(),
+                                        i64_type.const_zero().into(),
+                                        "cond")?;
+                                    builder.build_conditional_branch(
+                                        cond,
+                                        blk1.1,
+                                        blk2.1
+                                    )?;
+                                    for arg in blk1.0.iter().rev().zip(stack.iter().rev()) {
+                                        arg.0.add_incoming(&[(arg.1, *llvm_blk)]);
+                                    }
+                                    for arg in blk2.0.iter().rev().zip(stack.iter().rev()) {
+                                        arg.0.add_incoming(&[(arg.1, *llvm_blk)]);
+                                    }
+                                }
+                            }else {
+                                return Err(anyhow!("tried to branch to a non existant block : {}", *id2))
+                            }
+                        }else {
+                            return Err(anyhow!("tried to branch to a non existant block : {}", *id1))
+                        }
+                    }
                 }
             }
         }

@@ -153,7 +153,136 @@ impl LLVMRuntime {
                         }else {
                             return Err(anyhow!("tried to get a value from an empty stack\nwhile building neg"))
                         }
-                    }
+                    },
+                    Instruction::Add()
+                        | Instruction::Sub()
+                        | Instruction::Mul()
+                        | Instruction::Div()
+                        | Instruction::Eq()
+                        | Instruction::Ne()
+                        | Instruction::Gt()
+                        | Instruction::Ge()
+                        | Instruction::Le()
+                        | Instruction::Lt()
+                        | Instruction::Lsh()
+                        | Instruction::Rsh()
+                        => {
+                        if let Some(val1) = stack.pop_back(){
+                            if let Some(val2) = stack.pop_back(){
+                                let result = match i {
+                                    Instruction::Add() => {
+                                        builder.build_int_add(
+                                            val2.into_int_value(),
+                                            val1.into_int_value(),
+                                        "res")?
+                                    },
+                                    Instruction::Sub() => {
+                                        builder.build_int_sub(
+                                            val2.into_int_value(),
+                                            val1.into_int_value(),
+                                        "res")?
+                                    },
+                                    Instruction::Mul() => {
+                                        builder.build_int_mul(
+                                            val2.into_int_value(),
+                                            val1.into_int_value(),
+                                        "res")?
+                                    },
+                                    Instruction::Div() => {
+                                        builder.build_int_signed_div(
+                                            val2.into_int_value(),
+                                            val1.into_int_value(),
+                                        "res")?
+                                    },
+                                    Instruction::Eq() => {
+                                        let cmp = builder.build_int_compare(
+                                            inkwell::IntPredicate::EQ,
+                                            val1.into_int_value(),
+                                            val2.into_int_value(),
+                                            "cmp")?;
+                                        builder.build_int_z_extend(
+                                            cmp,
+                                            i64_type,
+                                            "res")?
+                                    },
+                                    Instruction::Ne() => {
+                                        let cmp = builder.build_int_compare(
+                                            inkwell::IntPredicate::NE,
+                                            val1.into_int_value(),
+                                            val2.into_int_value(),
+                                            "cmp")?;
+                                        builder.build_int_z_extend(
+                                            cmp,
+                                            i64_type,
+                                            "res")?
+                                    },
+                                    Instruction::Gt() => {
+                                        let cmp = builder.build_int_compare(
+                                            inkwell::IntPredicate::SGT,
+                                            val1.into_int_value(),
+                                            val2.into_int_value(),
+                                            "cmp")?;
+                                        builder.build_int_z_extend(
+                                            cmp,
+                                            i64_type,
+                                            "res")?
+                                    },
+                                    Instruction::Ge() => {
+                                        let cmp = builder.build_int_compare(
+                                            inkwell::IntPredicate::SGE,
+                                            val1.into_int_value(),
+                                            val2.into_int_value(),
+                                            "cmp")?;
+                                        builder.build_int_z_extend(
+                                            cmp,
+                                            i64_type,
+                                            "res")?
+                                    },
+                                    Instruction::Le() => {
+                                        let cmp = builder.build_int_compare(
+                                            inkwell::IntPredicate::SLE,
+                                            val1.into_int_value(),
+                                            val2.into_int_value(),
+                                            "cmp")?;
+                                        builder.build_int_z_extend(
+                                            cmp,
+                                            i64_type,
+                                            "res")?
+                                    },
+                                    Instruction::Lt() => {
+                                        let cmp = builder.build_int_compare(
+                                            inkwell::IntPredicate::SLT,
+                                            val1.into_int_value(),
+                                            val2.into_int_value(),
+                                            "cmp")?;
+                                        builder.build_int_z_extend(
+                                            cmp,
+                                            i64_type,
+                                            "res")?
+                                    },
+                                    Instruction::Lsh() => {
+                                        builder.build_left_shift(
+                                            val2.into_int_value(),
+                                            val1.into_int_value(),
+                                        "res")?
+                                    },
+                                    Instruction::Rsh() => {
+                                        builder.build_right_shift(
+                                            val2.into_int_value(),
+                                            val1.into_int_value(),
+                                            false,
+                                        "res")?
+                                    },
+                                    _ => unreachable!()
+                                };
+                                stack.push_back(result.into());
+                            }else {
+                                return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                            }
+                        }else {
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                        }
+                    },
                     _ => todo!()
                 }
             }

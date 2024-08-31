@@ -97,6 +97,13 @@ impl LLVMRuntime {
                             return Err(anyhow!("tried to branch to a non existant block : {}", *id))
                         }
                     },
+                    Instruction::Dup() => {
+                        if let Some(value) = stack.back() {
+                            stack.push_back(*value)
+                        }else {
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building dup"))
+                        }
+                    }
                     _ => todo!()
                 }
             }

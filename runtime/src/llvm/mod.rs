@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use inkwell::{builder::Builder, context::Context, execution_engine::JitFunction, module::Module, types::{BasicMetadataTypeEnum, BasicType}, values::{BasicMetadataValueEnum, BasicValue, FunctionValue, PhiValue}, AddressSpace, OptimizationLevel, basic_block::BasicBlock};
 use crate::Runtime;
-use jolang_shared::{ffi::jolang_std::JOLANG_STD, ir::block::Block};
+use jolang_shared::{ffi::jolang_std::JOLANG_STD, ir::{block::Block, instructions::Instruction}};
 use std::{cell::RefCell, collections::LinkedList};
 
 pub struct LLVMRuntime {
@@ -67,10 +67,20 @@ impl LLVMRuntime {
             builder.position_at_end(llvm_blk);
             let mut stack = LinkedList::new();
             for a in args {
-                stack.push_back(a);
+                stack.push_back(a.as_basic_value());
             }
             for i in &blk.instructions {
                 match i  {
+                    Instruction::Ret() => {
+                        builder.build_return(None)?;
+                    },
+                    Instruction::Reti() => {
+                        if let Some(value) = stack.pop_front() {
+                            builder.build_return(Some(&value))?;
+                        }else {
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building reti"))
+                        }
+                    },
                     _ => todo!()
                 }
             }

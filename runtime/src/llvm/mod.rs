@@ -124,9 +124,8 @@ impl LLVMRuntime {
                             }
                     },
                     Instruction::Call(id) => {
-                        if let Some(function) = JOLANG_STD.get(*id as usize)
-                            .map(|x| x.0)
-                            .and_then(|x| module.get_function(x)){
+                        if let Some(function) = module.get_functions()
+                            .nth(*id as usize){
                             let mut args = Vec::new();
                             for _ in 0..function.count_params() {
                                 if let Some(arg) = stack.pop_back(){

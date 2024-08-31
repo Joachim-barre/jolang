@@ -75,7 +75,7 @@ impl LLVMRuntime {
                         builder.build_return(None)?;
                     },
                     Instruction::Reti() => {
-                        if let Some(value) = stack.pop_front() {
+                        if let Some(value) = stack.pop_back() {
                             builder.build_return(Some(&value))?;
                         }else {
                             return Err(anyhow!("tried to get a value from an empty stack\nwhile building reti"))
@@ -113,4 +113,3 @@ impl Runtime for LLVMRuntime {
         }
     }
 }
-

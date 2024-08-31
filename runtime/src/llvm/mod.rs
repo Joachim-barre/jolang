@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use inkwell::{builder::Builder, context::Context, execution_engine::JitFunction, module::Module, types::{BasicMetadataTypeEnum, BasicType}, values::{BasicMetadataValueEnum, BasicValue, FunctionValue, PhiValue}, AddressSpace, OptimizationLevel, basic_block::BasicBlock};
 use crate::Runtime;
 use jolang_shared::{ffi::jolang_std::JOLANG_STD, ir::block::Block};
-use std::cell::RefCell;
+use std::{cell::RefCell, collections::LinkedList};
 
 pub struct LLVMRuntime {
     ctx : Context,
@@ -65,6 +65,10 @@ impl LLVMRuntime {
         for (blk,(args,llvm_blk)) in blocks.iter()
         .zip(llvm_blocks){
             builder.position_at_end(llvm_blk);
+            let mut stack = LinkedList::new();
+            for a in args {
+                stack.push_back(a);
+            }
             for i in &blk.instructions {
                 match i  {
                     _ => todo!()

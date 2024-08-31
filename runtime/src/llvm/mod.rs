@@ -110,6 +110,18 @@ impl LLVMRuntime {
                         }else {
                             return Err(anyhow!("tried to get a value from an empty stack\nwhile building dup"))
                         }
+                    },
+                    Instruction::Swap() => {
+                        if let Some(val1) = stack.pop_back(){
+                            if let Some(val2) = stack.pop_back(){
+                                stack.push_back(val2);
+                                stack.push_back(val1);
+                            }else {
+                                return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                            }
+                        }else {
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                            }
                     }
                     _ => todo!()
                 }

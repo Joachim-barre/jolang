@@ -196,8 +196,8 @@ impl LLVMRuntime {
                                     Instruction::Eq() => {
                                         let cmp = builder.build_int_compare(
                                             inkwell::IntPredicate::EQ,
-                                            val1.into_int_value(),
                                             val2.into_int_value(),
+                                            val1.into_int_value(),
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
@@ -207,8 +207,8 @@ impl LLVMRuntime {
                                     Instruction::Ne() => {
                                         let cmp = builder.build_int_compare(
                                             inkwell::IntPredicate::NE,
-                                            val1.into_int_value(),
                                             val2.into_int_value(),
+                                            val1.into_int_value(),
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
@@ -218,8 +218,8 @@ impl LLVMRuntime {
                                     Instruction::Gt() => {
                                         let cmp = builder.build_int_compare(
                                             inkwell::IntPredicate::SGT,
-                                            val1.into_int_value(),
                                             val2.into_int_value(),
+                                            val1.into_int_value(),
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
@@ -229,8 +229,8 @@ impl LLVMRuntime {
                                     Instruction::Ge() => {
                                         let cmp = builder.build_int_compare(
                                             inkwell::IntPredicate::SGE,
-                                            val1.into_int_value(),
                                             val2.into_int_value(),
+                                            val1.into_int_value(),
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
@@ -240,8 +240,8 @@ impl LLVMRuntime {
                                     Instruction::Le() => {
                                         let cmp = builder.build_int_compare(
                                             inkwell::IntPredicate::SLE,
-                                            val1.into_int_value(),
                                             val2.into_int_value(),
+                                            val1.into_int_value(),
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
@@ -251,8 +251,8 @@ impl LLVMRuntime {
                                     Instruction::Lt() => {
                                         let cmp = builder.build_int_compare(
                                             inkwell::IntPredicate::SLT,
-                                            val1.into_int_value(),
                                             val2.into_int_value(),
+                                            val1.into_int_value(),
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
@@ -333,6 +333,8 @@ impl Runtime for LLVMRuntime {
         let main_sig = self.ctx.i64_type().fn_type(&[], false);
         let main_value = module.add_function("main", main_sig, None);
         self.gen_function(&object.blocks, main_value, &module, &builder)?;
+
+        module.print_to_stderr();
 
         let execution_engine = module.create_jit_execution_engine(OptimizationLevel::Default).unwrap();
 

@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use crate::run::RunArgs;
 use crate::compile::CompileArgs;
-
+use crate::show::ShowArgs;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -16,5 +16,7 @@ pub enum Commands {
     /// compile sources into object files
     Compile(CompileArgs),
     /// run objects
-    Run(RunArgs)
+    Run(RunArgs),
+    /// print the ir
+    Show(ShowArgs)
 }

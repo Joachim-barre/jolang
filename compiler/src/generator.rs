@@ -81,8 +81,8 @@ impl IrGenerator {
                 | Instruction::Swap()
                 => None,
             Instruction::Call(f) => {
-                if let Some(ssize) = self.stack_size() {
-                    for _ in 0..ssize {
+                if let Some(argc) = self.object.ext_fn.get(f as usize).map(|x| x.1)  {
+                    for _ in 0..argc {
                         self.dec_stack();
                     }
                 }

@@ -161,7 +161,7 @@ impl Generate for Statement {
                     panic!("can't break outside a loop");
                 }
                 generator.pass_vars();
-                generator.add(Instruction::Br(to_exit[to_exit.len()-1].block));
+                generator.add(Instruction::Br(to_exit[to_exit.len()-1].exit));
                 for s in to_exit.into_iter().rev() {
                     generator.enter_scope(s);
                 }

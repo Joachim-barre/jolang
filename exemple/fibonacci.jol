@@ -11,7 +11,7 @@ var calulated = 0;
 var num1 = 0;
 var num2 = 1;
 
-print(1);
+print(0);
 
 while (calulated < n) {
     var tmp = num1 + num2;

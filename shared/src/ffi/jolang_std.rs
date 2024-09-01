@@ -1,5 +1,5 @@
 //! standard (builtin functions)
-
+use std::io::Write;
 use rand::Rng;
 use lazy_static::lazy_static;
 use super::JolangExtern;
@@ -10,6 +10,7 @@ extern "C" fn print(value : i64) {
 
 extern "C" fn input() -> i64 {
     print!("input: ");
+    std::io::stdout().flush().expect("failed to print to stdout");
     let mut line = String::new();
     std::io::stdin()
         .read_line(&mut line)

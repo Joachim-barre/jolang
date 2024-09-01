@@ -50,8 +50,8 @@ impl LLVMRuntime {
         let blocks = blocks.iter().map(|x| x.take()).collect::<Vec<_>>();
         let mut llvm_blocks : Vec<(Vec<PhiValue>, BasicBlock)> = Vec::new();
         // init blocks and args as phi
-        for blk in blocks.iter(){
-            let llvm_blk = self.ctx.append_basic_block(fn_value, "");
+        for (i, blk) in blocks.iter().enumerate(){
+            let llvm_blk = self.ctx.append_basic_block(fn_value, format!("B{}", i).as_str());
             builder.position_at_end(llvm_blk);
             let mut args = Vec::new();
             for i in 0..blk.argc {

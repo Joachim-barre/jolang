@@ -18,6 +18,17 @@ impl Generate for Program {
             s.generate(generator);
         }
         generator.exit_scope();
+        match generator.get_current_block().map(|b| b.instructions.get_last().map_or(Instruction::Dup(), |i| *i)) {
+            Some(i) => match i {
+                Instruction::Br(_)
+                    | Instruction::Ret()
+                    | Instruction::Reti()
+                    | Instruction::Briz(_, _)
+                    => return,
+                _ => ()
+            }
+            None => ()
+        }
         generator.add(Instruction::Br(exit_block));
     }
 }

@@ -6,6 +6,4 @@ pub struct RunArgs {
     /// path to the file to run
     #[clap(value_parser = clap::value_parser!(ClioPath).exists().is_file())]
     pub file : ClioPath,
-    #[clap(short, long)]
-    pub print_to_stderr : bool
 }

@@ -86,7 +86,6 @@ impl Generate for Statement {
                 let after_block = generator.append_block();
                 let scope = Scope::new(ScopeKind::Loop, while_cond, after_block);
                 generator.enter_scope(scope);
-                expr.generate(generator);
                 generator.pass_vars();
                 expr.generate(generator);
                 generator.add(Instruction::Briz(after_block, while_body));

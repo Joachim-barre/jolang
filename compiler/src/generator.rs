@@ -23,7 +23,7 @@ impl IrGenerator {
     }
 
     pub fn decl_var(&mut self, name : String) -> u64 {
-        let offset = self.get_current_block().unwrap().stack_size - 1;
+        let offset = self.get_current_block().map_or(0, |b| b.stack_size - 1);
         self.current_scopes.get_mut_first().map(|x| x.decl_var(name, offset));
         offset
     }
@@ -101,6 +101,19 @@ impl IrGenerator {
                 b.instructions.insert_first(i)
             }
         });
+        match i {
+            Instruction::Ret()
+                | Instruction::Reti()
+                | Instruction::Br(_)
+                | Instruction::Briz(_, _)
+            => {
+                // exit the current block to prevent writting instrunctions in it
+                self.current_block = None;
+                self.current_pos = None;
+                return pos
+            },
+            _ => ()
+        }
         self.current_pos = pos;
         pos
     }
@@ -176,7 +189,7 @@ impl IrGenerator {
 
     pub fn pass_vars(&mut self) {
         // the var to pass are alredy passed so we do not need to duplicate them
-        if self.get_current_block().unwrap().instructions.is_empty() {
+        if self.get_current_block().map_or(false, |b| b.instructions.is_empty()) {
             return
         }
         let offsets : Vec<_> = self.current_scopes.iter()

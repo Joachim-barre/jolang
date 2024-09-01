@@ -185,7 +185,6 @@ impl IrGenerator {
             .collect();
         for v in offsets{
             self.add(Instruction::Dupx(v as i64));
-            self.inc_stack();
         }
     }
 

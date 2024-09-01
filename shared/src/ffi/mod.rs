@@ -16,7 +16,7 @@ impl JolangExtern for extern "C" fn(i64) {
     }
 
     unsafe fn get_pointer(&self) -> u64 {
-        std::mem::transmute(self)
+        std::mem::transmute(*self)
     }
 }
 
@@ -30,7 +30,7 @@ impl JolangExtern for extern "C" fn() -> i64 {
     }
 
     unsafe fn get_pointer(&self) -> u64 {
-        std::mem::transmute(self)
+        std::mem::transmute(*self)
     }
 }
 
@@ -44,6 +44,6 @@ impl JolangExtern for extern "C" fn(i64, i64) -> i64 {
     }
 
     unsafe fn get_pointer(&self) -> u64 {
-        std::mem::transmute(*(self as *const Self))
+        std::mem::transmute(*self)
     }
 }

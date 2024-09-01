@@ -81,6 +81,11 @@ impl IrGenerator {
                 | Instruction::Swap()
                 => None,
             Instruction::Call(f) => {
+                if let Some(ssize) = self.stack_size() {
+                    for _ in 0..ssize {
+                        self.dec_stack();
+                    }
+                }
                 if self.object.ext_fn.get(f as usize).map_or(false, |x| x.2) {
                     self.inc_stack()
                 }else{

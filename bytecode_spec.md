@@ -41,10 +41,14 @@ stack is not kept between blocks but blocks arguments are pushed on top of the s
 st[x] indicate a value on the stack with a offset from the top of x.
 for exemple st[0] is the top of the stack 
 
+unless stated otherwise integer sizes are in bits<br>
+if an instruction access the stack the values must have the same size and their size is deducted at runtime. the run may crash or throw an error in case of bad sizing.
+
 an instruction is composed of an opcode then the operands<br>
 there is multiple types of operands : 
-- imm (immediate) 8-bytes raw integer value
-- uimm 8-bytes raw unsigned integer value
+- imm64 (immediate) 8-bytes raw integer value
+- imm (immediate) 16-bytes raw value containing an integer a size that depens on another opcode (must have padding if the integer value is smaller than 16 bytes)
+- uimm64 8-bytes raw unsigned integer value
 - blkid (block id) 8-bytes id of a block
 - fnid (function id) 8-bytes id of a function
 
@@ -54,10 +58,10 @@ there are the following opcodes :
 | -- | --         | --                      | --                                                                             |
 | 00 | ret        |                         | return nothing from the function                                               |
 | 01 | reti       |                         | return the top of the stack                                                    |
-| 02 | iconst     | imm                     | push a integer constant                                                        |
+| 02 | iconst     | uimm, imm               | push a integer constant that have a size indicated by the first operand        |
 | 03 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
 | 04 | dup        |                         | duplicate the top of the stack                                                 |
-| 05 | dupx       | uimm                     | duplicate st[stack_size-offset-1] where offset is the immediate value          |
+| 05 | dupx       | uimm                    | duplicate st[stack_size-offset-1] where offset is the immediate value          |
 | 06 | swap       |                         | swap the two values on top of the stack                                        |
 | 07 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
 | 08 | neg        |                         | pop the top of the stack and push the negated value                            |

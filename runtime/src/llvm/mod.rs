@@ -178,6 +178,27 @@ impl LLVMRuntime {
                         => {
                         if let Some(val1) = stack.pop_back(){
                             if let Some(val2) = stack.pop_back(){
+                                if val1.into_int_value().get_type().size_of() != val2.into_int_value().get_type().size_of() {
+                                    return Err(anyhow!("mismached types i{}, i{}\n while building {}",
+                                            val1.into_int_value().get_type().size_of(),
+                                            val2.into_int_value().get_type().size_of(),
+                                            match i {
+                                                Instruction::Add() => "add",
+                                                Instruction::Sub() => "sub",
+                                                Instruction::Mul() => "mul",
+                                                Instruction::Div() => "div",
+                                                Instruction::Eq() => "eq",
+                                                Instruction::Ne() => "ne",
+                                                Instruction::Gt() => "gt",
+                                                Instruction::Ge() => "ge",
+                                                Instruction::Le() => "le",
+                                                Instruction::Lt() => "lt",
+                                                Instruction::Lsh() => "lsh",
+                                                Instruction::Rsh() => "rsh",
+                                                _ => unreachable!()
+                                            }))
+                                }
+                                let result_type = val1.into_int_value().get_type();
                                 let result = match i {
                                     Instruction::Add() => {
                                         builder.build_int_add(
@@ -211,7 +232,7 @@ impl LLVMRuntime {
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
-                                            i64_type,
+                                            result_type,
                                             "res")?
                                     },
                                     Instruction::Ne() => {
@@ -222,7 +243,7 @@ impl LLVMRuntime {
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
-                                            i64_type,
+                                            result_type,
                                             "res")?
                                     },
                                     Instruction::Gt() => {
@@ -233,7 +254,7 @@ impl LLVMRuntime {
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
-                                            i64_type,
+                                            result_type,
                                             "res")?
                                     },
                                     Instruction::Ge() => {
@@ -244,7 +265,7 @@ impl LLVMRuntime {
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
-                                            i64_type,
+                                            result_type,
                                             "res")?
                                     },
                                     Instruction::Le() => {
@@ -255,7 +276,7 @@ impl LLVMRuntime {
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
-                                            i64_type,
+                                            result_type,
                                             "res")?
                                     },
                                     Instruction::Lt() => {
@@ -266,7 +287,7 @@ impl LLVMRuntime {
                                             "cmp")?;
                                         builder.build_int_z_extend(
                                             cmp,
-                                            i64_type,
+                                            result_type,
                                             "res")?
                                     },
                                     Instruction::Lsh() => {

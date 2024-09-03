@@ -31,6 +31,7 @@ c_enum! {
 pub mod operand {
     pub type Imm64 = i64;
     pub type UImm64 = u64;
+    pub type UImm128 = i128;
     pub type BlkId = u64;
     pub type FnId = u64;
 }
@@ -39,7 +40,7 @@ pub mod operand {
 pub enum Instruction {
     Ret(),
     Reti(),
-    Iconst(operand::Imm64),
+    Iconst(operand::UImm64, operand::Imm64),
     Br(operand::BlkId),
     Dup(),
     Dupx(operand::UImm64),
@@ -66,7 +67,7 @@ impl Instruction {
         match self {
             Self::Ret() => Opcodes::Ret,
             Self::Reti() => Opcodes::Reti,
-            Self::Iconst(_) => Opcodes::Iconst,
+            Self::Iconst(..) => Opcodes::Iconst,
             Self::Br(_) => Opcodes::Br,
             Self::Dup() => Opcodes::Dup,
             Self::Dupx(_) => Opcodes::Dupx,

@@ -60,8 +60,9 @@ where T: Read + Seek {
                 Opcodes::Ret => Instruction::Ret(),
                 Opcodes::Reti => Instruction::Reti(),
                 Opcodes::Iconst => {
-                    let value = i64::from_le_bytes(buffer[8..16].try_into()?);
-                    Instruction::Iconst(value)
+                    let size = u64::from_le_bytes(buffer[8..16].try_into()?);
+                    let value = i64::from_le_bytes(buffer[16..24].try_into()?);
+                    Instruction::Iconst(size, value)
                 },
                 Opcodes::Br => {
                     let block = u64::from_le_bytes(buffer[8..16].try_into()?);

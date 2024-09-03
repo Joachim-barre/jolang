@@ -46,7 +46,11 @@ target.write(&[blk.borrow().argc][..])?;
             target.write(&[i.opcode().into()][..])?;
             match i {
                 Instruction::Iconst(op)
-                    | Instruction::Dupx(op)
+                    => {
+                        target.write(&op.to_le_bytes())?;
+                        target.write(&[0x00;16])
+                    },
+                Instruction::Dupx(op)
                     => {
                         target.write(&op.to_le_bytes())?;
                         target.write(&[0x00;16])

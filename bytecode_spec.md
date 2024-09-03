@@ -44,6 +44,7 @@ for exemple st[0] is the top of the stack
 an instruction is composed of an opcode then the operands<br>
 there is multiple types of operands : 
 - imm (immediate) 8-bytes raw integer value
+- uimm 8-bytes raw unsigned integer value
 - blkid (block id) 8-bytes id of a block
 - fnid (function id) 8-bytes id of a function
 
@@ -56,7 +57,7 @@ there are the following opcodes :
 | 02 | iconst     | imm                     | push a integer constant                                                        |
 | 03 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
 | 04 | dup        |                         | duplicate the top of the stack                                                 |
-| 05 | dupx       | imm                     | duplicate st[stack_size-offset-1] where offset is the immediate value          |
+| 05 | dupx       | uimm                     | duplicate st[stack_size-offset-1] where offset is the immediate value          |
 | 06 | swap       |                         | swap the two values on top of the stack                                        |
 | 07 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
 | 08 | neg        |                         | pop the top of the stack and push the negated value                            |

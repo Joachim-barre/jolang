@@ -30,6 +30,7 @@ c_enum! {
 
 pub mod operand {
     pub type Imm = i64;
+    pub type UImm = u64;
     pub type BlkId = u64;
     pub type FnId = u64;
 }
@@ -41,7 +42,7 @@ pub enum Instruction {
     Iconst(operand::Imm),
     Br(operand::BlkId),
     Dup(),
-    Dupx(operand::Imm),
+    Dupx(operand::UImm),
     Swap(),
     Call(operand::FnId),
     Neg(),

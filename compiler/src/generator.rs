@@ -197,7 +197,7 @@ impl IrGenerator {
             .map(|v| *v)
             .collect();
         for v in offsets{
-            self.add(Instruction::Dupx(v as i64));
+            self.add(Instruction::Dupx(v));
         }
     }
 

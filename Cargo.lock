@@ -246,7 +246,7 @@ checksum = "7943c866cc5cd64cbc25b2e01621d07fa8eb2a1a23160ee81ce38704e97b8ecf"
 
 [[package]]
 name = "jolang"
-version = "0.2.0"
+version = "0.3.0-beta"
 dependencies = [
  "anyhow",
  "clap",
@@ -258,7 +258,7 @@ dependencies = [
 
 [[package]]
 name = "jolang_runtime"
-version = "0.2.0"
+version = "0.3.0-beta"
 dependencies = [
  "anyhow",
  "inkwell",
@@ -268,7 +268,7 @@ dependencies = [
 
 [[package]]
 name = "jolang_shared"
-version = "0.2.0"
+version = "0.3.0-beta"
 dependencies = [
  "anyhow",
  "c-enum",
@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "jolangc"
-version = "0.2.0"
+version = "0.3.0-beta"
 dependencies = [
  "anyhow",
  "index_list",

@@ -81,7 +81,17 @@ impl LLVMRuntime {
                             return Err(anyhow!("tried to get a value from an empty stack\nwhile building reti"))
                         }
                     },
-                    Instruction::Iconst(value) => {
+                    Instruction::Iconst(size, value) => {
+                        let t = match size {
+                            8 => self.ctx.i8_type(), 
+                            16 => self.ctx.i16_type(),
+                            32 => self.ctx.i32_type(),
+                            64 => self.ctx.i64_type(),
+                            128 => self.ctx.i128_type(),
+                            _ => {
+                                return Err(anyhow!("unsupported integer type : i{}", size))
+                            }
+                        };
                         stack.push_back(
                             i64_type.const_int(u64::from_le_bytes(value.to_le_bytes())
                             , false).into()

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use jolang_shared::ir::instructions::operand::{BlkId, Imm};
+use jolang_shared::ir::instructions::operand::{BlkId, Imm64};
 
 #[derive(PartialEq, Debug)]
 pub enum ScopeKind {
@@ -11,7 +11,7 @@ pub enum ScopeKind {
 
 #[derive(Debug)]
 pub struct Scope {
-    // the Imm is the offset from the start of the stack not the top
+    // the u64 is the offset from the start of the stack not the top
     variables : HashMap<String, u64>,
     pub kind : ScopeKind,
     pub block : BlkId,

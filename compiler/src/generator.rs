@@ -56,7 +56,7 @@ impl IrGenerator {
 
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {
         match i {
-            Instruction::Iconst(_)
+            Instruction::Iconst(..)
                 | Instruction::Dup()
                 | Instruction::Dupx(_)
                 => self.inc_stack(),

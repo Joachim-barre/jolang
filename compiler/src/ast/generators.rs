@@ -9,7 +9,7 @@ impl Generate for Program {
         let blk = generator.append_block();
         let exit_block = generator.append_block();
         generator.goto_begin(exit_block);
-        generator.add(Instruction::Iconst(0)).unwrap();
+        generator.add(Instruction::Iconst(64, 0)).unwrap();
         generator.add(Instruction::Reti());
         let scope = Scope::new(ScopeKind::Root, blk, exit_block);
         generator.enter_scope(scope);
@@ -169,7 +169,7 @@ impl Generate for Statement {
             Self::VarDecl(name, value) => {
                 match value {
                     Some(v) => v.generate(generator),
-                    None => { generator.add(Instruction::Iconst(0)); }
+                    None => { generator.add(Instruction::Iconst(64, 0)); }
                 }
                 let offset = generator.decl_var(name.to_string());
             },
@@ -253,7 +253,7 @@ impl Generate for PrimaryExpr {
                 generator.add(Instruction::Dupx(offset));
             },
             PrimaryExpr::Litteral(val) => {
-                generator.add(Instruction::Iconst(*val));
+                generator.add(Instruction::Iconst(64, *val));
                 ()
             },
             PrimaryExpr::Expr(e) => e.generate(generator)

@@ -253,7 +253,7 @@ impl Generate for PrimaryExpr {
                 generator.add(Instruction::Dupx(offset));
             },
             PrimaryExpr::Litteral(val) => {
-                generator.add(Instruction::Iconst(64, *val));
+                generator.add(Instruction::Iconst(64, *val as u128));
                 ()
             },
             PrimaryExpr::Expr(e) => e.generate(generator)

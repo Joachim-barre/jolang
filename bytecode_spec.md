@@ -58,7 +58,7 @@ there are the following opcodes :
 | -- | --         | --                      | --                                                                             |
 | 00 | ret        |                         | return nothing from the function                                               |
 | 01 | reti       |                         | return the top of the stack                                                    |
-| 02 | iconst     | uimm64, imm64           | push a integer constant that have a size indicated by the first operand        |
+| 02 | iconst     | uimm64, imm             | push a integer constant that have a size indicated by the first operand        |
 | 03 | icast      | uimm                    | cast st[0] to another integer type by trimming or sign extanding               |
 | 04 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
 | 05 | dup        |                         | duplicate the top of the stack                                                 |

@@ -48,8 +48,7 @@ target.write(&[blk.borrow().argc][..])?;
                 Instruction::Iconst(size, value)
                     => {
                         target.write(&size.to_le_bytes())?;
-                        target.write(&value.to_le_bytes())?;
-                        target.write(&[0x00;8])
+                        target.write(&value.to_le_bytes())
                     },
                 Instruction::Dupx(op)
                     | Instruction::Icast(op)

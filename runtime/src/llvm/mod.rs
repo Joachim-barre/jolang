@@ -82,7 +82,7 @@ impl LLVMRuntime {
                         }
                     },
                     Instruction::Iconst(size, value) => {
-                        let t = match size {
+                        let val = match size {
                             8 => self.ctx.i8_type(), 
                             16 => self.ctx.i16_type(),
                             32 => self.ctx.i32_type(),
@@ -91,10 +91,9 @@ impl LLVMRuntime {
                             _ => {
                                 return Err(anyhow!("unsupported integer type : i{}", size))
                             }
-                        };
+                        }.const_int_arbitrary_precision(&[u64::from_le_bytes(value.to_le_bytes()[..8].try_into()?), u64::from_le_bytes(value.to_le_bytes()[8..].try_into()?)]);
                         stack.push_back(
-                            i64_type.const_int(u64::from_le_bytes(value.to_le_bytes())
-                            , false).into()
+                            val.into()
                         )
                     },
                     Instruction::Br(id) => {

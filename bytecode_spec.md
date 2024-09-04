@@ -47,7 +47,7 @@ if an instruction access the stack the values must have the same size and their 
 an instruction is composed of an opcode then the operands<br>
 there is multiple types of operands : 
 - imm64 (immediate) 8-bytes raw integer value
-- imm (immediate) 16-bytes raw value containing an integer a size that depens on another opcode (must have padding if the integer value is smaller than 16 bytes)
+- imm (immediate) 16-bytes raw value containing an integer a size that depens on another opcode (must have padding after if the integer value is smaller than 16 bytes)
 - uimm64 8-bytes raw unsigned integer value
 - blkid (block id) 8-bytes id of a block
 - fnid (function id) 8-bytes id of a function

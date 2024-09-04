@@ -96,6 +96,41 @@ impl LLVMRuntime {
                             val.into()
                         )
                     },
+                    Instruction::Icast(size) => {
+                        if let Some(value) = stack.pop_back() {
+                            if value.into_int_value().get_type().get_bit_width() as u64 == *size {
+                                stack.push_back(value);
+                            }else if value.into_int_value().get_type().get_bit_width() as u64 > *size {
+                                let t = match size {
+                                    8 => self.ctx.i8_type(), 
+                                    16 => self.ctx.i16_type(),
+                                    32 => self.ctx.i32_type(),
+                                    64 => self.ctx.i64_type(),
+                                    128 => self.ctx.i128_type(),
+                                    _ => {
+                                        return Err(anyhow!("unsupported integer type : i{}", size))
+                                    }
+                                };
+                                let res = builder.build_int_truncate(value.into_int_value(), t, "res")?;
+                                stack.push_back(res.into());
+                            }else {
+                                let t = match size {
+                                    8 => self.ctx.i8_type(), 
+                                    16 => self.ctx.i16_type(),
+                                    32 => self.ctx.i32_type(),
+                                    64 => self.ctx.i64_type(),
+                                    128 => self.ctx.i128_type(),
+                                    _ => {
+                                        return Err(anyhow!("unsupported integer type : i{}", size))
+                                    }
+                                };
+                                let res = builder.build_int_s_extend(value.into_int_value(), t, "res")?;
+                                stack.push_back(res.into());
+                            }
+                        }else {
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building icast"))
+                        }
+                    },
                     Instruction::Br(id) => {
                         if let Some(other_blk) = llvm_blocks.get(*id as usize) {
                             builder.build_unconditional_branch(other_blk.1)?;
@@ -375,3 +410,4 @@ impl Runtime for LLVMRuntime {
         }
     }
 }
+

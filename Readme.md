@@ -2,7 +2,14 @@
 
 A jit interpreted language created by joachim barre
  
-all variables are 64-bit integer<br>
+variable are i32 by default<br>
+the types are : 
+ - i128
+ - i64
+ - i32
+ - i16
+ - i8
+
 
 ## file formats
 

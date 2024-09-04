@@ -20,6 +20,7 @@ pub fn write_ir(format : &mut std::fmt::Formatter, ir : &IrObject) -> fmt::Resul
                 Instruction::Ret() => write!(format, "ret"),
                 Instruction::Reti() => write!(format, "reti"),
                 Instruction::Iconst(s, v) => write!(format, "iconst i{} {}", s, v),
+                Instruction::Icast(size) => write!(format, "icast i{}", size),
                 Instruction::Br(b) => write!(format, "br B{}", b),
                 Instruction::Dup() => write!(format, "dup"),
                 Instruction::Dupx(v) => write!(format, "dupx {}", v),

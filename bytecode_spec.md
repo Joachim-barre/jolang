@@ -59,24 +59,25 @@ there are the following opcodes :
 | 00 | ret        |                         | return nothing from the function                                               |
 | 01 | reti       |                         | return the top of the stack                                                    |
 | 02 | iconst     | uimm64, imm64           | push a integer constant that have a size indicated by the first operand        |
-| 03 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
-| 04 | dup        |                         | duplicate the top of the stack                                                 |
-| 05 | dupx       | uimm64                  | duplicate st[stack_size-offset-1] where offset is the immediate value          |
-| 06 | swap       |                         | swap the two values on top of the stack                                        |
-| 07 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
-| 08 | neg        |                         | pop the top of the stack and push the negated value                            |
-| 09 | add        |                         | do st[1] + st[0] pop them and push the result                                  |
-| 0A | sub        |                         | do st[1] - st[0] pop them and push the result                                  |
-| 0B | mul        |                         | do st[1] * st[0] pop them and push the result                                  |
-| 0C | div        |                         | do st[1] / st[0] pop them and push the result                                  |
-| 0D | eq         |                         | do st[1] == st[0] pop them and push the result                                 |
-| 0E | ne         |                         | do st[1] != st[0] pop them and push the result                                 |
-| 0F | gt         |                         | do st[1] > st[0] pop them and push the result                                  |
-| 10 | ge         |                         | do st[1] >= st[0] pop them and push the result                                 |
-| 11 | le         |                         | do st[1] <= st[0] pop them and push the result                                 |
-| 12 | lt         |                         | do st[1] < st[0] pop them and push the result                                  |
-| 13 | lsh        |                         | do st[1] >> st[0] pop them and push the result                                 |
-| 14 | rsh        |                         | do st[1] << st[0] pop them and push the result                                 |
-| 15 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
+| 03 | icast      | uimm                    | cast st[0] to another integer type by trimming or sign extanding               |
+| 04 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
+| 05 | dup        |                         | duplicate the top of the stack                                                 |
+| 06 | dupx       | uimm64                  | duplicate st[stack_size-offset-1] where offset is the immediate value          |
+| 07 | swap       |                         | swap the two values on top of the stack                                        |
+| 08 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
+| 09 | neg        |                         | pop the top of the stack and push the negated value                            |
+| 0A | add        |                         | do st[1] + st[0] pop them and push the result                                  |
+| 0B | sub        |                         | do st[1] - st[0] pop them and push the result                                  |
+| 0C | mul        |                         | do st[1] * st[0] pop them and push the result                                  |
+| 0D | div        |                         | do st[1] / st[0] pop them and push the result                                  |
+| 0E | eq         |                         | do st[1] == st[0] pop them and push the result                                 |
+| 0F | ne         |                         | do st[1] != st[0] pop them and push the result                                 |
+| 10 | gt         |                         | do st[1] > st[0] pop them and push the result                                  |
+| 11 | ge         |                         | do st[1] >= st[0] pop them and push the result                                 |
+| 12 | le         |                         | do st[1] <= st[0] pop them and push the result                                 |
+| 13 | lt         |                         | do st[1] < st[0] pop them and push the result                                  |
+| 14 | lsh        |                         | do st[1] >> st[0] pop them and push the result                                 |
+| 15 | rsh        |                         | do st[1] << st[0] pop them and push the result                                 |
+| 16 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
 
 for each instruction there is the opcode and then the operands

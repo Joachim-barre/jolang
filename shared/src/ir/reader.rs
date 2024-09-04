@@ -69,7 +69,8 @@ where T: Read + Seek {
                     Instruction::Br(block)
                 },
                 Opcodes::Dup => Instruction::Dup(),
-                Opcodes::Dupx => {
+                Opcodes::Dupx 
+                    | Opcodes::Icast => {
                     let offset = u64::from_le_bytes(buffer[8..16].try_into()?);
                     Instruction::Dupx(offset)
                 },

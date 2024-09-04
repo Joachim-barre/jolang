@@ -52,6 +52,7 @@ target.write(&[blk.borrow().argc][..])?;
                         target.write(&[0x00;8])
                     },
                 Instruction::Dupx(op)
+                    | Instruction::Icast(op)
                     => {
                         target.write(&op.to_le_bytes())?;
                         target.write(&[0x00;16])

@@ -30,7 +30,6 @@ pub enum TokenKind {
     LParan,
     RParan,
     Semicolon,
-    Colon,
     Equal,
     DoubleEqual,
     NotEqual,
@@ -175,7 +174,6 @@ impl<'a> Iterator for Lexer<'a> {
                 '(' => Some(TokenKind::LParan),
                 ')' => Some(TokenKind::RParan),
                 ';' => Some(TokenKind::Semicolon),
-                ':' => Some(TokenKind::Colon),
                 '+' => Some(TokenKind::Plus),
                 '*' => Some(TokenKind::Times),
                 '/' => Some(TokenKind::Divider),
@@ -244,7 +242,7 @@ mod tests {
     fn test_single_char() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("{}();:+*/-,=><")
+            buffer : String::from("{}();+*/-,=><")
         };
         let tokens = vec![
             TokenKind::LCurly, 
@@ -252,7 +250,6 @@ mod tests {
             TokenKind::LParan, 
             TokenKind::RParan, 
             TokenKind::Semicolon,
-            TokenKind::Colon,
             TokenKind::Plus, 
             TokenKind::Times, 
             TokenKind::Divider, 

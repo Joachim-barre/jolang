@@ -168,11 +168,11 @@ impl<'a> AstBuilder<'a> {
                             return Err(self.expected("expression"))
                         }
                         let expr = self.parse_expr()?;
-                        return Ok(Statement::VarDecl(ident, Some(expr)));
+                        return Ok(Statement::VarDecl(None, ident, Some(expr)));
                     }else if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::VarDecl(ident, None))
+                    return Ok(Statement::VarDecl(None, ident, None))
                 },
                 _ => Err(self.unexpected(first_token))
             },
@@ -372,8 +372,8 @@ mod tests {
             Ok(p) => {
                 assert_eq!(p,
                     Program(vec![
-                        Statement::VarDecl("n".to_string(), None),
-                        Statement::VarDecl("_m6".to_string(), Some(Expr::PrimaryExpr(PrimaryExpr::Litteral(1))))
+                        Statement::VarDecl(None, "n".to_string(), None),
+                        Statement::VarDecl(None, "_m6".to_string(), Some(Expr::PrimaryExpr(PrimaryExpr::Litteral(1))))
                     ])
                 );
             },

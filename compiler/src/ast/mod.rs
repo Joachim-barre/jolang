@@ -20,7 +20,8 @@ pub enum Statement {
     Return(Expr),
     Break,
     Continue,
-    VarDecl(Ident, Option<Expr>),
+    // type, name , value
+    VarDecl(Option<Ident>, Ident, Option<Expr>),
     VarSet(Ident, Expr),
     Call(Call)
 }

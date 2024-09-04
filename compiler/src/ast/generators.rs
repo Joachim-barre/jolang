@@ -180,9 +180,9 @@ impl Generate for Statement {
                 };
                 match value {
                     Some(v) => v.generate(generator),
-                    None => { generator.add(Instruction::Iconst(32, 0)); }
+                    None => { generator.add(Instruction::Iconst(size, 0)); }
                 }
-                let offset = generator.decl_var(name.to_string());
+                let offset = generator.decl_var(name.to_string(), size);
             },
             Self::VarSet(name, value) => {
                 value.generate(generator);

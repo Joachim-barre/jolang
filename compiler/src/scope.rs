@@ -11,8 +11,8 @@ pub enum ScopeKind {
 
 #[derive(Debug)]
 pub struct Scope {
-    // the u64 is the offset from the start of the stack not the top
-    variables : HashMap<String, u64>,
+    // name : (offset, size)
+    variables : HashMap<String, (u64, u64)>,
     pub kind : ScopeKind,
     pub block : BlkId,
     pub exit : BlkId
@@ -28,27 +28,31 @@ impl Scope {
         }
     }
 
-    pub fn decl_var(&mut self, name : String, offset : u64) {
-        self.variables.insert(name, offset);
+    pub fn decl_var(&mut self, name : String, offset : u64, size : u64) {
+        self.variables.insert(name, (offset, size));
     }
 
-    pub fn get_var(&self, name : &String) -> Option<u64> {
-        self.variables.get(name).copied()
+    pub fn get_var_offset(&self, name : &String) -> Option<u64> {
+        self.variables.get(name).copied().map(|x| x.0)
+    }
+
+    pub fn get_var_size(&self, name : &String) -> Option<u64> {
+        self.variables.get(name).copied().map(|x| x.1)
     }
 
     pub fn update_var(&mut self, name : &String, offset : u64) {
-        *self.variables.get_mut(name).unwrap() = offset;
+        self.variables.get_mut(name).unwrap().0 = offset;
     }
 
     pub fn var_count(&self) -> usize {
         self.variables.len()
     }
 
-    pub fn get_vars(&self) -> &HashMap<String, u64> {
+    pub fn get_vars(&self) -> &HashMap<String, (u64, u64)> {
         &self.variables
     }
 
-    pub fn get_vars_mut(&mut self) -> &mut HashMap<String, u64> {
+    pub fn get_vars_mut(&mut self) -> &mut HashMap<String, (u64, u64)> {
         &mut self.variables
     }
 }

@@ -22,9 +22,9 @@ impl IrGenerator {
         }
     }
 
-    pub fn decl_var(&mut self, name : String) -> u64 {
+    pub fn decl_var(&mut self, name : String, size : u64) -> u64 {
         let offset = self.get_current_block().map_or(0, |b| b.stack_size - 1);
-        self.current_scopes.get_mut_first().map(|x| x.decl_var(name, offset));
+        self.current_scopes.get_mut_first().map(|x| x.decl_var(name, offset, size));
         offset
     }
 
@@ -33,7 +33,7 @@ impl IrGenerator {
         let mut index = self.current_scopes.first_index();
         while index.is_some(){
             let scope = self.current_scopes.get_mut(index).unwrap();
-            if scope.get_var(&name).is_some() {
+            if scope.get_var_offset(&name).is_some() {
                 scope.update_var(&name, offset);
                 return offset;
             }
@@ -142,7 +142,7 @@ impl IrGenerator {
     // get a variable offset from the top of the stack
     pub fn get_var_offset(&mut self, name : String) -> Option<u64> {
         self.current_scopes.iter()
-            .filter_map(|s| s.get_var(&name))
+            .filter_map(|s| s.get_var_offset(&name))
             .next()
             .map(|x| x)
     }
@@ -195,7 +195,7 @@ impl IrGenerator {
         }
         let offsets : Vec<_> = self.current_scopes.iter()
             .flat_map(|s| s.get_vars().values())
-            .map(|v| *v)
+            .map(|v| v.0)
             .collect();
         for v in offsets{
             self.add(Instruction::Dupx(v));
@@ -208,7 +208,7 @@ impl IrGenerator {
         while index.is_some() {
             self.current_scopes.get_mut(index).unwrap().get_vars_mut().values_mut()
                 .for_each(|x| {
-                    *x = pos;
+                    x.0 = pos;
                     pos = pos + 1;
                 });
             index =  self.current_scopes.next_index(index);

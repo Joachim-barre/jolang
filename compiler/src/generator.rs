@@ -79,6 +79,7 @@ impl IrGenerator {
                 | Instruction::Neg()
                 | Instruction::Briz(_, _)
                 | Instruction::Swap()
+                | Instruction::Icast(_)
                 => None,
             Instruction::Call(f) => {
                 if let Some(argc) = self.object.ext_fn.get(f as usize).map(|x| x.1)  {

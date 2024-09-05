@@ -11,7 +11,7 @@ use block::Block;
 
 pub struct IrObject {
     pub ext_fn : Vec<(String, u8, bool)>,
-    pub blocks : Vec<RefCell<Block>>
+    pub blocks : Vec<Block>
 }
 
 impl IrObject {
@@ -23,16 +23,16 @@ impl IrObject {
     }
 
     pub fn append_block(&mut self, argc : u8) -> BlkId{
-        self.blocks.push(RefCell::new(Block::new(argc)));
+        self.blocks.push(Block::new(argc));
         return (self.blocks.len() as BlkId) -1
     }
 
-    pub fn get_block<'b>(&'b self, id : BlkId) -> Ref<'b, Block> {
-        self.blocks[id as usize].borrow()
+    pub fn get_block<'b>(&'b self, id : BlkId) -> &Block {
+        &self.blocks[id as usize]
     }
 
-    pub fn get_block_mut<'b>(&'b self, id : BlkId) -> RefMut<'b, Block> {
-        self.blocks[id as usize].borrow_mut()
+    pub fn get_block_mut<'b>(&'b mut self, id : BlkId) -> &mut Block {
+        &mut self.blocks[id as usize]
     }
 
     pub fn decl_extern(&mut self, name : String, func : &Box<dyn JolangExtern>) -> FnId {

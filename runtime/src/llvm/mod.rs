@@ -44,10 +44,9 @@ impl LLVMRuntime {
         return Ok(())
     }
 
-    pub fn gen_function(&self, blocks : &Vec<RefCell<Block>>, fn_value : FunctionValue, module : &Module, builder : &Builder) -> Result<()>{
+    pub fn gen_function(&self, blocks : &Vec<Block>, fn_value : FunctionValue, module : &Module, builder : &Builder) -> Result<()>{
         let i64_type = self.ctx.i64_type();
 
-        let blocks = blocks.iter().map(|x| x.take()).collect::<Vec<_>>();
         let mut llvm_blocks : Vec<(Vec<PhiValue>, BasicBlock)> = Vec::new();
         // init blocks and args as phi
         for (i, blk) in blocks.iter().enumerate(){

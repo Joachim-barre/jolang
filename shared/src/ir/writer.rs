@@ -33,15 +33,15 @@ where T : Write + Seek {
     target.write(&pos.to_le_bytes())?;
     target.seek(SeekFrom::Start(pos))?;
     for blk in ir.blocks.iter() {
-        target.write(&blk.borrow().instructions.len().to_le_bytes())?;
-target.write(&[blk.borrow().argc][..])?;
+        target.write(&blk.instructions.len().to_le_bytes())?;
+target.write(&[blk.argc][..])?;
         target.write(&(0u64).to_le_bytes())?;
     }
     target.seek(SeekFrom::Start(pos))?;
     for blk in ir.blocks {
         let entry_pos = target.stream_position()?;
         let instr_pos = target.seek(SeekFrom::End(0))?;
-        for i in &blk.borrow().instructions {
+        for i in &blk.instructions {
             target.write_all(&[0;7][..])?;
             target.write(&[i.opcode().into()][..])?;
             match i {

@@ -101,7 +101,7 @@ where T: Read + Seek {
             })
         }
         block.instructions = IndexList::from_iter(instructions.into_iter());
-        object.blocks.push(RefCell::new(block));
+        object.blocks.push(block);
         input.seek(SeekFrom::Start(next_pos))?;
     }
 

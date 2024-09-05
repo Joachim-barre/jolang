@@ -11,8 +11,7 @@ pub fn write_ir(format : &mut std::fmt::Formatter, ir : &IrObject) -> fmt::Resul
     }
 
     write!(format, "fn main () -> i64 {{\n")?;
-    let mut new_blocks = Vec::new();
-    for b in ir.blocks.iter().map(|b| b.take()).enumerate() {
+    for b in ir.blocks.iter().map(|b| b).enumerate() {
         write!(format, ".B{}({}) : \n", b.0, "i64 ".repeat(b.1.argc as usize))?;
         for i in b.1.instructions.iter() {
             write!(format, "\t")?;
@@ -43,13 +42,7 @@ pub fn write_ir(format : &mut std::fmt::Formatter, ir : &IrObject) -> fmt::Resul
             }?;
             write!(format, "\n")?;
         }
-        new_blocks.push(b.1);
     }
-    ir.blocks.iter()
-        .zip(new_blocks)
-        .for_each(|(cell, b)| {
-            cell.replace(b);
-        });
     write!(format, "}}")?;
     Ok(())
 }

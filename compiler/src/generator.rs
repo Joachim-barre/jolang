@@ -1,11 +1,12 @@
 use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId}, Instruction}, block::Block, IrObject}};
 use core::panic;
-use std::cell::{Ref, RefMut};
+use std::{borrow::{Borrow, BorrowMut}, cell::{RefCell, Ref, RefMut}};
 use index_list::{IndexList, ListIndex};
 use crate::scope::Scope;
 
 pub struct IrGenerator {
-    object : IrObject,
+    blocks : Vec<RefCell<Block>>,
+    ext_fn : Vec<(String, u8, bool)>,
     current_block : Option<BlkId>,
     current_pos : Option<ListIndex>,
     // data for the generation
@@ -15,7 +16,8 @@ pub struct IrGenerator {
 impl IrGenerator {
     pub fn new() -> Self {
         Self {
-            object : IrObject::new(),
+            blocks : Vec::new(),
+            ext_fn : Vec::new(),
             current_block : None,
             current_pos : None,
             current_scopes : IndexList::new()
@@ -43,15 +45,20 @@ impl IrGenerator {
     }
 
     pub fn into_ir(self) -> IrObject{
-        self.object
+        IrObject { 
+            blocks: self.blocks.iter()
+                .map(|b| b.take())
+                .collect::<Vec<_>>(),
+            ext_fn: self.ext_fn
+        }
     }
 
     pub fn get_current_block<'b>(&'b self) -> Option<Ref<'b, Block>> {
-        self.current_block.as_ref().map(|id| self.object.get_block(*id))
+        self.current_block.as_ref().and_then(|id| self.blocks.get(*id as usize).map(|b| b.borrow()))
     }
 
     pub fn get_current_block_mut<'b>(&'b self) -> Option<RefMut<'b, Block>> {
-        self.current_block.as_ref().map(|id| self.object.get_block_mut(*id))
+        self.current_block.as_ref().and_then(|id| self.blocks.get(*id as usize).map(|b| b.borrow_mut()))
     }
 
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {
@@ -82,12 +89,12 @@ impl IrGenerator {
                 | Instruction::Icast(_)
                 => None,
             Instruction::Call(f) => {
-                if let Some(argc) = self.object.ext_fn.get(f as usize).map(|x| x.1)  {
+                if let Some(argc) = self.ext_fn.get(f as usize).map(|x| x.1)  {
                     for _ in 0..argc {
                         self.dec_stack();
                     }
                 }
-                if self.object.ext_fn.get(f as usize).map_or(false, |x| x.2) {
+                if self.ext_fn.get(f as usize).map_or(false, |x| x.2) {
                     self.inc_stack()
                 }else{
                     None
@@ -120,7 +127,8 @@ impl IrGenerator {
     }
 
     pub fn append_block(&mut self) -> BlkId {
-        self.object.append_block(self.var_count() as u8)
+        self.blocks.push(RefCell::new(Block::new(self.var_count() as u8)));
+            return (self.blocks.len() as BlkId) - 1
     }
     
     pub fn goto_end(&mut self, block : BlkId) {
@@ -160,11 +168,12 @@ impl IrGenerator {
     }
 
     pub fn get_externs(&self) -> &Vec<(String, u8, bool)> {
-        &self.object.ext_fn
+        &self.ext_fn
     }
 
     pub fn decl_extern(&mut self, name : String, func : &Box<dyn JolangExtern>) -> FnId{
-        self.object.decl_extern(name, func)
+        self.ext_fn.push((name, func.arg_count(), func.returns()));
+        (self.ext_fn.len() -1) as FnId
     }
 
     pub fn var_count(&self) -> usize {

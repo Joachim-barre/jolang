@@ -185,6 +185,19 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("\";\""))
                     }
                     Ok(Statement::Call(call))
+                }else if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Ident) {
+                    let type_name = ident;
+                    let var_name = Ident::from(self.peek_token().as_ref().unwrap().span.data);
+                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                        if self.next_token()?.is_none() {
+                            return Err(self.expected("expression"))
+                        }
+                        let expr = self.parse_expr()?;
+                        return Ok(Statement::VarDecl(Some(type_name), var_name, Some(expr)));
+                    }else if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""))
+                    }
+                    return Ok(Statement::VarDecl(Some(type_name), var_name, None))
                 }else {
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
                         return Err(self.expected("\"=\""))

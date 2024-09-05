@@ -27,13 +27,13 @@ impl IrGenerator {
     }
 
     pub fn decl_var(&mut self, name : String, size : u64) -> u64 {
-        let offset = self.get_current_block().map_or(0, |b| b.stack_size - 1);
+        let offset = self.get_current_block().map_or(0, |b| b.stack_size() - 1);
         self.current_scopes.get_mut_first().map(|x| x.decl_var(name, offset, size));
         offset
     }
 
     pub fn update_var(&mut self, name : String) -> u64 {
-        let offset = self.get_current_block().unwrap().stack_size - 1;
+        let offset = self.get_current_block().unwrap().stack_size() - 1;
         let mut index = self.current_scopes.first_index();
         while index.is_some(){
             let scope = self.current_scopes.get_mut(index).unwrap();
@@ -185,17 +185,17 @@ impl IrGenerator {
     }
 
     pub fn stack_size(&self) -> Option<u64> {
-        self.get_current_block().map(|b| b.stack_size)
+        self.get_current_block().map(|b| b.stack_size())
     }
 
     pub fn inc_stack(&mut self) -> Option<u64>{
         self.get_current_block_mut()
-            .map(|mut x| {x.stack_size = x.stack_size + 1; x.stack_size})
+            .map(|mut x| {x.stack_types.push(64); x.stack_size()})
     }
 
     pub fn dec_stack(&mut self) -> Option<u64>{
         self.get_current_block_mut()
-            .map(|mut x| {x.stack_size = x.stack_size - 1; x.stack_size})
+            .map(|mut x| {x.stack_types.pop(); x.stack_size()})
     }
 
 

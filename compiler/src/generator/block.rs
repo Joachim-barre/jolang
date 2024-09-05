@@ -22,8 +22,7 @@ impl Block {
     pub fn into_ir_block(self) -> jolang_shared::ir::block::Block {
         jolang_shared::ir::block::Block {
             argc : self.argc,
-            instructions : self.instructions,
-            stack_size : self.stack_size
+            instructions : self.instructions
         }
     }
 }

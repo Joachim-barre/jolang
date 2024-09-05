@@ -1,8 +1,10 @@
-use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId}, Instruction}, block::Block, IrObject}};
+mod block;
+use jolang_shared::{ffi::JolangExtern, ir::{instructions::{operand::{BlkId, FnId}, Instruction}, IrObject}};
 use core::panic;
 use std::{borrow::{Borrow, BorrowMut}, cell::{RefCell, Ref, RefMut}};
 use index_list::{IndexList, ListIndex};
 use crate::scope::Scope;
+use block::Block;
 
 pub struct IrGenerator {
     blocks : Vec<RefCell<Block>>,
@@ -47,7 +49,7 @@ impl IrGenerator {
     pub fn into_ir(self) -> IrObject{
         IrObject { 
             blocks: self.blocks.iter()
-                .map(|b| b.take())
+                .map(|b| b.take().into_ir_block())
                 .collect::<Vec<_>>(),
             ext_fn: self.ext_fn
         }

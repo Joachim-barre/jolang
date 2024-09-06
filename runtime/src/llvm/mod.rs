@@ -66,8 +66,8 @@ impl LLVMRuntime {
             let llvm_blk = self.ctx.append_basic_block(fn_value, format!("B{}", i).as_str());
             builder.position_at_end(llvm_blk);
             let mut args = Vec::new();
-            for i in 0..blk.argc {
-                let arg = builder.build_phi(i64_type, "")?;
+            for arg in blk.args.iter() {
+                let arg = builder.build_phi(self.get_int_type(*arg)?, "")?;
                 args.push(arg);
             }
             llvm_blocks.push((args, llvm_blk));
@@ -404,3 +404,4 @@ impl Runtime for LLVMRuntime {
         }
     }
 }
+

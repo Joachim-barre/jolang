@@ -22,7 +22,7 @@ impl Block {
 
     pub fn into_ir_block(self) -> jolang_shared::ir::block::Block {
         jolang_shared::ir::block::Block {
-            argc : self.args.len() as u8,
+            args : self.args,
             instructions : self.instructions
         }
     }

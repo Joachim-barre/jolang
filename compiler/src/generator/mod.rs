@@ -135,7 +135,7 @@ impl IrGenerator {
     }
 
     pub fn append_block(&mut self) -> BlkId {
-        self.blocks.push(RefCell::new(Block::new(vec![64; self.var_count() as usize])));
+        self.blocks.push(RefCell::new(Block::new(self.var_sizes())));
             return (self.blocks.len() as BlkId) - 1
     }
     
@@ -184,10 +184,10 @@ impl IrGenerator {
         (self.ext_fn.len() -1) as FnId
     }
 
-    pub fn var_count(&self) -> usize {
+    pub fn var_sizes(&self) -> Vec<u64> {
         self.current_scopes.iter()
-            .map(|x| x.var_count())
-            .reduce(|x1, x2| x1 + x2).unwrap_or(0)
+            .flat_map(|x| x.var_sizes())
+            .collect::<Vec<_>>()
     }
 
     pub fn stack_size(&self) -> Option<u64> {

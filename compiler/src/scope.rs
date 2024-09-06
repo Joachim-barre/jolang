@@ -44,8 +44,10 @@ impl Scope {
         self.variables.get_mut(name).unwrap().0 = offset;
     }
 
-    pub fn var_count(&self) -> usize {
-        self.variables.len()
+    pub fn var_sizes(&self) -> Vec<u64> {
+        self.get_vars().values()
+            .map(|v| v.1)
+            .collect::<Vec<_>>()
     }
 
     pub fn get_vars(&self) -> &HashMap<String, (u64, u64)> {

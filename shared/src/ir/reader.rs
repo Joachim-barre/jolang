@@ -42,12 +42,21 @@ where T: Read + Seek {
     }
     input.seek(SeekFrom::Start(block_pos))?;
     for _ in 0..block_count {
-        let mut buffer : [u8;17] = [0;17];
+        let mut buffer : [u8;16] = [0;16];
         input.read_exact(&mut buffer)?;
         let block_size = u64::from_le_bytes(buffer[..8].try_into()?);
-        let block_argc = buffer[8];
-        let block_pos = u64::from_le_bytes(buffer[9..].try_into()?);
-        let mut block = Block::new(block_argc);
+        let block_argc = u64::from_le_bytes(buffer[8..16].try_into()?);
+        let mut block_sizes = Vec::new();
+        block_sizes.reserve(block_argc as usize);
+        for _ in 0..block_argc {
+            let mut buffer : [u8;8] = [0;8];
+            input.read_exact(&mut buffer);
+            block_sizes.push(u64::from_le_bytes(buffer));
+        }
+        let mut buffer = [0;8];
+        input.read_exact(&mut buffer);
+        let block_pos = u64::from_le_bytes(buffer[..].try_into()?);
+        let mut block = Block::new(block_sizes);
         let mut instructions = Vec::new();
         instructions.reserve(block_size as usize);
         let next_pos = input.stream_position()?;

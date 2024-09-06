@@ -2,7 +2,6 @@ use clap::{Parser, Subcommand};
 use crate::run::RunArgs;
 use crate::compile::CompileArgs;
 use crate::show::ShowArgs;
-use crate::check::CheckArgs;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -19,7 +18,5 @@ pub enum Commands {
     /// run objects
     Run(RunArgs),
     /// print the ir
-    Show(ShowArgs),
-    /// check if the ir as no problems
-    Check(CheckArgs)
+    Show(ShowArgs)
 }

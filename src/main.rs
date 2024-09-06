@@ -3,7 +3,6 @@ pub mod compile;
 mod cli;
 pub mod run;
 pub mod show;
-pub mod check;
 use cli::{Cli, Commands};
 use jolangc::build;
 use std::{i32, path::PathBuf, process::exit, fs::OpenOptions};
@@ -65,20 +64,6 @@ fn main() -> Result<()>{
             let object = read(&mut file)?;
             println!("{:?}", object);
             Ok(())
-        },
-        Commands::Check(args) => {
-            if !args.file.is_local() {
-                return Err(anyhow!("please input a local file"))
-            }
-            let path = PathBuf::from(args.file.as_os_str());
-            println!("checking {} for errors", path.to_str().unwrap());
-            let mut file = OpenOptions::new()
-                .read(true)
-                .write(false)
-                .create(false)
-                .open(path)?;
-            let object = read(&mut file)?;
-            todo!()
         }
     }
 }

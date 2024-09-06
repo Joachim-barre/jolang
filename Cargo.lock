@@ -257,10 +257,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jolang_checker"
-version = "0.3.0-beta"
-
-[[package]]
 name = "jolang_runtime"
 version = "0.3.0-beta"
 dependencies = [

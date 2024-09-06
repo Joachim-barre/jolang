@@ -2,8 +2,7 @@
 members = [
     "compiler",
     "shared",
-    "runtime",
-    "checker"
+    "runtime"
 ]
 
 [workspace.package]

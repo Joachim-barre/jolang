@@ -12,7 +12,11 @@ pub fn write_ir(format : &mut std::fmt::Formatter, ir : &IrObject) -> fmt::Resul
 
     write!(format, "fn main () -> i64 {{\n")?;
     for b in ir.blocks.iter().map(|b| b).enumerate() {
-        write!(format, ".B{}({}) : \n", b.0, "i64 ".repeat(b.1.argc as usize))?;
+        write!(format, ".B{}({}) : \n", b.0, b.1.args.iter()
+            .map(|s| format!("i{}", s))
+            .reduce(|s1, s2| s1 + ", " + &s2)
+            .unwrap_or("".to_string())
+            .as_str())?;
         for i in b.1.instructions.iter() {
             write!(format, "\t")?;
             match i {

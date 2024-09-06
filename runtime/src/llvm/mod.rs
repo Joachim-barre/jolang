@@ -206,10 +206,10 @@ impl LLVMRuntime {
                         => {
                         if let Some(val1) = stack.pop_back(){
                             if let Some(val2) = stack.pop_back(){
-                                if val1.into_int_value().get_type().size_of() != val2.into_int_value().get_type().size_of() {
+                                if val1.into_int_value().get_type().get_bit_width() != val2.into_int_value().get_type().get_bit_width() {
                                     return Err(anyhow!("mismached types i{}, i{}\n while building {}",
-                                            val1.into_int_value().get_type().size_of(),
-                                            val2.into_int_value().get_type().size_of(),
+                                            val1.into_int_value().get_type().get_bit_width(),
+                                            val2.into_int_value().get_type().get_bit_width(),
                                             match i {
                                                 Instruction::Add() => "add",
                                                 Instruction::Sub() => "sub",

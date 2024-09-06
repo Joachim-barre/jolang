@@ -135,7 +135,7 @@ impl IrGenerator {
     }
 
     pub fn append_block(&mut self) -> BlkId {
-        self.blocks.push(RefCell::new(Block::new(self.var_count() as u8)));
+        self.blocks.push(RefCell::new(Block::new(vec![64; self.var_count() as usize])));
             return (self.blocks.len() as BlkId) - 1
     }
     

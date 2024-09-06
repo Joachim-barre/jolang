@@ -4,24 +4,25 @@ use jolang_shared::ir::instructions::Instruction;
 
 #[derive(Debug, Default)]
 pub struct Block {
-    pub argc : u8,
+    // args size
+    pub args : Vec<u64>,
     pub instructions : IndexList<Instruction>,
     // size of the stack at the end of the block (after the last instruction)
     pub stack_types : Vec<u64>
 }
 
 impl Block {
-    pub fn new(argc : u8) -> Self {
+    pub fn new(args : Vec<u64>) -> Self {
         Self {
-            argc,
+            args : args.clone(),
             instructions : IndexList::new(),
-            stack_types : vec![64; argc.into()]
+            stack_types : args.clone()
         }
     }
 
     pub fn into_ir_block(self) -> jolang_shared::ir::block::Block {
         jolang_shared::ir::block::Block {
-            argc : self.argc,
+            argc : self.args.len() as u8,
             instructions : self.instructions
         }
     }

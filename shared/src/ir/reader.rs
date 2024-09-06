@@ -50,11 +50,11 @@ where T: Read + Seek {
         block_sizes.reserve(block_argc as usize);
         for _ in 0..block_argc {
             let mut buffer : [u8;8] = [0;8];
-            input.read_exact(&mut buffer);
+            input.read_exact(&mut buffer)?;
             block_sizes.push(u64::from_le_bytes(buffer));
         }
         let mut buffer = [0;8];
-        input.read_exact(&mut buffer);
+        input.read_exact(&mut buffer)?;
         let block_pos = u64::from_le_bytes(buffer[..].try_into()?);
         let mut block = Block::new(block_sizes);
         let mut instructions = Vec::new();

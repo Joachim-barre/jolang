@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use inkwell::{builder::Builder, context::Context, execution_engine::JitFunction, module::Module, types::{BasicMetadataTypeEnum, BasicType}, values::{BasicMetadataValueEnum, BasicValue, FunctionValue, PhiValue}, AddressSpace, OptimizationLevel, basic_block::BasicBlock};
+use inkwell::{builder::Builder, context::Context, execution_engine::JitFunction, module::Module, types::{BasicMetadataTypeEnum, BasicType, IntType}, values::{BasicMetadataValueEnum, FunctionValue, PhiValue}, AddressSpace, OptimizationLevel, basic_block::BasicBlock};
 use crate::Runtime;
 use jolang_shared::{ffi::jolang_std::JOLANG_STD, ir::{block::Block, instructions::Instruction}};
 use std::{cell::RefCell, collections::LinkedList};
@@ -9,6 +9,19 @@ pub struct LLVMRuntime {
 }
 
 impl LLVMRuntime {
+    fn get_int_type<'b>(&'b self, size : u64) -> Result<IntType<'b>> {
+        Ok(match size {
+            8 => self.ctx.i8_type(), 
+            16 => self.ctx.i16_type(),
+            32 => self.ctx.i32_type(),
+            64 => self.ctx.i64_type(),
+            128 => self.ctx.i128_type(),
+            _ => {
+                return Err(anyhow!("unsupported integer type : i{}", size))
+            }
+        })
+    }
+    
     fn load_externs<'b>(&'b self, table : &Vec<(String, u8, bool)>, module : &Module<'b>, builder : &Builder) -> Result<()>{
         for (name, argc, returns) in table {
             let std_sig = JOLANG_STD.iter()
@@ -81,16 +94,7 @@ impl LLVMRuntime {
                         }
                     },
                     Instruction::Iconst(size, value) => {
-                        let val = match size {
-                            8 => self.ctx.i8_type(), 
-                            16 => self.ctx.i16_type(),
-                            32 => self.ctx.i32_type(),
-                            64 => self.ctx.i64_type(),
-                            128 => self.ctx.i128_type(),
-                            _ => {
-                                return Err(anyhow!("unsupported integer type : i{}", size))
-                            }
-                        }.const_int_arbitrary_precision(&[u64::from_le_bytes(value.to_le_bytes()[..8].try_into()?), u64::from_le_bytes(value.to_le_bytes()[8..].try_into()?)]);
+                        let val = self.get_int_type(*size)?.const_int_arbitrary_precision(&[u64::from_le_bytes(value.to_le_bytes()[..8].try_into()?), u64::from_le_bytes(value.to_le_bytes()[8..].try_into()?)]);
                         stack.push_back(
                             val.into()
                         )
@@ -100,16 +104,7 @@ impl LLVMRuntime {
                             if value.into_int_value().get_type().get_bit_width() as u64 == *size {
                                 stack.push_back(value);
                             }else if value.into_int_value().get_type().get_bit_width() as u64 > *size {
-                                let t = match size {
-                                    8 => self.ctx.i8_type(), 
-                                    16 => self.ctx.i16_type(),
-                                    32 => self.ctx.i32_type(),
-                                    64 => self.ctx.i64_type(),
-                                    128 => self.ctx.i128_type(),
-                                    _ => {
-                                        return Err(anyhow!("unsupported integer type : i{}", size))
-                                    }
-                                };
+                                let t = self.get_int_type(*size)?;
                                 let res = builder.build_int_truncate(value.into_int_value(), t, "res")?;
                                 stack.push_back(res.into());
                             }else {
@@ -409,4 +404,3 @@ impl Runtime for LLVMRuntime {
         }
     }
 }
-

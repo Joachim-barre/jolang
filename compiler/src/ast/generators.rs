@@ -212,6 +212,17 @@ impl Generate for Expr {
             Expr::BinExpr(e1, e2, op) => {
                 e1.generate(generator);
                 e2.generate(generator);
+                let sizes = generator.get_current_block()
+                    .and_then(|b| b.stack_types.last_chunk::<2>().cloned())
+                    .unwrap_or([32;2]);
+                let max_size = sizes.iter().max().copied().unwrap_or(32);
+                if sizes[0] != max_size {
+                    generator.add(Instruction::Swap());
+                    generator.add(Instruction::Icast(max_size));
+                    generator.add(Instruction::Swap());
+                }else if sizes[1] != max_size {
+                    generator.add(Instruction::Icast(max_size));
+                }
                 match op {
                     super::BinOp::Add => {
                         generator.add(Instruction::Add())

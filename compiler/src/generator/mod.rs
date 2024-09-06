@@ -65,10 +65,16 @@ impl IrGenerator {
 
     pub fn add(&mut self, i : Instruction) -> Option<ListIndex> {
         match i {
-            Instruction::Iconst(..)
-                | Instruction::Dup()
-                | Instruction::Dupx(_)
-                => self.inc_stack(),
+            Instruction::Iconst(size, ..)
+                => self.inc_stack(size),
+            Instruction::Dup()
+                => self.get_current_block()
+                    .and_then(|b| b.stack_types.last().copied())
+                    .and_then(|s| self.inc_stack(s)),
+            Instruction::Dupx(pos)
+                => self.get_current_block()
+                    .and_then(|b| b.stack_types.get(pos as usize).copied())
+                    .and_then(|s| self.inc_stack(s)),
             Instruction::Add()
                 | Instruction::Sub()
                 | Instruction::Mul()
@@ -97,7 +103,7 @@ impl IrGenerator {
                     }
                 }
                 if self.ext_fn.get(f as usize).map_or(false, |x| x.2) {
-                    self.inc_stack()
+                    self.inc_stack(64)
                 }else{
                     None
                 }
@@ -188,9 +194,9 @@ impl IrGenerator {
         self.get_current_block().map(|b| b.stack_size())
     }
 
-    pub fn inc_stack(&mut self) -> Option<u64>{
+    pub fn inc_stack(&mut self, size : u64) -> Option<u64>{
         self.get_current_block_mut()
-            .map(|mut x| {x.stack_types.push(64); x.stack_size()})
+            .map(|mut x| {x.stack_types.push(size); x.stack_size()})
     }
 
     pub fn dec_stack(&mut self) -> Option<u64>{

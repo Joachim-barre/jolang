@@ -34,7 +34,10 @@ where T : Write + Seek {
     target.seek(SeekFrom::Start(pos))?;
     for blk in ir.blocks.iter() {
         target.write(&blk.instructions.len().to_le_bytes())?;
-target.write(&[blk.argc][..])?;
+        target.write(&blk.args.len().to_le_bytes())?;
+        for arg in blk.args.iter() {
+            target.write(&arg.to_le_bytes())?;
+        }
         target.write(&(0u64).to_le_bytes())?;
     }
     target.seek(SeekFrom::Start(pos))?;

@@ -74,7 +74,7 @@ where T : Write + Seek {
             }?;
         }
         target.seek(SeekFrom::Start(entry_pos))?;
-        target.seek_relative(9)?;
+        target.seek_relative(16 + 8 * (blk.args.len() as i64))?;
         target.write(&instr_pos.to_le_bytes())?;
     }
     Ok(())

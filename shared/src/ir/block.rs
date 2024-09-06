@@ -3,14 +3,14 @@ use super::instructions::Instruction;
 
 #[derive(Debug, Default)]
 pub struct Block {
-    pub argc : u8,
+    pub args : Vec<u64>,
     pub instructions : IndexList<Instruction>,
 }
 
 impl Block {
-    pub fn new(argc : u8) -> Self {
+    pub fn new(args : Vec<u64>) -> Self {
         Self {
-            argc,
+            args,
             instructions : IndexList::new()
         }
     }

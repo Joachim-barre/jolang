@@ -29,7 +29,8 @@ each entry has the following fields:
 for each block:
 
 - 8-bytes quantity of instructions in the block
-- 1-bytes block argument count
+- 8-bytes block argument count
+- 8-bytes unsigned argument sizes
 - 8-bytes offset for the start of file to the block's instructions
 
 ## instructions table

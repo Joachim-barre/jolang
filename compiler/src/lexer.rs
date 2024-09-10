@@ -58,8 +58,7 @@ pub enum KeywordType {
     Return,
     Break,
     Continue,
-    Var,
-    As
+    Var
 }
 
 #[derive(Clone, Debug)]
@@ -214,7 +213,6 @@ impl<'a> Iterator for Lexer<'a> {
                 "break" => TokenKind::Keyword(KeywordType::Break),
                 "continue" => TokenKind::Keyword(KeywordType::Continue),
                 "var" => TokenKind::Keyword(KeywordType::Var),
-                "as" => TokenKind::Keyword(KeywordType::As),
                 _ => TokenKind::Ident
             };
             return Some(Ok(Token { kind, span } ))
@@ -271,7 +269,7 @@ mod tests {
     fn test_keywords() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("if else while loop return break continue var as")
+            buffer : String::from("if else while loop return break continue var ")
         };
         let keyword = vec![
             TokenKind::Keyword(KeywordType::If),
@@ -281,8 +279,7 @@ mod tests {
             TokenKind::Keyword(KeywordType::Return),
             TokenKind::Keyword(KeywordType::Break),
             TokenKind::Keyword(KeywordType::Continue),
-            TokenKind::Keyword(KeywordType::Var),
-            TokenKind::Keyword(KeywordType::As)
+            TokenKind::Keyword(KeywordType::Var)
         ];
         let tokens2 : Vec<_> = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})

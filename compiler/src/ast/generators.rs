@@ -181,7 +181,13 @@ impl Generate for Statement {
                 let size = match value {
                     Some(v) => {
                         v.generate(generator);
-                        size.unwrap_or(*generator.var_sizes().last().unwrap())
+                        match size {
+                            Some(s) => {
+                                generator.add(Instruction::Icast(s));
+                                s
+                            },
+                            None => *generator.var_sizes().last().unwrap(),
+                        }
                     },
                     None => { 
                         let size = size.unwrap_or(32);
@@ -282,7 +288,7 @@ impl Generate for PrimaryExpr {
                 generator.add(Instruction::Dupx(offset));
             },
             PrimaryExpr::Litteral(val) => {
-                generator.add(Instruction::Iconst(64, *val as u128));
+                generator.add(Instruction::Iconst(128, *val as u128));
                 ()
             },
             PrimaryExpr::Expr(e) => e.generate(generator)

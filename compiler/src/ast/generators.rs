@@ -168,21 +168,28 @@ impl Generate for Statement {
             },
             Self::VarDecl(_type, name, value) => {
                 let size = match _type {
-                    Some(t) => match t.as_str() {
+                    Some(t) => Some(match t.as_str() {
                         "i8" => 8,
                         "i16" => 16,
                         "i32" => 32,
                         "i64" => 64,
                         "i128" => 128,
                         _ => panic!("unsupported type {}", t)
-                    }
-                    None => 32
+                    }),
+                    None => None
                 };
-                match value {
-                    Some(v) => v.generate(generator),
-                    None => { generator.add(Instruction::Iconst(size, 0)); }
-                }
-                let offset = generator.decl_var(name.to_string(), size);
+                let size = match value {
+                    Some(v) => {
+                        v.generate(generator);
+                        size.unwrap_or(*generator.var_sizes().last().unwrap())
+                    },
+                    None => { 
+                        let size = size.unwrap_or(32);
+                        generator.add(Instruction::Iconst(size, 0)); 
+                        size
+                    }
+                };
+                generator.decl_var(name.to_string(), size);
             },
             Self::VarSet(name, value) => {
                 value.generate(generator);

@@ -74,8 +74,9 @@ impl LLVMRuntime {
         }
 
         // add instructions
-        for (blk,(args,llvm_blk)) in blocks.iter()
-        .zip(llvm_blocks.iter()){
+        for (id, (blk,(args,llvm_blk))) in blocks.iter()
+        .zip(llvm_blocks.iter())
+        .enumerate(){
             builder.position_at_end(*llvm_blk);
             let mut stack = LinkedList::new();
             for a in args {
@@ -90,7 +91,7 @@ impl LLVMRuntime {
                         if let Some(value) = stack.pop_back() {
                             builder.build_return(Some(&value))?;
                         }else {
-                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building reti"))
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building reti in B{}", id))
                         }
                     },
                     Instruction::Iconst(size, value) => {
@@ -122,31 +123,31 @@ impl LLVMRuntime {
                                 stack.push_back(res.into());
                             }
                         }else {
-                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building icast"))
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building icast in B{}", id))
                         }
                     },
-                    Instruction::Br(id) => {
-                        if let Some(other_blk) = llvm_blocks.get(*id as usize) {
+                    Instruction::Br(other_id) => {
+                        if let Some(other_blk) = llvm_blocks.get(*other_id as usize) {
                             builder.build_unconditional_branch(other_blk.1)?;
                             for arg in other_blk.0.iter().rev().zip(stack.iter().rev()) {
                                 arg.0.add_incoming(&[(arg.1, *llvm_blk)]);
                             }
                         }else {
-                            return Err(anyhow!("tried to branch to a non existant block : {}", *id))
+                            return Err(anyhow!("tried to branch to a non existant block : {} in B{}", *other_id, id))
                         }
                     },
                     Instruction::Dup() => {
                         if let Some(value) = stack.back() {
                             stack.push_back(*value)
                         }else {
-                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building dup"))
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building dup in B{}", id))
                         }
                     },
                     Instruction::Dupx(offset) => {
                         if let Some(value) = stack.iter().nth(*offset as usize) {
                             stack.push_back(*value)
                         }else {
-                            return Err(anyhow!("tried to get a nonexistant value\nwhile building dupx"))
+                            return Err(anyhow!("tried to get a nonexistant value\nwhile building dupx in B{}", id))
                         }
                     },
                     Instruction::Swap() => {
@@ -155,10 +156,10 @@ impl LLVMRuntime {
                                 stack.push_back(val2);
                                 stack.push_back(val1);
                             }else {
-                                return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                                return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap in B{}", id))
                             }
                         }else {
-                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap in B{}", id))
                             }
                     },
                     Instruction::Call(id) => {
@@ -188,7 +189,7 @@ impl LLVMRuntime {
                                 "result")?;
                             stack.push_back(result.into())
                         }else {
-                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building neg"))
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building neg in B{}", id))
                         }
                     },
                     Instruction::Add()
@@ -335,10 +336,10 @@ impl LLVMRuntime {
                                 };
                                 stack.push_back(result.into());
                             }else {
-                                return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                                return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap in B{}", id))
                             }
                         }else {
-                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap"))
+                            return Err(anyhow!("tried to get a value from an empty stack\nwhile building swap in B{}", id))
                         }
                     },
                     Instruction::Briz(id1, id2) => {
@@ -362,13 +363,13 @@ impl LLVMRuntime {
                                         arg.0.add_incoming(&[(arg.1, *llvm_blk)]);
                                     }
                                 }else {
-                                    return Err(anyhow!("tried to get a value from an empty stack\nwhile building briz"))
+                                    return Err(anyhow!("tried to get a value from an empty stack\nwhile building briz in B{}", id))
                                 }
                             }else {
-                                return Err(anyhow!("tried to branch to a non existant block : {}", *id2))
+                                return Err(anyhow!("tried to branch to a non existant block : {} in B{}", *id2, id))
                             }
                         }else {
-                            return Err(anyhow!("tried to branch to a non existant block : {}", *id1))
+                            return Err(anyhow!("tried to branch to a non existant block : {}, in B{}", *id1, id))
                         }
                     }
                 }

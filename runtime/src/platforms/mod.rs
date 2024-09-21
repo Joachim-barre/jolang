@@ -22,5 +22,5 @@ impl Platform for UnsupportedPlatform {
 #[cfg(target_os = "linux")]
 pub type CurrentPlatform = linux::LinuxPlatform;
 
-#[cfg(not(all(target_os = "linux")))]
+#[cfg(not(any(target_os = "linux")))]
 pub type CurrentPlatform = UnsupportedPlatform;

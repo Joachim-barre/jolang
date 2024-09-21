@@ -5,6 +5,10 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.86"
-inkwell = { version = "0.4.0", features = ["llvm17-0"] }
+inkwell = { version = "0.4.0", features = ["llvm17-0"], optional = true}
 jolang_shared = { path = "../shared" }
-llvm-sys = { version = "170", features = ["prefer-static"] }
+llvm-sys = { version = "170", features = ["prefer-static"], optional = true}
+
+[features]
+default = ["llvm"]
+llvm = ["dep:inkwell", "dep:llvm-sys"]

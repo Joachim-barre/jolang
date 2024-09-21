@@ -1,7 +1,9 @@
 use std::{fs::OpenOptions, path::PathBuf};
 use anyhow::Result;
 use jolang_shared::ir::{reader::read, IrObject};
+#[cfg(feature = "llvm")]
 use llvm::LLVMRuntime;
+#[cfg(feature = "llvm")]
 mod llvm;
 
 pub trait Runtime {

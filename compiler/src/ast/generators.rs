@@ -301,6 +301,12 @@ impl Generate for Call {
         if let Some(id) = generator.get_externs().iter().enumerate().filter(|x| x.1.0 == self.0).next().map(|x| x.0) {
             for arg in &self.1 {
                 arg.generate(generator);
+                if generator.get_current_block()
+                    .and_then(|b| b.stack_types.last().copied())
+                    .map_or(false, |x| x != 64)
+                {
+                    generator.add(Instruction::Icast(64));
+                }
             }
             generator.add(Instruction::Call(id as u64));
         }else {

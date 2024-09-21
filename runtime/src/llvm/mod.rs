@@ -350,7 +350,7 @@ impl LLVMRuntime {
                                     let cond = builder.build_int_compare(
                                         inkwell::IntPredicate::EQ,
                                         cond.into_int_value(),
-                                        i64_type.const_zero().into(),
+                                        cond.into_int_value().get_type().const_zero().into(),
                                         "cond")?;
                                     builder.build_conditional_branch(
                                         cond,

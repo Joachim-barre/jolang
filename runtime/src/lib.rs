@@ -1,10 +1,10 @@
 use std::{fs::OpenOptions, path::PathBuf};
 use anyhow::Result;
 use jolang_shared::ir::{reader::read, IrObject};
-#[cfg(feature = "llvm")]
-use llvm::LLVMRuntime;
+use platforms::Platform;
 #[cfg(feature = "llvm")]
 mod llvm;
+mod platforms;
 
 pub trait Runtime {
     fn new() -> Self
@@ -19,6 +19,7 @@ pub fn run(file : PathBuf) -> Result<i64> {
         .create(false)
         .open(file)?;
     let object = read(&mut file)?;
-    let mut runtime : Box<dyn Runtime> = Box::new(LLVMRuntime::new());
+    let platform = platforms::CurrentPlatform::new();
+    let mut runtime : Box<dyn Runtime> = platform.default_runtime();
     Ok(runtime.run(object)?)
 }

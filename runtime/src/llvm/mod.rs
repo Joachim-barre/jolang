@@ -184,7 +184,7 @@ impl LLVMRuntime {
                     Instruction::Neg() => {
                         if let Some(value) = stack.pop_back() {
                             let result = builder.build_int_sub(
-                                i64_type.const_zero(),
+                                value.into_int_value().get_type().const_zero(),
                                 value.into_int_value() ,
                                 "result")?;
                             stack.push_back(result.into())

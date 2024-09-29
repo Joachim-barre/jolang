@@ -10,16 +10,11 @@ pub struct LLVMRuntime {
 
 impl LLVMRuntime {
     fn get_int_type<'b>(&'b self, size : u64) -> Result<IntType<'b>> {
-        Ok(match size {
-            8 => self.ctx.i8_type(), 
-            16 => self.ctx.i16_type(),
-            32 => self.ctx.i32_type(),
-            64 => self.ctx.i64_type(),
-            128 => self.ctx.i128_type(),
-            _ => {
-                return Err(anyhow!("unsupported integer type : i{}", size))
-            }
-        })
+        if size <= 128 {
+            Ok(self.ctx.custom_width_int_type(size as u32))   
+        }else{
+            return Err(anyhow!("unsupported integer type : i{}", size))
+        }
     }
     
     fn load_externs<'b>(&'b self, table : &Vec<(String, u8, bool)>, module : &Module<'b>, builder : &Builder) -> Result<()>{
@@ -109,16 +104,7 @@ impl LLVMRuntime {
                                 let res = builder.build_int_truncate(value.into_int_value(), t, "res")?;
                                 stack.push_back(res.into());
                             }else {
-                                let t = match size {
-                                    8 => self.ctx.i8_type(), 
-                                    16 => self.ctx.i16_type(),
-                                    32 => self.ctx.i32_type(),
-                                    64 => self.ctx.i64_type(),
-                                    128 => self.ctx.i128_type(),
-                                    _ => {
-                                        return Err(anyhow!("unsupported integer type : i{}", size))
-                                    }
-                                };
+                                let t = self.get_int_type(*size)?;
                                 let res = builder.build_int_s_extend(value.into_int_value(), t, "res")?;
                                 stack.push_back(res.into());
                             }

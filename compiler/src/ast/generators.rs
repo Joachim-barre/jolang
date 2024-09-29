@@ -126,6 +126,11 @@ impl Generate for Statement {
             },
             Self::Return(expr) => {
                 expr.generate(generator);
+                if generator.get_current_block()
+                    .and_then(|b| b.stack_types.last().copied())
+                    .unwrap_or(64) != 64  {
+                    generator.add(Instruction::Icast(64));
+                }
                 generator.add(Instruction::Reti());
             },
             Self::Continue => {

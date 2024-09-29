@@ -163,6 +163,15 @@ impl IrGenerator {
             .map(|x| x)
     }
 
+    pub fn get_var_size(&mut self, name : String) -> Option<u64> {
+        self.current_scopes.iter()
+            .filter_map(|s| s.get_var_size(&name))
+            .next()
+            .map(|x| x)
+    }
+
+
+
     pub fn exit_scope(&mut self) {
         self.current_scopes.remove_first();
     }

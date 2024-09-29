@@ -199,6 +199,12 @@ impl Generate for Statement {
             },
             Self::VarSet(name, value) => {
                 value.generate(generator);
+                if let Some(size) = generator.get_current_block()
+                    .and_then(|b| b.stack_types.last().copied())
+                    .and_then(|s| generator.get_var_size(name.to_string()).map(|s2| (s, s2)))
+                    .and_then(|(s1,s2)| if s1!=s2 { Some(s2) } else { None })  {
+                    generator.add(Instruction::Icast(size));
+                }
                 generator.update_var(name.to_string());
             },
             Self::Call(call) => {

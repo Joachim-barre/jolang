@@ -191,7 +191,10 @@ impl Generate for Statement {
                                 generator.add(Instruction::Icast(s));
                                 s
                             },
-                            None => *generator.var_sizes().last().unwrap_or(&32),
+                            None => generator
+                                .get_current_block()
+                                .and_then(|b| b.stack_types.last().copied())
+                                .unwrap_or(32),
                         }
                     },
                     None => { 

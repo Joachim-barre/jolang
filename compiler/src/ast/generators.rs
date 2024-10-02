@@ -185,7 +185,13 @@ impl Generate for Statement {
                 };
                 let size = match value {
                     Some(v) => {
-                        v.generate(generator);
+                        match v {
+                            Expr::PrimaryExpr(e) => match e {
+                                PrimaryExpr::Litteral(val) => { generator.add(Instruction::Iconst(32, *val as u128)); () },
+                                _ => e.generate(generator)
+                            }
+                            _ => v.generate(generator)
+                        }
                         match size {
                             Some(s) => {
                                 generator.add(Instruction::Icast(s));

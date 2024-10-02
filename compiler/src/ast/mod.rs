@@ -78,7 +78,7 @@ pub enum UnaryOp {
 pub enum PrimaryExpr {
     Call(Call),
     Ident(Ident),
-    Litteral(i64),
+    Litteral(i128),
     /// (Expr) (e. g. (5 + 5))
     Expr(Box<Expr>)
 }

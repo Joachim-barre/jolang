@@ -9,21 +9,10 @@ pub enum ScopeKind {
     Loop
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum VarType {
-    SignedInt(u64),
-    UnsignedInt(u64)
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct Variable {
-    pub _type : VarType,
-    pub pos : u64
-}
-
 #[derive(Debug)]
 pub struct Scope {
-    variables : HashMap<String, Variable>,
+    // name : (offset, size)
+    variables : HashMap<String, (u64, u64)>,
     pub kind : ScopeKind,
     pub block : BlkId,
     pub exit : BlkId
@@ -39,33 +28,33 @@ impl Scope {
         }
     }
 
-    pub fn decl_var(&mut self, name : String, offset : u64, _type : VarType) {
-        self.variables.insert(name, Variable { pos : offset, _type });
+    pub fn decl_var(&mut self, name : String, offset : u64, size : u64) {
+        self.variables.insert(name, (offset, size));
     }
 
     pub fn get_var_offset(&self, name : &String) -> Option<u64> {
-        self.variables.get(name).copied().map(|v| v.pos)
+        self.variables.get(name).copied().map(|x| x.0)
     }
 
-    pub fn get_var_type(&self, name : &String) -> Option<VarType> {
-        self.variables.get(name).copied().map(|v| v._type)
+    pub fn get_var_size(&self, name : &String) -> Option<u64> {
+        self.variables.get(name).copied().map(|x| x.1)
     }
 
     pub fn update_var(&mut self, name : &String, offset : u64) {
-        self.variables.get_mut(name).unwrap().pos = offset;
+        self.variables.get_mut(name).unwrap().0 = offset;
     }
 
-    pub fn var_types(&self) -> Vec<VarType> {
+    pub fn var_sizes(&self) -> Vec<u64> {
         self.get_vars().values()
-            .map(|v| v._type)
+            .map(|v| v.1)
             .collect::<Vec<_>>()
     }
 
-    pub fn get_vars(&self) -> &HashMap<String, Variable> {
+    pub fn get_vars(&self) -> &HashMap<String, (u64, u64)> {
         &self.variables
     }
 
-    pub fn get_vars_mut(&mut self) -> &mut HashMap<String, Variable> {
+    pub fn get_vars_mut(&mut self) -> &mut HashMap<String, (u64, u64)> {
         &mut self.variables
     }
 }

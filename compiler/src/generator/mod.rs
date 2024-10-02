@@ -71,6 +71,10 @@ impl IrGenerator {
                 => self.get_current_block()
                     .and_then(|b| b.stack_types.last().copied())
                     .and_then(|s| self.inc_stack(s)),
+            Instruction::Icast(target)
+                => self.get_current_block_mut()
+                    .and_then(|mut b| b.stack_types.pop())
+                    .and_then(|_| self.inc_stack(target)),
             Instruction::Dupx(pos)
                 => self.get_current_block()
                     .and_then(|b| b.stack_types.get(pos as usize).copied())
@@ -94,7 +98,6 @@ impl IrGenerator {
                 | Instruction::Neg()
                 | Instruction::Briz(_, _)
                 | Instruction::Swap()
-                | Instruction::Icast(_)
                 => None,
             Instruction::Call(f) => {
                 if let Some(argc) = self.ext_fn.get(f as usize).map(|x| x.1)  {

@@ -1,40 +1,122 @@
 mod builder;
 mod generators;
 pub use builder::AstBuilder;
+use either::Either;
 
-// TODO : Include SourceCursors into ast nodes to be able to generate error during IR generation
+use crate::lexer::Token;
 
-pub type Ident = String;
-
-#[derive(Debug, PartialEq)]
-pub struct Program (Vec<Statement>);
+pub type Ident<'a> = Token<'a>;
 
 #[derive(Debug, PartialEq)]
-pub enum Statement {
-    Block(Vec<Statement>),
+pub struct Program<'a> (Vec<Statement<'a>>);
+
+#[derive(Debug, PartialEq)]
+pub struct Block<'a> {
+    pub lcurly : Token<'a>,
+    pub body : Vec<Statement<'a>>,
+    pub rcurly : Token<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct If<'a> {
+    pub if_kw : Token<'a>,
+    pub lparen : Token<'a>,
+    pub cond : Expr<'a>,
+    pub rparen : Token<'a>,
+    pub then : Box<Statement<'a>>,
+    pub _else : Option<Box<Statement<'a>>>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct While<'a> {
+    pub while_kw : Token<'a>,
+    pub lparen : Token<'a>,
+    pub cond : Expr<'a>,
+    pub rparen : Token<'a>,
+    pub body : Box<Statement<'a>>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Loop<'a> {
+    pub loop_kw : Token<'a>,
+    pub body : Box<Statement<'a>>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Break<'a> {
+    pub break_kw : Token<'a>,
+    pub semicolon : Token<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Continue<'a> {
+    pub continue_kw : Token<'a>,
+    pub semicolon : Token<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Return<'a> {
+    pub return_kw : Token<'a>,
+    pub value : Expr<'a>,
+    pub semicolon : Token<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct VarDecl<'a> {
+    pub type_var_kw : Either<Ident<'a>, Token<'a>>,
+    pub name : Ident<'a>,
+    pub eq_token : Option<Token<'a>>,
+    pub value : Option<Expr<'a>>,
+    pub semicolon : Token<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct VarSet<'a> {
+    pub name : Ident<'a>,
+    pub eq_token : Token<'a>,
+    pub value : Expr<'a>,
+    pub semicolon : Token<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Statement<'a> {
+    Block(Block<'a>),
     /// (condition, then, else)
-    If(Expr, Box<Statement>, Option<Box<Statement>>),
+    If(If<'a>),
     /// (condition, do)
-    While(Expr, Box<Statement>),
-    Loop(Box<Statement>),
-    Return(Expr),
-    Break,
-    Continue,
+    While(While<'a>),
+    Loop(Loop<'a>),
+    Return(Return<'a>),
+    Break(Break<'a>),
+    Continue(Continue<'a>),
     // type, name , value
-    VarDecl(Option<Ident>, Ident, Option<Expr>),
-    VarSet(Ident, Expr),
-    Call(Call)
+    VarDecl(VarDecl<'a>),
+    VarSet(VarSet<'a>),
+    Call(Call<'a>)
 }
 
 #[derive(Debug, PartialEq)]
-pub enum Expr {
-    BinExpr(Box<Expr>, Box<Expr>, BinOp),
-    UnaryExpr(UnaryOp, PrimaryExpr),
-    PrimaryExpr(PrimaryExpr)
+pub enum Expr<'a> {
+    BinExpr(BinExpr<'a>),
+    UnaryExpr(UnaryExpr<'a>),
+    PrimaryExpr(PrimaryExpr<'a>)
 }
 
 #[derive(Debug, PartialEq)]
-pub enum BinOp {
+pub struct BinExpr<'a> {
+    pub left : Box<Expr<'a>>,
+    pub right : Box<Expr<'a>>,
+    pub op : BinOp<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct BinOp<'a> {
+    pub token : Token<'a>,
+    pub kind : BinOpKind
+}
+
+#[derive(Debug, PartialEq)]
+pub enum BinOpKind {
     Add,
     Sub,
     Mul,
@@ -49,7 +131,7 @@ pub enum BinOp {
     RShift
 }
 
-impl BinOp {
+impl BinOpKind {
     pub fn precedence(&self) -> u8 {
         match self {
             Self::Add => 1,
@@ -69,19 +151,45 @@ impl BinOp {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum UnaryOp {
+pub struct UnaryExpr<'a> {
+    pub primary : Box<PrimaryExpr<'a>>,
+    pub op : BinOp<'a>
+}
+
+#[derive(Debug, PartialEq)]
+pub struct UnaryOp<'a> {
+    pub token : Token<'a>,
+    pub kind : UnaryOpKind
+}
+
+#[derive(Debug, PartialEq)]
+pub enum UnaryOpKind {
     Plus,
     Minus
 }
 
 #[derive(Debug, PartialEq)]
-pub enum PrimaryExpr {
-    Call(Call),
-    Ident(Ident),
-    Litteral(i128),
-    /// (Expr) (e. g. (5 + 5))
-    Expr(Box<Expr>)
+pub struct GroupExpr<'a> {
+    pub lparen : Token<'a>,
+    pub expr : Box<Expr<'a>>,
+    pub rparen : Token<'a>
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Call (Ident,Vec<Expr>);
+pub enum PrimaryExpr<'a> {
+    Call(Call<'a>),
+    Ident(Ident<'a>),
+    Litteral(i128),
+    /// (Expr) (e. g. (5 + 5))
+    Group(Box<Expr<'a>>)
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Call<'a> {
+    pub name : Ident<'a>,
+    pub lparen : Token<'a>,
+    pub first_args : Box<Expr<'a>>,
+    // (colon, value)
+    pub other_args : Vec<(Token<'a>, Expr<'a>)>,
+    pub rparen : Token<'a>
+}

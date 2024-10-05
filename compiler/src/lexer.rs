@@ -61,7 +61,7 @@ pub enum KeywordType {
     Var
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Token<'a> {
     pub kind : TokenKind,
     pub span : SourceSpan<'a>

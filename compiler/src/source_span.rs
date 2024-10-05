@@ -8,6 +8,14 @@ pub struct SourceSpan<'a> {
     pub source : &'a SourceBuffer
 }
 
+impl<'a> PartialEq for SourceSpan<'a> {
+    fn eq(&self, other: &Self) -> bool {
+        return self.start == other.start
+            && self.size == other.size
+            && self.source.path == other.source.path;
+    }
+}
+
 impl SourceSpan<'_> {
     pub fn at<'a> (source : &'a SourceBuffer, start : SourceCursor<'a>, size : usize) -> SourceSpan<'a> {
         SourceSpan {

@@ -5,7 +5,7 @@ use crate::generator::{self, Generate, IrGenerator};
 use super::{Call, Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp};
 
 impl Generate for Program {
-    fn generate(&self, generator : &mut IrGenerator) {
+    fn generate(&self, generator : &mut IrGenerator, size_hint : Option<u64>) {
         let blk = generator.append_block();
         let exit_block = generator.append_block();
         generator.goto_begin(exit_block);
@@ -15,7 +15,7 @@ impl Generate for Program {
         generator.enter_scope(scope);
         generator.goto_begin(blk);
         for s in &self.0 {
-            s.generate(generator);
+            s.generate(generator, Some(64));
         }
         generator.exit_scope();
         match generator.get_current_block().map(|b| b.instructions.get_last().map_or(Instruction::Dup(), |i| *i)) {
@@ -34,7 +34,8 @@ impl Generate for Program {
 }
 
 impl Generate for Statement {
-    fn generate(&self, generator : &mut IrGenerator) {
+    // size hint is used as the expected return value size (a none as size hint is interpreted as (i64)
+    fn generate(&self, generator : &mut IrGenerator, size_hint : Option<u64>) {
         match self {
             Self::Block(stmts) => {
                 let block = generator.append_block();
@@ -46,7 +47,7 @@ impl Generate for Statement {
                 let scope = Scope::new(ScopeKind::Block, block, after_block);
                 generator.enter_scope(scope);
                 for s in stmts {
-                    s.generate(generator);
+                    s.generate(generator, size_hint);
                 }
                 generator.exit_scope();
                 generator.pass_vars();
@@ -62,14 +63,14 @@ impl Generate for Statement {
                     None => else_block
                 };
                 generator.pass_vars();
-                expr.generate(generator);
+                expr.generate(generator, None);
                 generator.add(Instruction::Briz(else_block, then_block));
                 generator.goto_begin(then_block);
                 generator.recive_vars();
                 
                 let scope = Scope::new(ScopeKind::Block, then_block, after_block);
                 generator.enter_scope(scope);
-                then.generate(generator);
+                then.generate(generator, size_hint);
                 generator.exit_scope();
                 generator.pass_vars();
                 generator.add(Instruction::Br(after_block));
@@ -79,7 +80,7 @@ impl Generate for Statement {
                     generator.pass_vars();
                     let scope = Scope::new(ScopeKind::Block, else_block, after_block);
                     generator.enter_scope(scope);
-                    _else.generate(generator);
+                    _else.generate(generator, size_hint);
                     generator.exit_scope();
                     generator.pass_vars();
                     generator.add(Instruction::Br(after_block));
@@ -98,11 +99,11 @@ impl Generate for Statement {
                 let scope = Scope::new(ScopeKind::Loop, while_cond, after_block);
                 generator.enter_scope(scope);
                 generator.pass_vars();
-                expr.generate(generator);
+                expr.generate(generator, None);
                 generator.add(Instruction::Briz(after_block, while_body));
                 generator.goto_begin(while_body);
                 generator.recive_vars();
-                body.generate(generator);
+                body.generate(generator, size_hint);
                 generator.add(Instruction::Br(while_cond));
                 generator.exit_scope();
                 generator.goto_begin(after_block);
@@ -117,7 +118,7 @@ impl Generate for Statement {
                 generator.recive_vars();
                 let scope = Scope::new(ScopeKind::Loop, loop_body, after_block);
                 generator.enter_scope(scope);                
-                body.generate(generator);
+                body.generate(generator, size_hint);
                 generator.exit_scope();
                 generator.pass_vars();
                 generator.add(Instruction::Br(loop_body));
@@ -125,11 +126,15 @@ impl Generate for Statement {
                 generator.recive_vars();
             },
             Self::Return(expr) => {
-                expr.generate(generator);
+                expr.generate(generator, size_hint);
+                let target_size = match size_hint {
+                    Some(s) => s,
+                    None => 64
+                };
                 if generator.get_current_block()
                     .and_then(|b| b.stack_types.last().copied())
-                    .unwrap_or(64) != 64  {
-                    generator.add(Instruction::Icast(64));
+                    .unwrap_or(64) != target_size {
+                    generator.add(Instruction::Icast(target_size));
                 }
                 generator.add(Instruction::Reti());
             },
@@ -185,13 +190,7 @@ impl Generate for Statement {
                 };
                 let size = match value {
                     Some(v) => {
-                        match v {
-                            Expr::PrimaryExpr(e) => match e {
-                                PrimaryExpr::Litteral(val) => { generator.add(Instruction::Iconst(32, *val as u128)); () },
-                                _ => e.generate(generator)
-                            }
-                            _ => v.generate(generator)
-                        }
+                        v.generate(generator, Some(32));
                         match size {
                             Some(s) => {
                                 generator.add(Instruction::Icast(s));
@@ -212,7 +211,8 @@ impl Generate for Statement {
                 generator.decl_var(name.to_string(), size);
             },
             Self::VarSet(name, value) => {
-                value.generate(generator);
+                let target_size = generator.get_var_size(name.to_string());
+                value.generate(generator, target_size);
                 if let Some(size) = generator.get_current_block()
                     .and_then(|b| b.stack_types.last().copied())
                     .and_then(|s| generator.get_var_size(name.to_string()).map(|s2| (s, s2)))
@@ -222,18 +222,18 @@ impl Generate for Statement {
                 generator.update_var(name.to_string());
             },
             Self::Call(call) => {
-                call.generate(generator);
+                call.generate(generator, None);
             }
         }
     }
 }
 
 impl Generate for Expr {
-    fn generate(&self, generator : &mut IrGenerator) {
+    fn generate(&self, generator : &mut IrGenerator, size_hint : Option<u64>) {
         match self {
-            Expr::PrimaryExpr(p) => p.generate(generator),
+            Expr::PrimaryExpr(p) => p.generate(generator, size_hint),
             Expr::UnaryExpr(op, p) => {
-                p.generate(generator);
+                p.generate(generator, size_hint);
                 match op {
                     UnaryOp::Plus => (),
                     UnaryOp::Minus => {
@@ -243,8 +243,8 @@ impl Generate for Expr {
                 };
             },
             Expr::BinExpr(e1, e2, op) => {
-                e1.generate(generator);
-                e2.generate(generator);
+                e1.generate(generator, size_hint);
+                e2.generate(generator, size_hint);
                 let sizes = generator.get_current_block()
                     .and_then(|b| b.stack_types.last_chunk::<2>().cloned())
                     .unwrap_or([32;2]);
@@ -300,27 +300,31 @@ impl Generate for Expr {
 }
 
 impl Generate for PrimaryExpr {
-    fn generate(&self, generator : &mut IrGenerator) {
+    fn generate(&self, generator : &mut IrGenerator, size_hint : Option<u64>) {
         match self {
-            PrimaryExpr::Call(c) => c.generate(generator),
+            PrimaryExpr::Call(c) => c.generate(generator, size_hint),
             PrimaryExpr::Ident(name) => {
                 let offset = generator.get_var_offset(name.to_string()).expect(format!("unknown variable : {}", name).as_str());
                 generator.add(Instruction::Dupx(offset));
             },
             PrimaryExpr::Litteral(val) => {
-                generator.add(Instruction::Iconst(128, *val as u128));
+                let target_size = match size_hint {
+                    Some(s) => s,
+                    None => 128
+                };
+                generator.add(Instruction::Iconst(target_size, *val as u128));
                 ()
             },
-            PrimaryExpr::Expr(e) => e.generate(generator)
+            PrimaryExpr::Expr(e) => e.generate(generator, size_hint)
         }
     }
 }
 
 impl Generate for Call {
-    fn generate(&self, generator : &mut IrGenerator) {
+    fn generate(&self, generator : &mut IrGenerator, size_hint : Option<u64>) {
         if let Some(id) = generator.get_externs().iter().enumerate().filter(|x| x.1.0 == self.0).next().map(|x| x.0) {
             for arg in &self.1 {
-                arg.generate(generator);
+                arg.generate(generator, Some(64));
                 if generator.get_current_block()
                     .and_then(|b| b.stack_types.last().copied())
                     .map_or(false, |x| x != 64)
@@ -336,7 +340,7 @@ impl Generate for Call {
                 .expect(format!("unknown function : {}", self.0).as_str());
             let id = generator.decl_extern(self.0.clone(), sig);
             for arg in &self.1 {
-                arg.generate(generator);
+                arg.generate(generator, Some(64));
             }
             generator.add(Instruction::Call(id));
         }

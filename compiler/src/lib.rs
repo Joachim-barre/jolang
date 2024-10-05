@@ -20,7 +20,7 @@ pub fn build(source_path : PathBuf, _output_path : PathBuf) -> Result<()> {
     match AstBuilder::from(Lexer::new(&source)).parse_program() {
         Ok(p) => {
             let mut generator = IrGenerator::new();
-            p.generate(&mut generator);
+            p.generate(&mut generator, None);
             let mut obj_file = OpenOptions::new()
                 .create(true)
                 .write(true)

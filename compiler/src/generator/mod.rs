@@ -249,5 +249,6 @@ impl IrGenerator {
 }
 
 pub trait Generate {
-    fn generate(&self, generator : &mut IrGenerator);
+    // size hint indicate the expected size (for example expression) but can be ignored
+    fn generate(&self, generator : &mut IrGenerator, size_hint : Option<u64>);
 }

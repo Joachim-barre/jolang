@@ -292,6 +292,7 @@ name = "jolangc"
 version = "0.3.0-beta"
 dependencies = [
  "anyhow",
+ "either",
  "index_list",
  "jolang_shared",
 ]

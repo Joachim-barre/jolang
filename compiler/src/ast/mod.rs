@@ -7,17 +7,17 @@ use crate::lexer::Token;
 
 pub type Ident<'a> = Token<'a>;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Program<'a> (Vec<Statement<'a>>);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Block<'a> {
     pub lcurly : Token<'a>,
     pub body : Vec<Statement<'a>>,
     pub rcurly : Token<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct If<'a> {
     pub if_kw : Token<'a>,
     pub lparen : Token<'a>,
@@ -28,7 +28,7 @@ pub struct If<'a> {
     pub _else : Option<Box<Statement<'a>>>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct While<'a> {
     pub while_kw : Token<'a>,
     pub lparen : Token<'a>,
@@ -37,32 +37,32 @@ pub struct While<'a> {
     pub body : Box<Statement<'a>>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Loop<'a> {
     pub loop_kw : Token<'a>,
     pub body : Box<Statement<'a>>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Break<'a> {
     pub break_kw : Token<'a>,
     pub semicolon : Token<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Continue<'a> {
     pub continue_kw : Token<'a>,
     pub semicolon : Token<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Return<'a> {
     pub return_kw : Token<'a>,
     pub value : Expr<'a>,
     pub semicolon : Token<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct VarDecl<'a> {
     pub type_var_kw : Either<Ident<'a>, Token<'a>>,
     pub name : Ident<'a>,
@@ -71,7 +71,7 @@ pub struct VarDecl<'a> {
     pub semicolon : Token<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct VarSet<'a> {
     pub name : Ident<'a>,
     pub eq_token : Token<'a>,
@@ -79,7 +79,7 @@ pub struct VarSet<'a> {
     pub semicolon : Token<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Statement<'a> {
     Block(Block<'a>),
     /// (condition, then, else)
@@ -96,27 +96,27 @@ pub enum Statement<'a> {
     Call(Call<'a>)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Expr<'a> {
     BinExpr(BinExpr<'a>),
     UnaryExpr(UnaryExpr<'a>),
     PrimaryExpr(PrimaryExpr<'a>)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct BinExpr<'a> {
     pub left : Box<Expr<'a>>,
     pub right : Box<Expr<'a>>,
     pub op : BinOp<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct BinOp<'a> {
     pub token : Token<'a>,
     pub kind : BinOpKind
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum BinOpKind {
     Add,
     Sub,
@@ -151,32 +151,32 @@ impl BinOpKind {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct UnaryExpr<'a> {
     pub primary : Box<PrimaryExpr<'a>>,
     pub op : BinOp<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct UnaryOp<'a> {
     pub token : Token<'a>,
     pub kind : UnaryOpKind
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum UnaryOpKind {
     Plus,
     Minus
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct GroupExpr<'a> {
     pub lparen : Token<'a>,
     pub expr : Box<Expr<'a>>,
     pub rparen : Token<'a>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum PrimaryExpr<'a> {
     Call(Call<'a>),
     Ident(Ident<'a>),
@@ -185,7 +185,7 @@ pub enum PrimaryExpr<'a> {
     Group(Box<Expr<'a>>)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Call<'a> {
     pub name : Ident<'a>,
     pub lparen : Token<'a>,

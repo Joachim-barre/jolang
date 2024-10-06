@@ -54,13 +54,16 @@ impl<'a> AstBuilder<'a> {
         Ok(&self.current)
     }
 
-    pub fn parse_program(&mut self) -> Result<Program, CompilerError>{
+    pub fn parse_program(&mut self) -> Result<Program<'a>, CompilerError>{
         let mut statments : Vec<Statement>= vec![];
-        while self.next_token()?.is_some() {
-            statments.push(self.parse_statment()?);
-        }
-        if statments.len() == 0 {
+        if self.next_token()?.is_none() {
             return Err(self.expected("statement"))
+        }
+        loop {
+            statments.push(self.parse_statment()?);
+            if self.next_token()?.is_none(){
+                break;
+            }
         }
         Ok(Program ( statments ))
     }

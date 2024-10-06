@@ -189,7 +189,7 @@ pub enum PrimaryExpr<'a> {
 pub struct Call<'a> {
     pub name : Ident<'a>,
     pub lparen : Token<'a>,
-    pub first_args : Box<Expr<'a>>,
+    pub first_args : Option<Box<Expr<'a>>>,
     // (colon, value)
     pub other_args : Vec<(Token<'a>, Expr<'a>)>,
     pub rparen : Token<'a>

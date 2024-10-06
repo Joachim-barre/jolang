@@ -67,6 +67,12 @@ pub struct Token<'a> {
     pub span : SourceSpan<'a>
 }
 
+impl Token<'_> {
+    fn as_str(&self) -> &str {
+        self.span.data
+    }
+}
+
 pub struct Lexer<'a> {
     pub reader : SourceReader<'a>
 }

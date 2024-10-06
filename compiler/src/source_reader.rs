@@ -1,10 +1,20 @@
+use std::fmt::Debug;
 use super::{source_span::SourceSpan, SourceBuffer};
 
-#[derive(Eq, Debug, Copy, Clone)]
+#[derive(Eq, Copy, Clone)]
 pub struct SourceCursor<'a> {
     pub data_ref : &'a str,
     pub line : usize,
     pub collumn : usize,
+}
+
+impl Debug for SourceCursor<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SourceCursor")
+            .field("line", &self.line)
+            .field("collumn", &self.collumn)
+            .finish()
+    }
 }
 
 impl<'a> PartialEq for SourceCursor<'a>{

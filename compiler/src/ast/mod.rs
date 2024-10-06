@@ -24,6 +24,7 @@ pub struct If<'a> {
     pub cond : Expr<'a>,
     pub rparen : Token<'a>,
     pub then : Box<Statement<'a>>,
+    pub else_kw : Option<Token<'a>>,
     pub _else : Option<Box<Statement<'a>>>
 }
 

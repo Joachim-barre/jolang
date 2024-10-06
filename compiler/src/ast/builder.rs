@@ -501,7 +501,8 @@ impl<'a> AstBuilder<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::*;
+    use crate::{ast::*, source_reader::SourceCursor, source_span::SourceSpan};
+    use pretty_assertions::assert_eq;
     use core::panic;
     use std::path::PathBuf;
 
@@ -509,21 +510,120 @@ mod tests {
     fn test_var_decl() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("var n;var _m6 = 1;")
+            buffer : String::from("var n;\ni128 _m6 = 1;")
         };
         match AstBuilder::from(Lexer::new(&buf)).parse_program() {
             Ok(p) => {
                 assert_eq!(p,
                     Program(vec![
-                        Statement::VarDecl(None, "n".to_string(), None),
-                        Statement::VarDecl(None, "_m6".to_string(), Some(Expr::PrimaryExpr(PrimaryExpr::Litteral(1))))
+                        Statement::VarDecl(VarDecl { 
+                            type_var_kw: Either::Right(
+                                Token { 
+                                    kind: TokenKind::Keyword(KeywordType::Var),
+                                    span: SourceSpan { 
+                                        start: SourceCursor {
+                                            line : 1,
+                                            collumn : 1,
+                                            data_ref : ""
+                                        },
+                                        size: 3,
+                                        data: "var",
+                                        source: &buf
+                                    }
+                                }
+                            ), 
+                            name: Token { 
+                                kind: TokenKind::Ident,
+                                span: SourceSpan { 
+                                    start: SourceCursor {
+                                        line : 1,
+                                        collumn : 5,
+                                        data_ref : ""
+                                    },
+                                    size: 1,
+                                    data: "n",
+                                    source: &buf
+                                }
+                            },
+                            eq_token: None,
+                            value: None,
+                            semicolon: Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan { 
+                                    start: SourceCursor {
+                                        line : 1,
+                                        collumn : 6,
+                                        data_ref : ""
+                                    },
+                                    size: 1,
+                                    data: ";",
+                                    source: &buf
+                                }
+                            },
+                        }),
+                        Statement::VarDecl(VarDecl { 
+                            type_var_kw: Either::Left(
+                                Token { 
+                                    kind: TokenKind::Ident,
+                                    span: SourceSpan { 
+                                        start: SourceCursor {
+                                            line : 2,
+                                            collumn : 1,
+                                            data_ref : ""
+                                        },
+                                        size: 4,
+                                        data: "i128",
+                                        source: &buf
+                                    }
+                                }
+                            ), 
+                            name: Token { 
+                                kind: TokenKind::Ident,
+                                span: SourceSpan { 
+                                    start: SourceCursor {
+                                        line : 2,
+                                        collumn : 6,
+                                        data_ref : ""
+                                    },
+                                    size: 3,
+                                    data: "_m6",
+                                    source: &buf
+                                }
+                            },
+                            eq_token: Some(Token { 
+                                kind: TokenKind::Equal,
+                                span: SourceSpan { 
+                                    start: SourceCursor {
+                                        line : 2,
+                                        collumn : 10,
+                                        data_ref : ""
+                                    },
+                                    size: 1,
+                                    data: "=",
+                                    source: &buf
+                                }
+                            }),
+                            value: Some(Expr::PrimaryExpr(PrimaryExpr::Litteral(1))),
+                            semicolon: Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan { 
+                                    start: SourceCursor {
+                                        line : 2,
+                                        collumn : 13,
+                                        data_ref : ""
+                                    },
+                                    size: 1,
+                                    data: ";",
+                                    source: &buf
+                                }
+                            },
+                        })
                     ])
                 );
             },
             Err(e) => panic!("{}", e)
         }
     }
-    
     #[test]
     fn test_return_break_continue() {
         let buf = SourceBuffer {

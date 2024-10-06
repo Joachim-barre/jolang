@@ -154,7 +154,7 @@ impl BinOpKind {
 #[derive(Debug, PartialEq, Clone)]
 pub struct UnaryExpr<'a> {
     pub primary : Box<PrimaryExpr<'a>>,
-    pub op : BinOp<'a>
+    pub op : UnaryOp<'a>
 }
 
 #[derive(Debug, PartialEq, Clone)]

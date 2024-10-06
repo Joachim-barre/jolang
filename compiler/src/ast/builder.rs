@@ -297,16 +297,24 @@ impl<'a> AstBuilder<'a> {
     }
 
     pub fn parse_call(&mut self) -> Result<Call<'a>, CompilerError> {
-        let ident = Ident::from(self.next_token()?.as_ref().unwrap().span.data);
+        let ident = self.next_token()?.as_ref().unwrap().clone();
             if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                 return Err(self.expected("\"(\""))
             }
+            let lparen = self.peek_token().as_ref().unwrap().clone();
             if self.next_token()?.is_none() {
                 return Err(self.expected("\")\""))
             }else if self.peek_token().as_ref().unwrap().kind == TokenKind::RParan {
-                return Ok(Call(ident, Vec::new()))
+                return Ok(Call{
+                    name : ident,
+                    lparen,
+                    first_arg : None,
+                    other_args : vec![],
+                    rparen : self.peek_token().as_ref().unwrap().clone()
+                })
             }
-            let mut args = vec![self.parse_expr()?];
+            let first_arg = Some(Box::new(self.parse_expr()?));
+            let mut other_args = vec![];
             loop {
                 if self.peek_token().is_none() {
                     return Err(self.expected("\")\""))
@@ -315,10 +323,17 @@ impl<'a> AstBuilder<'a> {
                 }else if !(self.peek_token().as_ref().unwrap().kind == TokenKind::Comma) {
                     return Err(self.expected("\",\""))
                 }
+                let comma = self.peek_token().as_ref().unwrap().clone();
                 self.next_token()?;
-                args.push(self.parse_expr()?);
+                other_args.push((comma, self.parse_expr()?));
             }
-            return Ok(Call(ident, args))
+            return Ok(Call{
+                name : ident,
+                lparen,
+                first_arg,
+                other_args,
+                rparen : self.peek_token().as_ref().unwrap().clone()
+            })
     }
 
     pub fn apply_precedence(&self, expr : Expr) -> Expr {

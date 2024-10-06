@@ -1,10 +1,17 @@
 use super::{source_span::SourceSpan, SourceBuffer};
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Copy, Clone)]
+#[derive(Eq, Debug, Copy, Clone)]
 pub struct SourceCursor<'a> {
     pub data_ref : &'a str,
     pub line : usize,
     pub collumn : usize,
+}
+
+impl<'a> PartialEq for SourceCursor<'a>{
+    fn eq(&self, other: &Self) -> bool {
+        return self.line==other.line
+            && self.collumn==other.collumn;
+    }
 }
 
 pub struct SourceReader<'a> {

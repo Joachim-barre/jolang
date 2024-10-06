@@ -1,3 +1,4 @@
+use either::Either;
 use crate::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, Token, TokenKind}, source_buffer::SourceBuffer};
 use super::{Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp, Call, BinOp};
 use std::{cell::RefCell, rc::Rc, str::FromStr};
@@ -39,11 +40,11 @@ impl<'a> AstBuilder<'a> {
             None)
     }
 
-    pub fn peek_token(&self) -> &Option<Token> {
+    pub fn peek_token(&self) -> &Option<Token<'a>> {
         &self.current
     }
 
-    pub fn next_token(&mut self) -> Result<&Option<Token>, CompilerError> {
+    pub fn next_token(&mut self) -> Result<&Option<Token<'a>>, CompilerError> {
         match self.lexer.next() {
             Some(ret) => match ret {
                 Ok(t) => self.current = Some(t),
@@ -68,13 +69,14 @@ impl<'a> AstBuilder<'a> {
         Ok(Program ( statments ))
     }
 
-    pub fn parse_statment(&mut self) -> Result<Statement, CompilerError>{
-        let first_token = self.peek_token();
+    pub fn parse_statment(&mut self) -> Result<Statement<'a>, CompilerError>{
+        let first_token = self.peek_token().clone();
         let first_token = first_token.as_ref().unwrap();
         let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         match &first_token.kind {
             TokenKind::LCurly  => {
                 let mut statements : Vec<Statement> = Vec::new();
+                let lcurly = first_token.clone();
                 loop {
                     let token = self.next_token()?;
                     if !token.is_some() {
@@ -85,27 +87,35 @@ impl<'a> AstBuilder<'a> {
                     }
                     statements.push(self.parse_statment()?)
                 }
-                Ok(Statement::Block(statements))
+                Ok(Statement::Block(super::Block { 
+                    lcurly,
+                    body: statements,
+                    rcurly: self.peek_token().as_ref().unwrap().clone()
+                }))
             },
             TokenKind::Keyword(k) => match k {
                 KeywordType::If => {
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                         return Err(self.expected("\"(\""))
                     }
+                    let lparen = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {
                         return Err(self.expected("expr"))
                     }
-                    let cond = self.parse_expr()?;
+                    let cond = self.parse_expr()?.clone();
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
+                    let rparen = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {
                         return Err(self.expected("statement"))
                     }
                     let then = Box::new(self.parse_statment()?);
+                    let mut else_kw = None;
                     let mut _else = None;
-                    let cursor = self.lexer.reader.current_cursor;
+                    let cursor = self.lexer.reader.current_cursor.clone();
                     if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
+                        else_kw = self.peek_token().clone();
                         if self.next_token()?.is_none() {
                             return Err(self.expected("statement"))
                         }
@@ -113,12 +123,21 @@ impl<'a> AstBuilder<'a> {
                     }else {
                         self.lexer.reader.goto(cursor);
                     }
-                    Ok(Statement::If(cond, then, _else))
+                    Ok(Statement::If(super::If {
+                        if_kw: first_token.clone(),
+                        lparen,
+                        cond,
+                        rparen,
+                        then,
+                        else_kw,
+                        _else
+                    }))
                 },
                 KeywordType::While => {
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                         return Err(self.expected("\"(\""))
                     }
+                    let lparen = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {
                         return Err(self.expected("expr"))
                     }
@@ -126,17 +145,27 @@ impl<'a> AstBuilder<'a> {
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
+                    let rparen = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {
                         return Err(self.expected("statement"))
                     }
                     let body = Box::new(self.parse_statment()?);
-                    return Ok(Statement::While(cond, body))
+                    return Ok(Statement::While(super::While {
+                        while_kw: first_token.clone(),
+                        lparen,
+                        cond,
+                        rparen,
+                        body
+                    }))
                 },
                 KeywordType::Loop => {
                     if self.next_token()?.is_none() {
                         return Err(self.expected("statement"))
                     }
-                    return Ok(Statement::Loop(Box::new(self.parse_statment()?)));
+                    return Ok(Statement::Loop(super::Loop {
+                        loop_kw : first_token.clone(),
+                        body : Box::new(self.parse_statment()?)
+                    }));
                 },
                 KeywordType::Return => {
                     if self.next_token()?.is_none() {
@@ -146,41 +175,67 @@ impl<'a> AstBuilder<'a> {
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::Return(value));
+                    return Ok(Statement::Return(super::Return {
+                        return_kw : first_token.clone(),
+                        value,
+                        semicolon : self.peek_token().as_ref().unwrap().clone()
+                    }));
 
                 },
                 KeywordType::Break => {
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::Break);
+                    return Ok(Statement::Break(super::Break {
+                        break_kw: first_token.clone(),
+                        semicolon: self.peek_token().as_ref().unwrap().clone() 
+                    }));
                 },
                 KeywordType::Continue => {
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::Continue);
+                    return Ok(Statement::Continue(super::Continue {
+                        continue_kw: first_token.clone(),
+                        semicolon: self.peek_token().as_ref().unwrap().clone() 
+                    }));
                 },
                 KeywordType::Var => {
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Ident) {
                         return Err(self.expected("identifier"))
                     }
-                    let ident = Ident::from(self.peek_token().as_ref().unwrap().span.data); 
+                    let ident = Ident::from(self.peek_token().as_ref().unwrap().clone()); 
                     if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                        let eq_token = self.peek_token().clone();
                         if self.next_token()?.is_none() {
                             return Err(self.expected("expression"))
                         }
                         let expr = self.parse_expr()?;
-                        return Ok(Statement::VarDecl(None, ident, Some(expr)));
+                        if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                            return Err(self.expected("\";\""))
+                        }
+                        return Ok(Statement::VarDecl(super::VarDecl { 
+                            type_var_kw: Either::Right(first_token.clone()),
+                            name: ident,
+                            eq_token,
+                            value: Some(expr),
+                            semicolon: self.peek_token().as_ref().unwrap().clone()
+                        }));
                     }else if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::VarDecl(None, ident, None))
+                    return Ok(Statement::VarDecl(super::VarDecl { 
+                        type_var_kw: Either::Right(first_token.clone()),
+                        name: ident,
+                        eq_token: None,
+                        value: None,
+                        semicolon: self.peek_token().as_ref().unwrap().clone()
+                    }))
                 },
                 _ => Err(self.unexpected(first_token))
             },
             TokenKind::Ident => {
-                let ident = Ident::from(first_token.span.data);
+                let ident = first_token.clone();
                 if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                     self.lexer.reader.goto(start_cursor);
                     let call = self.parse_call()?;
@@ -190,21 +245,38 @@ impl<'a> AstBuilder<'a> {
                     Ok(Statement::Call(call))
                 }else if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Ident) {
                     let type_name = ident;
-                    let var_name = Ident::from(self.peek_token().as_ref().unwrap().span.data);
+                    let var_name = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                        let eq_token = Some(self.peek_token().as_ref().unwrap().clone());
                         if self.next_token()?.is_none() {
                             return Err(self.expected("expression"))
                         }
-                        let expr = self.parse_expr()?;
-                        return Ok(Statement::VarDecl(Some(type_name), var_name, Some(expr)));
+                        let expr = Some(self.parse_expr()?);
+                        if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                            return Err(self.expected("\";\""))
+                        }
+                        return Ok(Statement::VarDecl(super::VarDecl { 
+                            type_var_kw: Either::Left(type_name),
+                            name: var_name,
+                            eq_token, 
+                            value: expr,
+                            semicolon: self.peek_token().as_ref().unwrap().clone()
+                        }));
                     }else if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::VarDecl(Some(type_name), var_name, None))
+                    return Ok(Statement::VarDecl(super::VarDecl { 
+                            type_var_kw: Either::Left(type_name),
+                            name: var_name,
+                            eq_token : None, 
+                            value: None,
+                            semicolon: self.peek_token().as_ref().unwrap().clone()
+                        }))
                 }else {
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
                         return Err(self.expected("\"=\""))
                     }
+                    let eq_token = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {
                         return Err(self.expected("expression"))
                     }
@@ -212,14 +284,19 @@ impl<'a> AstBuilder<'a> {
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
-                    return Ok(Statement::VarSet(ident, expr));
+                    return Ok(Statement::VarSet(super::VarSet {
+                        name: ident,
+                        eq_token,
+                        value: expr,
+                        semicolon: self.peek_token().as_ref().unwrap().clone() 
+                    }));
                 }
             },
             _ => Err(self.unexpected(first_token))
         }
     }
 
-    pub fn parse_call(&mut self) -> Result<Call, CompilerError> {
+    pub fn parse_call(&mut self) -> Result<Call<'a>, CompilerError> {
         let ident = Ident::from(self.next_token()?.as_ref().unwrap().span.data);
             if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                 return Err(self.expected("\"(\""))
@@ -266,7 +343,7 @@ impl<'a> AstBuilder<'a> {
         }
     }
 
-    pub fn parse_expr(&mut self) -> Result<Expr, CompilerError> {
+    pub fn parse_expr(&mut self) -> Result<Expr<'a>, CompilerError> {
         let token = self.peek_token().as_ref().unwrap();
         // parse unary op
         let unary_op = match &token.kind {

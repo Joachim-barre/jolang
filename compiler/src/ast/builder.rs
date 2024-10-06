@@ -336,22 +336,34 @@ impl<'a> AstBuilder<'a> {
             })
     }
 
-    pub fn apply_precedence(&self, expr : Expr) -> Expr {
+    pub fn apply_precedence<'b>(&self, expr : Expr<'b>) -> Expr<'b> {
         match expr {
             // op1 is assumed to not be a bin op or to already match precedence
             // op2 is assumed to alrdy have precedence checked
-            Expr::BinExpr(op1, op2, bin_op1) => {
-                match *op2 {
-                    Expr::BinExpr(op3, op4, bin_op2) => {
-                        let prec1 = bin_op1.precedence();
-                        let prec2 = bin_op2.precedence();
+            Expr::BinExpr(expr1) => {
+                match *expr1.right {
+                    Expr::BinExpr(expr2) => {
+                        let prec1 = expr1.op.kind.precedence();
+                        let prec2 = expr2.op.kind.precedence();
 
                         if prec1 > prec2 {
-                            return Expr::BinExpr(Box::new(self.apply_precedence(Expr::BinExpr(op1, op3, bin_op1))), op4, bin_op2);
+                            return Expr::BinExpr(super::BinExpr {
+                                left : Box::new(Expr::BinExpr(super::BinExpr {
+                                    left : expr1.left,
+                                    right : expr2.left,
+                                    op : expr1.op
+                                })),
+                                right : expr2.right,
+                                op : expr2.op
+                            });
                         }
-                        return Expr::BinExpr(op1, Box::new(Expr::BinExpr(op3, op4, bin_op2)), bin_op1)
+                        return Expr::BinExpr(super::BinExpr {
+                            left : expr1.left,
+                            right : Box::new(Expr::BinExpr(expr2)),
+                            op : expr1.op
+                        })
                     },
-                    _ => return Expr::BinExpr(op1, op2, bin_op1)
+                    _ => return Expr::BinExpr(expr1)
                 }
             },
             _ => return expr 

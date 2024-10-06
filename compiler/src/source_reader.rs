@@ -52,7 +52,7 @@ impl<'a> SourceReader<'a> {
         self.current_cursor = SourceCursor{
             data_ref : iter.as_str(),
             line : self.current_cursor.line,
-            collumn : self.current_cursor.line
+            collumn : self.current_cursor.collumn
         };
         if let Some(c) = self.peek_char() {
             match c {

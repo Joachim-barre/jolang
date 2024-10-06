@@ -8,3 +8,4 @@ anyhow = "1.0.86"
 either = "1.13.0"
 index_list = "0.2.13"
 jolang_shared = { path = "../shared" }
+pretty_assertions = "1.4.1"

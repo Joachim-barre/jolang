@@ -624,19 +624,102 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+    
     #[test]
     fn test_return_break_continue() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("return 0;break;continue;")
+            buffer : String::from("return 0;\nbreak;continue;")
         };
         match AstBuilder::from(Lexer::new(&buf)).parse_program() {
             Ok(p) => {
                 assert_eq!(p,
                     Program(vec![
-                        Statement::Return(Expr::PrimaryExpr(PrimaryExpr::Litteral(0))),
-                        Statement::Break,
-                        Statement::Continue
+                        Statement::Return(Return { 
+                            return_kw: Token { 
+                                kind: TokenKind::Keyword(KeywordType::Return),
+                                span: SourceSpan {
+                                    start : SourceCursor {
+                                        data_ref : "",
+                                        line : 1,
+                                        collumn : 1
+                                    },
+                                    size : 6,
+                                    data : "return",
+                                    source : &buf
+                                }
+                            },
+                            value: Expr::PrimaryExpr(PrimaryExpr::Litteral(0)),
+                            semicolon: Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan {
+                                    start : SourceCursor {
+                                        data_ref : "",
+                                        line : 1,
+                                        collumn : 9
+                                    },
+                                    size : 1,
+                                    data : ";",
+                                    source : &buf
+                                }
+                            } 
+                        }),
+                        Statement::Break(Break {
+                            break_kw : Token { 
+                                kind: TokenKind::Keyword(KeywordType::Break),
+                                span: SourceSpan {
+                                    data : "break",
+                                    size : 5,
+                                    source : &buf,
+                                    start : SourceCursor {
+                                        data_ref : "",
+                                        line : 2,
+                                        collumn : 1
+                                    }
+                                }
+                            },
+                            semicolon: Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan {
+                                    start : SourceCursor {
+                                        data_ref : "",
+                                        line : 2,
+                                        collumn : 6
+                                    },
+                                    size : 1,
+                                    data : ";",
+                                    source : &buf
+                                }
+                            } 
+                        }),
+                        Statement::Continue(Continue {
+                            continue_kw : Token { 
+                                kind: TokenKind::Keyword(KeywordType::Continue),
+                                span: SourceSpan {
+                                    data : "continue",
+                                    size : 8,
+                                    source : &buf,
+                                    start : SourceCursor {
+                                        data_ref : "",
+                                        line : 2,
+                                        collumn : 7
+                                    }
+                                }
+                            },
+                            semicolon: Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan {
+                                    start : SourceCursor {
+                                        data_ref : "",
+                                        line : 2,
+                                        collumn : 15
+                                    },
+                                    size : 1,
+                                    data : ";",
+                                    source : &buf
+                                }
+                            } 
+                        })
                     ])
                 );
             },

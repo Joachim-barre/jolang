@@ -374,8 +374,14 @@ impl<'a> AstBuilder<'a> {
         let token = self.peek_token().as_ref().unwrap();
         // parse unary op
         let unary_op = match &token.kind {
-            TokenKind::Plus => Some(UnaryOp::Plus),
-            TokenKind::Minus => Some(UnaryOp::Minus),
+            TokenKind::Plus => Some(UnaryOp{
+                token: token.clone(),
+                kind: super::UnaryOpKind::Plus
+            }),
+            TokenKind::Minus => Some(UnaryOp{
+                token: token.clone(),
+                kind: super::UnaryOpKind::Minus
+            }),
             _ => None
         };
 
@@ -408,15 +414,20 @@ impl<'a> AstBuilder<'a> {
                 }?
             )),
             TokenKind::LParan => {
+                    let lparen = token.clone();
                     self.next_token()?;
                     let sub_expr = self.parse_expr()?;
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
-                    Ok(PrimaryExpr::Expr(Box::new(sub_expr)))
+                    Ok(PrimaryExpr::Group(super::GroupExpr {
+                        lparen,
+                        expr : Box::new(sub_expr),
+                        rparen : self.peek_token().as_ref().unwrap().clone()
+                    }))
             },
             TokenKind::Ident => {
-                let ident = Ident::from(token.span.data);
+                let ident = token.clone();
                 let end_pos = self.lexer.reader.current_cursor;
                 if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                     self.lexer.reader.goto(start_cursor);
@@ -430,7 +441,10 @@ impl<'a> AstBuilder<'a> {
         }?;
 
         let expr = match unary_op {
-            Some(op) => Expr::UnaryExpr(op, primary),
+            Some(op) => Expr::UnaryExpr(super::UnaryExpr { 
+                primary, 
+                op
+            }),
             None => Expr::PrimaryExpr(primary)
         };
         let _ = self.next_token()?;
@@ -441,29 +455,34 @@ impl<'a> AstBuilder<'a> {
 
         let end_pos = self.lexer.reader.current_cursor;
 
-        let bin_op = match &_token.clone().unwrap().kind {
-            TokenKind::Plus => Some(BinOp::Add),
-            TokenKind::Minus => Some(BinOp::Sub),
-            TokenKind::Times => Some(BinOp::Mul),
-            TokenKind::Divider => Some(BinOp::Div),
-            TokenKind::DoubleEqual => Some(BinOp::Equal),
-            TokenKind::NotEqual => Some(BinOp::NotEqual),
-            TokenKind::Greater => Some(BinOp::Greater),
-            TokenKind::GreaterEqual => Some(BinOp::GreaterEqual),
-            TokenKind::LesserEqual => Some(BinOp::LesserEqual),
-            TokenKind::Lesser => Some(BinOp::Lesser),
-            TokenKind::LShift => Some(BinOp::LShift),
-            TokenKind::RShift => Some(BinOp::RShift),
+        let bin_op_kind = match &_token.clone().unwrap().kind {
+            TokenKind::Plus => Some(super::BinOpKind::Add),
+            TokenKind::Minus => Some(super::BinOpKind::Sub),
+            TokenKind::Times => Some(super::BinOpKind::Mul),
+            TokenKind::Divider => Some(super::BinOpKind::Div),
+            TokenKind::DoubleEqual => Some(super::BinOpKind::Equal),
+            TokenKind::NotEqual => Some(super::BinOpKind::NotEqual),
+            TokenKind::Greater => Some(super::BinOpKind::Greater),
+            TokenKind::GreaterEqual => Some(super::BinOpKind::GreaterEqual),
+            TokenKind::LesserEqual => Some(super::BinOpKind::LesserEqual),
+            TokenKind::Lesser => Some(super::BinOpKind::Lesser),
+            TokenKind::LShift => Some(super::BinOpKind::LShift),
+            TokenKind::RShift => Some(super::BinOpKind::RShift),
             _ => None
         };
 
-        if bin_op.is_none() {
+        if bin_op_kind.is_none() {
             self.lexer.reader.goto(end_pos);
             return Ok(expr);
         }
 
-        let bin_op = bin_op.unwrap();
+        let bin_op_kind = bin_op_kind.unwrap();
         
+        let bin_op = BinOp {
+            token : _token.clone().unwrap(),
+            kind : bin_op_kind
+        };
+
         let _token = self.next_token()?;
 
         if _token.is_none() {
@@ -471,7 +490,11 @@ impl<'a> AstBuilder<'a> {
         }
 
         let expr2 = self.parse_expr()?;
-        Ok(self.apply_precedence(Expr::BinExpr(Box::new(expr), Box::new(expr2), bin_op)))
+        Ok(self.apply_precedence(Expr::BinExpr(super::BinExpr {
+            left: Box::new(expr),
+            right: Box::new(expr2),
+            op: bin_op
+        })))
     }
 }
 

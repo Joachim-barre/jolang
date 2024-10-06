@@ -182,7 +182,7 @@ pub enum PrimaryExpr<'a> {
     Ident(Ident<'a>),
     Litteral(i128),
     /// (Expr) (e. g. (5 + 5))
-    Group(Box<Expr<'a>>)
+    Group(GroupExpr<'a>)
 }
 
 #[derive(Debug, PartialEq, Clone)]

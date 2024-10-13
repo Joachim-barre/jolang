@@ -1,5 +1,5 @@
 // calulate the first n number of the fibonacci sequece where n is asked to the user
-var n = input();
+let n = input();
 if(n <= 0) {
     return 0;
 }else if(n == 1) {
@@ -7,14 +7,14 @@ if(n <= 0) {
     return 0;
 }
 
-var calulated = 0;
-var num1 = 0;
-var num2 = 1;
+let calulated = 0;
+let num1 = 0;
+let num2 = 1;
 
 print(0);
 
 while (calulated < n) {
-    var tmp = num1 + num2;
+    let tmp = num1 + num2;
     num2 = num1;
     num1 = tmp;
     print(num1);
@@ -26,19 +26,19 @@ while (calulated < n) {
     if the exit code isn't 0 these test failed
 */
 
-var precedence_test = 2+1*2;
+let precedence_test = 2+1*2;
 if(precedence_test != 4){
     return 1;
 }
 
 // test the pow builtin function
-var pow_test = pow(3,3);
+let pow_test = pow(3,3);
 if (pow_test != 27) {
     return 2;
 }
 
 // test some loop features
-var test_loop;
+let test_loop;
 loop {
     test_loop = test_loop + 1;
     if(test_loop == 2){
@@ -51,8 +51,15 @@ loop {
     }
 }
 // test signed addition
-var test_signed_add = -1 + -2 * -1;
+let test_signed_add = -1 + -2 * -1;
 if(test_signed_add != 1) {
     return 4;
+}
+
+// test integer size
+let test_int_size : i8 = 255;
+test_int_size = test_int_size + 1;
+if (test_int_size != -256) {
+    return 5;
 }
 return 0;

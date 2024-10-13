@@ -64,8 +64,10 @@ pub struct Return<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct VarDecl<'a> {
-    pub type_var_kw : Either<Ident<'a>, Token<'a>>,
+    pub let_kw : Token<'a>,
     pub name : Ident<'a>,
+    pub colon_kw : Token<'a>,
+    pub type_name : Ident<'a>,
     pub eq_token : Option<Token<'a>>,
     pub value : Option<Expr<'a>>,
     pub semicolon : Token<'a>

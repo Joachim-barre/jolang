@@ -66,7 +66,7 @@ pub struct Return<'a> {
 pub struct VarDecl<'a> {
     pub let_kw : Token<'a>,
     pub name : Ident<'a>,
-    pub colon_kw : Token<'a>,
+    pub colon_token : Token<'a>,
     pub type_name : Ident<'a>,
     pub eq_token : Option<Token<'a>>,
     pub value : Option<Expr<'a>>,

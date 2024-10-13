@@ -207,14 +207,16 @@ impl<'a> AstBuilder<'a> {
                     let ident = Ident::from(self.peek_token().as_ref().unwrap().clone()); 
                     let _type = if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Colon) {
                         let colon_token = self.peek_token().as_ref().unwrap().clone();
-                        if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Ident) {
+                        if self.next_token()?.as_ref().map_or(false, |x| x.kind != TokenKind::Ident) {
                             return Err(self.expected("identifier"))
-                        }                        
-                        Ok(Some((colon_token, self.peek_token().as_ref().unwrap().clone())))
+                        }                      
+                        let _type = self.peek_token().as_ref().unwrap().clone();
+                        self.next_token()?;
+                        Ok(Some((colon_token, _type)))
                     }else {
                         Ok(None)
                     }?;
-                    let val = if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                    let val = if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
                         let eq_token = self.peek_token().as_ref().unwrap().clone();
                         if self.next_token()?.is_none() {
                             return Err(self.expected("expression"))

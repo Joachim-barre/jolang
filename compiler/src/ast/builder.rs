@@ -249,23 +249,7 @@ impl<'a> AstBuilder<'a> {
                     }
                     Ok(Statement::Call(call))
                 }else {
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
-                        return Err(self.expected("\"=\""))
-                    }
-                    let eq_token = self.peek_token().as_ref().unwrap().clone();
-                    if self.next_token()?.is_none() {
-                        return Err(self.expected("expression"))
-                    }
-                    let expr = self.parse_expr()?;
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
-                        return Err(self.expected("\";\""))
-                    }
-                    return Ok(Statement::VarSet(super::VarSet {
-                        name: ident,
-                        eq_token,
-                        value: expr,
-                        semicolon: self.peek_token().as_ref().unwrap().clone() 
-                    }));
+                    Err(self.unexpected(first_token))
                 }
             },
             _ => Err(self.unexpected(first_token))

@@ -30,6 +30,7 @@ pub enum TokenKind {
     LParan,
     RParan,
     Semicolon,
+    Colon,
     Equal,
     DoubleEqual,
     NotEqual,
@@ -58,7 +59,7 @@ pub enum KeywordType {
     Return,
     Break,
     Continue,
-    Var
+    Let
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -180,6 +181,7 @@ impl<'a> Iterator for Lexer<'a> {
                 '(' => Some(TokenKind::LParan),
                 ')' => Some(TokenKind::RParan),
                 ';' => Some(TokenKind::Semicolon),
+                ':' => Some(TokenKind::Colon),
                 '+' => Some(TokenKind::Plus),
                 '*' => Some(TokenKind::Times),
                 '/' => Some(TokenKind::Divider),
@@ -218,7 +220,7 @@ impl<'a> Iterator for Lexer<'a> {
                 "return" => TokenKind::Keyword(KeywordType::Return),
                 "break" => TokenKind::Keyword(KeywordType::Break),
                 "continue" => TokenKind::Keyword(KeywordType::Continue),
-                "var" => TokenKind::Keyword(KeywordType::Var),
+                "let" => TokenKind::Keyword(KeywordType::Let),
                 _ => TokenKind::Ident
             };
             return Some(Ok(Token { kind, span } ))
@@ -248,7 +250,7 @@ mod tests {
     fn test_single_char() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("{}();+*/-,=><")
+            buffer : String::from("{}();:+*/-,=><")
         };
         let tokens = vec![
             TokenKind::LCurly, 
@@ -256,6 +258,7 @@ mod tests {
             TokenKind::LParan, 
             TokenKind::RParan, 
             TokenKind::Semicolon,
+            TokenKind::Colon,
             TokenKind::Plus, 
             TokenKind::Times, 
             TokenKind::Divider, 
@@ -285,7 +288,7 @@ mod tests {
             TokenKind::Keyword(KeywordType::Return),
             TokenKind::Keyword(KeywordType::Break),
             TokenKind::Keyword(KeywordType::Continue),
-            TokenKind::Keyword(KeywordType::Var)
+            TokenKind::Keyword(KeywordType::Let)
         ];
         let tokens2 : Vec<_> = Lexer::new(&buf)
             .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
@@ -362,10 +365,10 @@ mod tests {
     fn test_mixed_tokens() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("var _n = 0;// test commant\n _n = _n + 1; if (_n != 1) {return 0}\n /* a block comment\n// this is a comment in a comment and should do nothing\n*/ var test = 0; while (1) { test = input();\n print(test); } ")
+            buffer : String::from("let _n = 0;// test commant\n _n = _n + 1; if (_n != 1) {return 0}\n /* a block comment\n// this is a comment in a comment and should do nothing\n*/ let test : i64 = 0; while (1) { test = input();\n print(test); } ")
         };
         let tokens = vec![         
-            TokenKind::Keyword(KeywordType::Var),
+            TokenKind::Keyword(KeywordType::Let),
             TokenKind::Ident,
             TokenKind::Equal,
             TokenKind::Int,
@@ -386,7 +389,9 @@ mod tests {
             TokenKind::Keyword(KeywordType::Return),
             TokenKind::Int,
             TokenKind::RCurly,
-            TokenKind::Keyword(KeywordType::Var),
+            TokenKind::Keyword(KeywordType::Let),
+            TokenKind::Ident,
+            TokenKind::Colon,
             TokenKind::Ident,
             TokenKind::Equal,
             TokenKind::Int,

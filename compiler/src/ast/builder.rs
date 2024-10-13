@@ -21,7 +21,7 @@ impl<'a> AstBuilder<'a> {
     pub fn unexpected(&self, token : &Token) -> CompilerError {
         CompilerError::new(
             CompilerErrorKind::UnexpectedToken,
-            format!("Unexpected token: {}", token.kind.to_str()).as_str(),
+            format!("Unexpected token: {} (\"{}\")", token.kind.to_str(), token.span.data).as_str(),
             token.span.source.path.to_str().unwrap(),
             token.span.source.get_line(token.span.start.line).unwrap(),
             token.span.start.line as u32,

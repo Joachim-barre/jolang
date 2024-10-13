@@ -250,7 +250,7 @@ impl<'a> AstBuilder<'a> {
                     Ok(Statement::Call(call))
                 }else {
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
-                        return Err(self.expected("\"=\""))
+                        return Err(self.unexpected(first_token))
                     }
                     let eq_token = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {

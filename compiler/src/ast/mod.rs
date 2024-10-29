@@ -14,6 +14,7 @@ pub struct Program<'a> (Vec<Statement<'a>>);
 pub struct Block<'a> {
     pub lcurly : Token<'a>,
     pub body : Vec<Statement<'a>>,
+    pub ret : Option<Box<Expr<'a>>>,
     pub rcurly : Token<'a>
 }
 
@@ -70,7 +71,6 @@ pub struct ExprStmt<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Statement<'a> {
-    Block(Block<'a>),
     While(While<'a>),
     Loop(Loop<'a>),
     Return(Return<'a>),
@@ -82,6 +82,7 @@ pub enum Statement<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr<'a> {
+    BlockExpr(Block<'a>),
     IfExpr(If<'a>),
     AssignExpr(Assignment<'a>),
     BinExpr(BinExpr<'a>),

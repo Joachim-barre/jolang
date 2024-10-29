@@ -166,7 +166,8 @@ pub struct ParenExpr<'a> {
 pub enum PrimaryExpr<'a> {
     Call(Call<'a>),
     Ident(Ident<'a>),
-    Litteral(i128),
+    IntLit(i128),
+    VoidLit(),
     /// (Expr) (e. g. (5 + 5))
     Paren(ParenExpr<'a>)
 }

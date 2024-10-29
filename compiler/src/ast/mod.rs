@@ -18,17 +18,6 @@ pub struct Block<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct If<'a> {
-    pub if_kw : Token<'a>,
-    pub lparen : Token<'a>,
-    pub cond : Expr<'a>,
-    pub rparen : Token<'a>,
-    pub then : Box<Statement<'a>>,
-    pub else_kw : Option<Token<'a>>,
-    pub _else : Option<Box<Statement<'a>>>
-}
-
-#[derive(Debug, PartialEq, Clone)]
 pub struct While<'a> {
     pub while_kw : Token<'a>,
     pub lparen : Token<'a>,
@@ -74,32 +63,27 @@ pub struct VarDecl<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct VarSet<'a> {
-    pub name : Ident<'a>,
-    pub eq_token : Token<'a>,
-    pub value : Expr<'a>,
+pub struct ExprStmt<'a> {
+    pub expr : Box<Expr<'a>>,
     pub semicolon : Token<'a>
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Statement<'a> {
     Block(Block<'a>),
-    /// (condition, then, else)
-    If(If<'a>),
-    /// (condition, do)
     While(While<'a>),
     Loop(Loop<'a>),
     Return(Return<'a>),
     Break(Break<'a>),
     Continue(Continue<'a>),
-    // type, name , value
     VarDecl(VarDecl<'a>),
-    VarSet(VarSet<'a>),
-    Call(Call<'a>)
+    Expr(ExprStmt<'a>)
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr<'a> {
+    IfExpr(If<'a>),
+    AssignExpr(Assignment<'a>),
     BinExpr(BinExpr<'a>),
     UnaryExpr(UnaryExpr<'a>),
     PrimaryExpr(PrimaryExpr<'a>)
@@ -195,4 +179,23 @@ pub struct Call<'a> {
     // (colon, value)
     pub other_args : Vec<(Token<'a>, Expr<'a>)>,
     pub rparen : Token<'a>
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct If<'a> {
+    pub if_kw : Token<'a>,
+    pub lparen : Token<'a>,
+    pub cond : Box<Expr<'a>>,
+    pub rparen : Token<'a>,
+    pub then : Box<Statement<'a>>,
+    pub else_kw : Option<Token<'a>>,
+    pub _else : Option<Box<Statement<'a>>>
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct Assignment<'a> {
+    pub name : Ident<'a>,
+    pub eq_token : Token<'a>,
+    pub value : Box<Expr<'a>>,
+    pub semicolon : Token<'a>
 }

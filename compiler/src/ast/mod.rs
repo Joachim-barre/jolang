@@ -22,15 +22,15 @@ pub struct Block<'a> {
 pub struct While<'a> {
     pub while_kw : Token<'a>,
     pub lparen : Token<'a>,
-    pub cond : Expr<'a>,
+    pub cond : Box<Expr<'a>>,
     pub rparen : Token<'a>,
-    pub body : Box<Statement<'a>>,
+    pub body : Box<Expr<'a>>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Loop<'a> {
     pub loop_kw : Token<'a>,
-    pub body : Box<Statement<'a>>,
+    pub body : Box<Expr<'a>>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -71,8 +71,6 @@ pub struct ExprStmt<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Statement<'a> {
-    While(While<'a>),
-    Loop(Loop<'a>),
     Return(Return<'a>),
     Break(Break<'a>),
     Continue(Continue<'a>),
@@ -82,6 +80,8 @@ pub enum Statement<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expr<'a> {
+    WhileExpr(While<'a>),
+    LoopExpr(Loop<'a>),
     BlockExpr(Block<'a>),
     IfExpr(If<'a>),
     AssignExpr(Assignment<'a>),
@@ -189,9 +189,9 @@ pub struct If<'a> {
     pub lparen : Token<'a>,
     pub cond : Box<Expr<'a>>,
     pub rparen : Token<'a>,
-    pub then : Box<Statement<'a>>,
+    pub then : Box<Expr<'a>>,
     pub else_kw : Option<Token<'a>>,
-    pub _else : Option<Box<Statement<'a>>>
+    pub _else : Option<Box<Expr<'a>>>
 }
 
 #[derive(Debug, PartialEq, Clone)]

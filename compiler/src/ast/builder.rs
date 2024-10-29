@@ -398,7 +398,7 @@ impl<'a> AstBuilder<'a> {
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
-                    Ok(PrimaryExpr::Group(super::GroupExpr {
+                    Ok(PrimaryExpr::Paren(super::ParenExpr {
                         lparen,
                         expr : Box::new(sub_expr),
                         rparen : self.peek_token().as_ref().unwrap().clone()

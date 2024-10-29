@@ -172,7 +172,7 @@ pub enum UnaryOpKind {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct GroupExpr<'a> {
+pub struct ParenExpr<'a> {
     pub lparen : Token<'a>,
     pub expr : Box<Expr<'a>>,
     pub rparen : Token<'a>
@@ -184,7 +184,7 @@ pub enum PrimaryExpr<'a> {
     Ident(Ident<'a>),
     Litteral(i128),
     /// (Expr) (e. g. (5 + 5))
-    Group(GroupExpr<'a>)
+    Paren(ParenExpr<'a>)
 }
 
 #[derive(Debug, PartialEq, Clone)]

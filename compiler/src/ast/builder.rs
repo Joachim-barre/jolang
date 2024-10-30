@@ -395,14 +395,10 @@ impl<'a> AstBuilder<'a> {
                     return Err(self.expected("expression"))
                 }
                 let expr = Box::new(self.parse_expr()?);
-                if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
-                    return Err(self.expected("\";\""))
-                }
                 return Ok(Expr::AssignExpr(super::Assignment {
                     name: ident,
                     eq_token,
-                    value: expr,
-                    semicolon: self.peek_token().as_ref().unwrap().clone() 
+                    value: expr
                 }));
             },
             _ => self.parse_arithmetic_expr()

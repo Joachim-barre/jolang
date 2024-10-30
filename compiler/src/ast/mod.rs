@@ -198,8 +198,7 @@ pub struct If<'a> {
 pub struct Assignment<'a> {
     pub name : Ident<'a>,
     pub eq_token : Token<'a>,
-    pub value : Box<Expr<'a>>,
-    pub semicolon : Token<'a>
+    pub value : Box<Expr<'a>>
 }
 
 impl Expr<'_> {

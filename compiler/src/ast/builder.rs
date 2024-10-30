@@ -147,7 +147,22 @@ impl<'a> AstBuilder<'a> {
                         semicolon: self.peek_token().as_ref().unwrap().clone()
                     }))
                 },
-                _ => Err(self.unexpected(first_token))
+                _ => {
+                    let expr = Box::new(self.parse_expr()?);
+                    let semicolon = if expr.require_semicolon() {
+                        if self.peek_token().as_ref().map_or(false, |t| t.kind != TokenKind::Semicolon) {
+                            return Err(self.expected("\";\""));
+                        }else {
+                            Some(self.peek_token().as_ref().unwrap().clone())
+                        }
+                    }else {
+                        None
+                    };
+                    Ok(Statement::Expr(super::ExprStmt { 
+                        expr,
+                        semicolon 
+                    }))
+                }
             },
             TokenKind::Ident => {
                 let ident = first_token.clone();
@@ -178,7 +193,22 @@ impl<'a> AstBuilder<'a> {
                     }));
                 }
             },
-            _ => Err(self.unexpected(first_token))
+            _ => {
+                let expr = Box::new(self.parse_expr()?);
+                let semicolon = if expr.require_semicolon() {
+                    if self.peek_token().as_ref().map_or(false, |t| t.kind != TokenKind::Semicolon) {
+                        return Err(self.expected("\";\""));
+                    }else {
+                        Some(self.peek_token().as_ref().unwrap().clone())
+                    }
+                }else {
+                    None
+                };
+                Ok(Statement::Expr(super::ExprStmt { 
+                    expr,
+                    semicolon 
+                }))
+            }
         }
     }
 

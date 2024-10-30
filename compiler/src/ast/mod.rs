@@ -66,7 +66,7 @@ pub struct VarDecl<'a> {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ExprStmt<'a> {
     pub expr : Box<Expr<'a>>,
-    pub semicolon : Token<'a>
+    pub semicolon : Option<Token<'a>>
 }
 
 #[derive(Debug, PartialEq, Clone)]

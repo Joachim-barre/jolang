@@ -298,6 +298,7 @@ impl<'a> AstBuilder<'a> {
                         }
                     }else {
                         self.lexer.reader.goto(current_cursor);
+                        self.next_token()?;
                         statements.push(self.parse_statment()?);
                     }
                 }

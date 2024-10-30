@@ -387,7 +387,7 @@ impl<'a> AstBuilder<'a> {
             },
             TokenKind::Ident => {
                 let ident = token.clone();
-                if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
                     return self.parse_arithmetic_expr()
                 }
                 let eq_token = self.peek_token().as_ref().unwrap().clone();

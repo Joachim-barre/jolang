@@ -324,7 +324,7 @@ impl<'a> AstBuilder<'a> {
                     }
                     let rparen = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {
-                        return Err(self.expected("statement"))
+                        return Err(self.expected("expression"))
                     }
                     let then = Box::new(self.parse_expr()?);
                     let mut else_kw = None;
@@ -333,7 +333,7 @@ impl<'a> AstBuilder<'a> {
                     if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
                         else_kw = self.peek_token().clone();
                         if self.next_token()?.is_none() {
-                            return Err(self.expected("statement"))
+                            return Err(self.expected("expression"))
                         }
                         _else = Some(Box::new(self.parse_expr()?));
                     }else {
@@ -363,7 +363,7 @@ impl<'a> AstBuilder<'a> {
                     }
                     let rparen = self.peek_token().as_ref().unwrap().clone();
                     if self.next_token()?.is_none() {
-                        return Err(self.expected("statement"))
+                        return Err(self.expected("expression"))
                     }
                     let body = Box::new(self.parse_expr()?);
                     return Ok(Expr::WhileExpr(super::While {
@@ -376,7 +376,7 @@ impl<'a> AstBuilder<'a> {
                 },
                 KeywordType::Loop => {
                     if self.next_token()?.is_none() {
-                        return Err(self.expected("statement"))
+                        return Err(self.expected("expression"))
                     }
                     return Ok(Expr::LoopExpr(super::Loop {
                         loop_kw : token.clone(),

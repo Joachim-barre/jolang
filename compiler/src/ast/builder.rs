@@ -273,7 +273,7 @@ impl<'a> AstBuilder<'a> {
                     let current_cursor  : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
                     if let Ok(expr) = self.parse_expr() {
                         let cursor2 : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
-                        if self.next_token()?.as_ref().map_or(false, |t| t.kind == TokenKind::RCurly){
+                        if self.peek_token().as_ref().map_or(false, |t| t.kind == TokenKind::RCurly){
                             return Ok(Expr::BlockExpr(super::Block { 
                                 lcurly,
                                 body: statements,

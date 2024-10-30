@@ -79,7 +79,7 @@ impl fmt::Display for CompilerError {
             self.col_number,
             self.line_number,
             self.line,
-            " ".repeat((self.col_number - 2) as usize) + "^~~~"
+            " ".repeat((self.col_number - 1) as usize) + "^~~~"
         );
 
         if let Some(hint) = &self.hint {

@@ -1,5 +1,5 @@
 use either::Either;
-use crate::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, Token, TokenKind}, source_buffer::SourceBuffer};
+use crate::{compiler_error::{CompilerError, CompilerErrorKind},lexer::{KeywordType, Lexer, Token, TokenKind}, source_buffer::SourceBuffer, source_reader::SourceCursor};
 use super::{Expr, Ident, PrimaryExpr, Program, Statement, UnaryOp, Call, BinOp};
 use std::{cell::RefCell, rc::Rc, str::FromStr};
 
@@ -74,25 +74,6 @@ impl<'a> AstBuilder<'a> {
         let first_token = first_token.as_ref().unwrap();
         let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         match &first_token.kind {
-            TokenKind::LCurly  => {
-                let mut statements : Vec<Statement> = Vec::new();
-                let lcurly = first_token.clone();
-                loop {
-                    let token = self.next_token()?;
-                    if !token.is_some() {
-                        return Err(self.expected("\"}\""))
-                    }
-                    if token.as_ref().map(|x| x.kind == TokenKind::RCurly).unwrap() {
-                        break;
-                    }
-                    statements.push(self.parse_statment()?)
-                }
-                Ok(Statement::Block(super::Block { 
-                    lcurly,
-                    body: statements,
-                    rcurly: self.peek_token().as_ref().unwrap().clone()
-                }))
-            },
             TokenKind::Keyword(k) => match k {
                 KeywordType::If => {
                     if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
@@ -350,6 +331,62 @@ impl<'a> AstBuilder<'a> {
 
     pub fn parse_expr(&mut self) -> Result<Expr<'a>, CompilerError> {
         let token = self.peek_token().as_ref().unwrap();
+        match token.kind {
+            TokenKind::LCurly  => {
+                let mut statements : Vec<Statement> = Vec::new();
+                let lcurly = token.clone();
+                loop {
+                    let token = self.next_token()?;
+                    if !token.is_some() {
+                        return Err(self.expected("\"}\""))
+                    }
+                    if token.as_ref().map(|x| x.kind == TokenKind::RCurly).unwrap() {
+                        break;
+                    }
+                    let current_cursor  : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
+                    if let Ok(expr) = self.parse_expr() {
+                        let cursor2 : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
+                        if self.next_token()?.as_ref().map_or(false, |t| t.kind == TokenKind::RCurly){
+                            return Ok(Expr::BlockExpr(super::Block { 
+                                lcurly,
+                                body: statements,
+                                ret : Some(Box::new(expr)),
+                                rcurly: self.peek_token().as_ref().unwrap().clone()
+                            }))
+                        }else {
+                            let semicolon = if expr.require_semicolon(){
+                                if self.peek_token().as_ref().map_or(false, |t| t.kind == TokenKind::Semicolon) {
+                                    return Err(self.expected(";"));
+                                }
+                                Some(self.peek_token().as_ref().unwrap().clone())
+                            }else {
+                                self.lexer.reader.goto(cursor2);
+                                self.next_token()?;
+                                None
+                            };
+                            statements.push(Statement::Expr(super::ExprStmt { 
+                                expr : Box::new(expr), 
+                                semicolon
+                            }))
+                        }
+                    }else {
+                        self.lexer.reader.goto(current_cursor);
+                        statements.push(self.parse_statment()?);
+                    }
+                }
+                Ok(Expr::BlockExpr(super::Block { 
+                    lcurly,
+                    body: statements,
+                    ret : None,
+                    rcurly: self.peek_token().as_ref().unwrap().clone()
+                }))
+            },
+            _ => self.parse_arithmetic_expr()
+        }
+    }
+
+    pub fn parse_arithmetic_expr(&mut self) -> Result<Expr<'a>, CompilerError> {
+        let token = self.peek_token().as_ref().unwrap();
         // parse unary op
         let unary_op = match &token.kind {
             TokenKind::Plus => Some(UnaryOp{
@@ -376,7 +413,7 @@ impl<'a> AstBuilder<'a> {
         let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         // parse primary expression
         let primary = match &token.kind {
-            TokenKind::Int => Ok(PrimaryExpr::Litteral(
+            TokenKind::Int => Ok(PrimaryExpr::IntLit(
                 match FromStr::from_str(token.span.data) {
                     Ok(i) => Ok(i),
                     Err(_) => {

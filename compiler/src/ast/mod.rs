@@ -201,3 +201,19 @@ pub struct Assignment<'a> {
     pub value : Box<Expr<'a>>,
     pub semicolon : Token<'a>
 }
+
+impl Expr<'_> {
+    pub fn require_semicolon(&self) -> bool{
+        match self {
+            Expr::WhileExpr(expr) => expr.body.require_semicolon(),
+            Self::LoopExpr(expr) => expr.body.require_semicolon(),
+            Self::IfExpr(expr) => expr._else.as_ref().map_or_else(
+                || expr.then.require_semicolon(),
+                |e| e.require_semicolon()
+            ),
+            Self::BlockExpr(_) => false,
+            _ => true
+        }
+    }
+}
+

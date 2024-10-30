@@ -282,8 +282,8 @@ impl<'a> AstBuilder<'a> {
                             }))
                         }else {
                             let semicolon = if expr.require_semicolon(){
-                                if self.peek_token().as_ref().map_or(false, |t| t.kind == TokenKind::Semicolon) {
-                                    return Err(self.expected(";"));
+                                if self.peek_token().as_ref().map_or(false, |t| t.kind != TokenKind::Semicolon) {
+                                    return Err(self.expected("\";\""));
                                 }
                                 Some(self.peek_token().as_ref().unwrap().clone())
                             }else {

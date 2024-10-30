@@ -72,7 +72,6 @@ impl<'a> AstBuilder<'a> {
     pub fn parse_statment(&mut self) -> Result<Statement<'a>, CompilerError>{
         let first_token = self.peek_token().clone();
         let first_token = first_token.as_ref().unwrap();
-        let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         match &first_token.kind {
             TokenKind::Keyword(k) => match k {
                 KeywordType::Return => {
@@ -388,7 +387,7 @@ impl<'a> AstBuilder<'a> {
             TokenKind::Ident => {
                 let ident = token.clone();
                 if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
-                    return Err(self.unexpected(&token))
+                    return self.parse_arithmetic_expr()
                 }
                 let eq_token = self.peek_token().as_ref().unwrap().clone();
                 if self.next_token()?.is_none() {

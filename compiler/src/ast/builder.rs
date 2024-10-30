@@ -75,79 +75,6 @@ impl<'a> AstBuilder<'a> {
         let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         match &first_token.kind {
             TokenKind::Keyword(k) => match k {
-                KeywordType::If => {
-                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
-                        return Err(self.expected("\"(\""))
-                    }
-                    let lparen = self.peek_token().as_ref().unwrap().clone();
-                    if self.next_token()?.is_none() {
-                        return Err(self.expected("expr"))
-                    }
-                    let cond = self.parse_expr()?.clone();
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
-                        return Err(self.expected("\")\""))
-                    }
-                    let rparen = self.peek_token().as_ref().unwrap().clone();
-                    if self.next_token()?.is_none() {
-                        return Err(self.expected("statement"))
-                    }
-                    let then = Box::new(self.parse_statment()?);
-                    let mut else_kw = None;
-                    let mut _else = None;
-                    let cursor = self.lexer.reader.current_cursor.clone();
-                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
-                        else_kw = self.peek_token().clone();
-                        if self.next_token()?.is_none() {
-                            return Err(self.expected("statement"))
-                        }
-                        _else = Some(Box::new(self.parse_statment()?));
-                    }else {
-                        self.lexer.reader.goto(cursor);
-                    }
-                    Ok(Statement::If(super::If {
-                        if_kw: first_token.clone(),
-                        lparen,
-                        cond,
-                        rparen,
-                        then,
-                        else_kw,
-                        _else
-                    }))
-                },
-                KeywordType::While => {
-                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
-                        return Err(self.expected("\"(\""))
-                    }
-                    let lparen = self.peek_token().as_ref().unwrap().clone();
-                    if self.next_token()?.is_none() {
-                        return Err(self.expected("expr"))
-                    }
-                    let cond = self.parse_expr()?;
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
-                        return Err(self.expected("\")\""))
-                    }
-                    let rparen = self.peek_token().as_ref().unwrap().clone();
-                    if self.next_token()?.is_none() {
-                        return Err(self.expected("statement"))
-                    }
-                    let body = Box::new(self.parse_statment()?);
-                    return Ok(Statement::While(super::While {
-                        while_kw: first_token.clone(),
-                        lparen,
-                        cond,
-                        rparen,
-                        body
-                    }))
-                },
-                KeywordType::Loop => {
-                    if self.next_token()?.is_none() {
-                        return Err(self.expected("statement"))
-                    }
-                    return Ok(Statement::Loop(super::Loop {
-                        loop_kw : first_token.clone(),
-                        body : Box::new(self.parse_statment()?)
-                    }));
-                },
                 KeywordType::Return => {
                     if self.next_token()?.is_none() {
                         return Err(self.expected("expr"))
@@ -330,8 +257,8 @@ impl<'a> AstBuilder<'a> {
     }
 
     pub fn parse_expr(&mut self) -> Result<Expr<'a>, CompilerError> {
-        let token = self.peek_token().as_ref().unwrap();
-        match token.kind {
+        let token = self.peek_token().as_ref().unwrap().clone();
+        match &token.kind {
             TokenKind::LCurly  => {
                 let mut statements : Vec<Statement> = Vec::new();
                 let lcurly = token.clone();
@@ -380,6 +307,82 @@ impl<'a> AstBuilder<'a> {
                     ret : None,
                     rcurly: self.peek_token().as_ref().unwrap().clone()
                 }))
+            },
+            TokenKind::Keyword(kw) => match kw {
+                KeywordType::If => {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                        return Err(self.expected("\"(\""))
+                    }
+                    let lparen = self.peek_token().as_ref().unwrap().clone();
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("expr"))
+                    }
+                    let cond = Box::new(self.parse_expr()?.clone());
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                        return Err(self.expected("\")\""))
+                    }
+                    let rparen = self.peek_token().as_ref().unwrap().clone();
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("statement"))
+                    }
+                    let then = Box::new(self.parse_expr()?);
+                    let mut else_kw = None;
+                    let mut _else = None;
+                    let cursor = self.lexer.reader.current_cursor.clone();
+                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
+                        else_kw = self.peek_token().clone();
+                        if self.next_token()?.is_none() {
+                            return Err(self.expected("statement"))
+                        }
+                        _else = Some(Box::new(self.parse_expr()?));
+                    }else {
+                        self.lexer.reader.goto(cursor);
+                    }
+                    Ok(Expr::IfExpr(super::If {
+                        if_kw: token.clone(),
+                        lparen,
+                        cond,
+                        rparen,
+                        then,
+                        else_kw,
+                        _else
+                    }))
+                },
+                KeywordType::While => {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
+                        return Err(self.expected("\"(\""))
+                    }
+                    let lparen = self.peek_token().as_ref().unwrap().clone();
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("expr"))
+                    }
+                    let cond = Box::new(self.parse_expr()?);
+                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                        return Err(self.expected("\")\""))
+                    }
+                    let rparen = self.peek_token().as_ref().unwrap().clone();
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("statement"))
+                    }
+                    let body = Box::new(self.parse_expr()?);
+                    return Ok(Expr::WhileExpr(super::While {
+                        while_kw: token.clone(),
+                        lparen,
+                        cond,
+                        rparen,
+                        body
+                    }))
+                },
+                KeywordType::Loop => {
+                    if self.next_token()?.is_none() {
+                        return Err(self.expected("statement"))
+                    }
+                    return Ok(Expr::LoopExpr(super::Loop {
+                        loop_kw : token.clone(),
+                        body : Box::new(self.parse_expr()?)
+                    }));
+                },
+                _ => self.parse_arithmetic_expr()
             },
             _ => self.parse_arithmetic_expr()
         }

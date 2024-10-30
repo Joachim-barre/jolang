@@ -387,7 +387,10 @@ impl<'a> AstBuilder<'a> {
             },
             TokenKind::Ident => {
                 let ident = token.clone();
+                let current_cursor  : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
                 if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                    self.lexer.reader.goto(current_cursor);
+                    self.next_token()?;
                     return self.parse_arithmetic_expr()
                 }
                 let eq_token = self.peek_token().as_ref().unwrap().clone();

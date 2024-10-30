@@ -164,35 +164,6 @@ impl<'a> AstBuilder<'a> {
                     }))
                 }
             },
-            TokenKind::Ident => {
-                let ident = first_token.clone();
-                if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
-                    self.lexer.reader.goto(start_cursor);
-                    let call = self.parse_call()?;
-                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
-                        return Err(self.expected("\";\""))
-                    }
-                    Ok(Statement::Call(call))
-                }else {
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
-                        return Err(self.unexpected(first_token))
-                    }
-                    let eq_token = self.peek_token().as_ref().unwrap().clone();
-                    if self.next_token()?.is_none() {
-                        return Err(self.expected("expression"))
-                    }
-                    let expr = self.parse_expr()?;
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
-                        return Err(self.expected("\";\""))
-                    }
-                    return Ok(Statement::VarSet(super::VarSet {
-                        name: ident,
-                        eq_token,
-                        value: expr,
-                        semicolon: self.peek_token().as_ref().unwrap().clone() 
-                    }));
-                }
-            },
             _ => {
                 let expr = Box::new(self.parse_expr()?);
                 let semicolon = if expr.require_semicolon() {
@@ -413,6 +384,26 @@ impl<'a> AstBuilder<'a> {
                     }));
                 },
                 _ => self.parse_arithmetic_expr()
+            },
+            TokenKind::Ident => {
+                let ident = token.clone();
+                if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Equal) {
+                    return Err(self.unexpected(&token))
+                }
+                let eq_token = self.peek_token().as_ref().unwrap().clone();
+                if self.next_token()?.is_none() {
+                    return Err(self.expected("expression"))
+                }
+                let expr = Box::new(self.parse_expr()?);
+                if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                    return Err(self.expected("\";\""))
+                }
+                return Ok(Expr::AssignExpr(super::Assignment {
+                    name: ident,
+                    eq_token,
+                    value: expr,
+                    semicolon: self.peek_token().as_ref().unwrap().clone() 
+                }));
             },
             _ => self.parse_arithmetic_expr()
         }

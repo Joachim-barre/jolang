@@ -1,9 +1,11 @@
 mod builder;
+use std::str::FromStr;
+
 // mod generators;
 pub use builder::AstBuilder;
 use either::Either;
-
-use crate::lexer::Token;
+use anyhow::Result;
+use crate::{compiler_error::{CompilerError, CompilerErrorKind}, lexer::Token};
 
 pub type Ident<'a> = Token<'a>;
 
@@ -148,7 +150,7 @@ pub struct ParenExpr<'a> {
 pub enum PrimaryExpr<'a> {
     Call(Call<'a>),
     Ident(Ident<'a>),
-    IntLit(i128),
+    IntLit(IntLit<'a>),
     VoidLit(),
     /// (Expr) (e. g. (5 + 5))
     Paren(ParenExpr<'a>)
@@ -180,6 +182,11 @@ pub struct Assignment<'a> {
     pub name : Ident<'a>,
     pub eq_token : Token<'a>,
     pub value : Box<Expr<'a>>
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct IntLit<'a> {
+   pub digits : Token<'a> 
 }
 
 impl Expr<'_> {
@@ -216,3 +223,20 @@ impl BinOpKind {
     }
 }
 
+impl IntLit<'_> {
+    pub fn parse(&self) -> Result<i128> {
+        match FromStr::from_str(self.digits.span.data) {
+            Ok(i) => Ok(i),
+            Err(_) => {
+                return Err(CompilerError::new(
+                    CompilerErrorKind::BadToken,
+                    "cannot parse integer litteral",
+                    self.digits.span.source.path.to_str().unwrap(),
+                    self.digits.span.source.get_line(self.digits.span.start.line).unwrap(),
+                    self.digits.span.start.line as u32,
+                    self.digits.span.start.collumn as u32,
+                    None).into())
+            }
+        }
+    }
+}

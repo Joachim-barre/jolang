@@ -437,21 +437,9 @@ impl<'a> AstBuilder<'a> {
         let start_cursor = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
         // parse primary expression
         let primary = match &token.kind {
-            TokenKind::Int => Ok(PrimaryExpr::IntLit(
-                match FromStr::from_str(token.span.data) {
-                    Ok(i) => Ok(i),
-                    Err(_) => {
-                        return Err(CompilerError::new(
-                            CompilerErrorKind::BadToken,
-                            "cannot parse integer litteral",
-                            token.span.source.path.to_str().unwrap(),
-                            token.span.source.get_line(token.span.start.line).unwrap(),
-                            token.span.start.line as u32,
-                            token.span.start.collumn as u32,
-                            None))
-                    }
-                }?
-            )),
+            TokenKind::Int => Ok(PrimaryExpr::IntLit(super::IntLit { 
+                digits: token.clone()
+            })),
             TokenKind::LParan => {
                     let lparen = token.clone();
                     self.next_token()?;

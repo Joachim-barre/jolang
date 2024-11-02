@@ -141,9 +141,25 @@ impl<'a> Iterator for Lexer<'a> {
         // test for integer litteral
         if self.reader.peek_char().unwrap().is_ascii_digit() {
             let start = self.reader.current_cursor;
+            let first_char = self.reader.peek_char();
             self.reader.next_char();
             let mut size = 1;
-            while self.reader.peek_char().is_some() && (self.reader.peek_char().unwrap().is_ascii_digit()) {
+            let mut hex = false;
+            let mut bin = false;
+            if first_char == Some('0') && (self.reader.peek_char() == Some('x') || self.reader.peek_char() == Some('b')) {
+                match self.reader.peek_char().unwrap() {
+                    'x' => hex=true,
+                    'b' => bin=true,
+                    _ => unreachable!()
+                }
+                if self.reader.next_char().map_or(false, |c| c.is_ascii_digit() || (c.is_ascii_hexdigit() && hex) && ((c== '0' || c=='1')||!bin)) {
+                    size += 1;
+                }else {
+                    self.reader.goto(start);
+                    self.reader.next_char();
+                }
+            }
+            while self.reader.peek_char().map_or(false, |c| c.is_ascii_digit() || (c.is_ascii_hexdigit() && hex) && ((c== '0' || c=='1')||!bin)) {
                 self.reader.next_char();
                 size += 1;
             }
@@ -357,6 +373,23 @@ mod tests {
         let tokens2 : Vec<_> = Lexer::new(&buf)
             .map(|x| x.ok())
             .map(|x| (x.is_none(), x.map_or(TokenKind::Int, |x| x.kind)))
+            .collect();
+        assert_eq!(tokens2, tokens);
+    }
+
+    #[test]
+    fn test_integer_literral() {
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("1234 0xe0a8 0b11010100")
+        };
+        let tokens = vec![
+            TokenKind::Int,
+            TokenKind::Int,
+            TokenKind::Int
+        ];
+        let tokens2 : Vec<_> = Lexer::new(&buf)
+            .map(|x| { assert!(x.is_ok()); x.ok().map(|x| x.kind).unwrap()})
             .collect();
         assert_eq!(tokens2, tokens);
     }

@@ -163,6 +163,11 @@ impl<'a> AstBuilder<'a> {
                     }))
                 }
             },
+            TokenKind::Semicolon => {
+                return Ok(Statement::Noop(super::Noop {
+                    semicolon : first_token.clone()
+                }))
+            },
             _ => {
                 let expr = Box::new(self.parse_expr()?);
                 let semicolon = if expr.require_semicolon() {

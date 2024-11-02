@@ -72,10 +72,16 @@ pub struct ExprStmt<'a> {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+pub struct Noop<'a> {
+    pub semicolon : Token<'a>
+}
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum Statement<'a> {
     Return(Return<'a>),
     Break(Break<'a>),
     Continue(Continue<'a>),
+    Noop(Noop<'a>),
     VarDecl(VarDecl<'a>),
     Expr(ExprStmt<'a>)
 }

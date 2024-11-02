@@ -726,6 +726,7 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+    
     #[test]
     fn test_return_break_continue() {
         let buf = SourceBuffer {
@@ -750,7 +751,22 @@ mod tests {
                                     source : &buf
                                 }
                             },
-                            value: Expr::PrimaryExpr(PrimaryExpr::Litteral(0)),
+                            value: Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit { 
+                                token: Token { 
+                                    kind: TokenKind::Int,
+                                    span: SourceSpan {
+                                        start : SourceCursor {
+                                            data_ref : "",
+                                            line : 1,
+                                            collumn : 8
+                                        },
+                                        size : 1,
+                                        data : "0",
+                                        source : &buf
+                                    }
+                                },
+                                value: 0
+                            })),
                             semicolon: Token { 
                                 kind: TokenKind::Semicolon,
                                 span: SourceSpan {

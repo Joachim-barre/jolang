@@ -12,6 +12,7 @@ impl<'a> PartialEq for SourceSpan<'a> {
     fn eq(&self, other: &Self) -> bool {
         return self.start == other.start
             && self.size == other.size
+            && self.data == other.data
             && self.source.path == other.source.path;
     }
 }

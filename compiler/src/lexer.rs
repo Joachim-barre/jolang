@@ -278,7 +278,7 @@ mod tests {
     fn test_keywords() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("if else while loop return break continue var ")
+            buffer : String::from("if else while loop return break continue let")
         };
         let keyword = vec![
             TokenKind::Keyword(KeywordType::If),

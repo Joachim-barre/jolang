@@ -279,12 +279,13 @@ impl<'a> AstBuilder<'a> {
                     if let Ok(expr) = self.parse_expr() {
                         let cursor2 : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
                         if self.peek_token().as_ref().map_or(false, |t| t.kind == TokenKind::RCurly){
+                            let rcurly = self.peek_token().as_ref().unwrap().clone();
                             self.next_token()?;
                             return Ok(Expr::BlockExpr(super::Block { 
                                 lcurly,
                                 body: statements,
                                 ret : Some(Box::new(expr)),
-                                rcurly: self.peek_token().as_ref().unwrap().clone()
+                                rcurly 
                             }))
                         }else {
                             let semicolon = if expr.require_semicolon(){
@@ -308,11 +309,13 @@ impl<'a> AstBuilder<'a> {
                         statements.push(self.parse_statment()?);
                     }
                 }
+                let rcurly = self.peek_token().as_ref().unwrap().clone();
+                self.next_token()?;
                 Ok(Expr::BlockExpr(super::Block { 
                     lcurly,
                     body: statements,
                     ret : None,
-                    rcurly: self.peek_token().as_ref().unwrap().clone()
+                    rcurly
                 }))
             },
             TokenKind::Keyword(kw) => match kw {
@@ -336,7 +339,7 @@ impl<'a> AstBuilder<'a> {
                     let mut else_kw = None;
                     let mut _else = None;
                     let cursor = self.lexer.reader.current_cursor.clone();
-                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
+                    if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
                         else_kw = self.peek_token().clone();
                         if self.next_token()?.is_none() {
                             return Err(self.expected("expression"))

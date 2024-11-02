@@ -186,7 +186,8 @@ pub struct Assignment<'a> {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct IntLit<'a> {
-   pub digits : Token<'a> 
+    pub token : Token<'a>,
+    pub value : i128
 }
 
 impl Expr<'_> {
@@ -223,20 +224,3 @@ impl BinOpKind {
     }
 }
 
-impl IntLit<'_> {
-    pub fn parse(&self) -> Result<i128> {
-        match FromStr::from_str(self.digits.span.data) {
-            Ok(i) => Ok(i),
-            Err(_) => {
-                return Err(CompilerError::new(
-                    CompilerErrorKind::BadToken,
-                    "cannot parse integer litteral",
-                    self.digits.span.source.path.to_str().unwrap(),
-                    self.digits.span.source.get_line(self.digits.span.start.line).unwrap(),
-                    self.digits.span.start.line as u32,
-                    self.digits.span.start.collumn as u32,
-                    None).into())
-            }
-        }
-    }
-}

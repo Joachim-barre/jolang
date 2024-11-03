@@ -851,227 +851,266 @@ mod tests {
     fn test_if_else() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("if (1) {} if (0) { return 1; } else return 0;")
+            buffer : String::from("if (1) {}")
         };
         match AstBuilder::from(Lexer::new(&buf)).parse_program() {
             Ok(p) => {
                 assert_eq!(p,
                     Program(vec![
-                        Statement::If(If {
-                            if_kw: Token { 
-                                kind: TokenKind::Keyword(KeywordType::If),
-                                span: SourceSpan {
-                                    start : SourceCursor {
-                                        data_ref : "",
-                                        line : 1,
-                                        collumn : 1,
-                                    },
-                                    size : 2,
-                                    data : "if",
-                                    source : &buf
-                                }
-                            },
-                            lparen: Token { 
-                                kind: TokenKind::LParan,
-                                span: SourceSpan {
-                                    start : SourceCursor {
-                                        data_ref : "",
-                                        line : 1,
-                                        collumn : 4,
-                                    },
-                                    size : 1,
-                                    data : "(",
-                                    source : &buf
-                                }
-                            },
-                            cond: Expr::PrimaryExpr(PrimaryExpr::Litteral(1)),
-                            rparen: Token { 
-                                kind: TokenKind::RParan,
-                                span: SourceSpan {
-                                    start : SourceCursor {
-                                        data_ref : "",
-                                        line : 1,
-                                        collumn : 6,
-                                    },
-                                    size : 1,
-                                    data : ")",
-                                    source : &buf
-                                }
-                            },
-                            then: Box::new(Statement::Block(Block {
-                                lcurly: Token { 
-                                    kind: TokenKind::LCurly,
-                                    span: SourceSpan {
-                                        start : SourceCursor {
-                                            data_ref : "",
-                                            line : 1,
-                                            collumn : 8,
+                        Statement::Expr(ExprStmt { 
+                            expr: Box::new(Expr::IfExpr(If {
+                                if_kw: Token {
+                                    kind: TokenKind::Keyword(KeywordType::If),
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 1
                                         },
-                                        size : 1,
-                                        data : "{",
-                                        source : &buf
+                                        size: 2,
+                                        data: "if",
+                                        source: &buf
                                     }
                                 },
-                                body : Vec::new(),
-                                rcurly: Token { 
-                                    kind: TokenKind::RCurly,
-                                    span: SourceSpan {
-                                        start : SourceCursor {
-                                            data_ref : "",
-                                            line : 1,
-                                            collumn : 9,
+                                lparen: Token {
+                                    kind: TokenKind::LParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 4
                                         },
-                                        size : 1,
-                                        data : "}",
-                                        source : &buf
-                                    }
-                                }
-                            })),
-                            else_kw: None,
-                            _else: None 
-                        }),
-                        Statement::If(If {
-                            if_kw: Token { 
-                                kind: TokenKind::Keyword(KeywordType::If),
-                                span: SourceSpan {
-                                    start : SourceCursor {
-                                        data_ref : "",
-                                        line : 1,
-                                        collumn : 11,
-                                    },
-                                    size : 2,
-                                    data : "if",
-                                    source : &buf
-                                }
-                            },
-                            lparen: Token { 
-                                kind: TokenKind::LParan,
-                                span: SourceSpan {
-                                    start : SourceCursor {
-                                        data_ref : "",
-                                        line : 1,
-                                        collumn : 14,
-                                    },
-                                    size : 1,
-                                    data : "(",
-                                    source : &buf
-                                }
-                            },
-                            cond: Expr::PrimaryExpr(PrimaryExpr::Litteral(0)),
-                            rparen: Token { 
-                                kind: TokenKind::RParan,
-                                span: SourceSpan {
-                                    start : SourceCursor {
-                                        data_ref : "",
-                                        line : 1,
-                                        collumn : 16,
-                                    },
-                                    size : 1,
-                                    data : ")",
-                                    source : &buf
-                                }
-                            },
-                            then: Box::new(Statement::Block(Block {
-                                lcurly: Token { 
-                                    kind: TokenKind::LCurly,
-                                    span: SourceSpan {
-                                        start : SourceCursor {
-                                            data_ref : "",
-                                            line : 1,
-                                            collumn : 18,
-                                        },
-                                        size : 1,
-                                        data : "{",
-                                        source : &buf
+                                        size: 1,
+                                        data: "(",
+                                        source: &buf
                                     }
                                 },
-                                body : vec![
-                                    Statement::Return(Return {
-                                        return_kw: Token { 
-                                            kind: TokenKind::Keyword(KeywordType::Return),
-                                            span: SourceSpan {
-                                                start : SourceCursor {
-                                                    data_ref : "",
-                                                    line : 1,
-                                                    collumn : 20,
-                                                },
-                                                size : 6,
-                                                data : "return",
-                                                source : &buf
-                                            }
-                                        },
-                                        value: Expr::PrimaryExpr(PrimaryExpr::Litteral(1)),
-                                        semicolon: Token { 
-                                            kind: TokenKind::Semicolon,
-                                            span: SourceSpan {
-                                                start : SourceCursor {
-                                                    data_ref : "",
-                                                    line : 1,
-                                                    collumn : 28,
-                                                },
-                                                size : 1,
-                                                data : ";",
-                                                source : &buf
-                                            }
+                                cond: Box::new(Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit {
+                                    token: Token {
+                                        kind: TokenKind::Int,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 5
+                                            },
+                                            size: 1,
+                                            data: "1",
+                                            source: &buf
                                         }
-                                    })
-                                ],
-                                rcurly: Token { 
-                                    kind: TokenKind::RCurly,
-                                    span: SourceSpan {
-                                        start : SourceCursor {
-                                            data_ref : "",
-                                            line : 1,
-                                            collumn : 30,
-                                        },
-                                        size : 1,
-                                        data : "}",
-                                        source : &buf
-                                    }
-                                }
-                            })),
-                            else_kw: Some(Token { 
-                                kind: TokenKind::Keyword(KeywordType::Else),
-                                span: SourceSpan {
-                                    start : SourceCursor {
-                                        data_ref : "",
-                                        line : 1,
-                                        collumn : 32,
                                     },
-                                    size : 4,
-                                    data : "else",
-                                    source : &buf
-                                }
-                            }),
-                            _else: Some(Box::new(Statement::Return(Return {
-                               return_kw: Token { 
-                                    kind: TokenKind::Keyword(KeywordType::Return),
-                                    span: SourceSpan {
-                                        start : SourceCursor {
-                                            data_ref : "",
-                                            line : 1,
-                                            collumn : 37,
+                                    value: 1
+                                }))),
+                                rparen: Token {
+                                    kind: TokenKind::RParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 6
                                         },
-                                        size : 6,
-                                        data : "return",
-                                        source : &buf
+                                        size: 1,
+                                        data: ")",
+                                        source: &buf
+                                    }
+                                }, 
+                                then: Box::new(Expr::BlockExpr(Block { 
+                                    lcurly: Token {
+                                        kind: TokenKind::LCurly,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 8
+                                            },
+                                            size: 1,
+                                            data: "{",
+                                            source: &buf
+                                        }
+                                    }, 
+                                    body: vec![],
+                                    ret: None,
+                                    rcurly: Token {
+                                        kind: TokenKind::RCurly,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 9
+                                            },
+                                            size: 1,
+                                            data: "}",
+                                            source: &buf
+                                        }
+                                    }, 
+                                })), 
+                                else_kw: None, 
+                                _else: None 
+                            })),
+                            semicolon: None 
+                        })
+                    ])
+                );
+            },
+            Err(e) => panic!("{}", e)
+        }
+        let buf = SourceBuffer {
+            path : PathBuf::from("test.jol"),
+            buffer : String::from("if (0) { 1 } else 0;")
+        };
+        match AstBuilder::from(Lexer::new(&buf)).parse_program() {
+            Ok(p) => {
+                assert_eq!(p,
+                    Program(vec![
+                        Statement::Expr(ExprStmt { 
+                            expr: Box::new(Expr::IfExpr(If {
+                                if_kw: Token {
+                                    kind: TokenKind::Keyword(KeywordType::If),
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 1
+                                        },
+                                        size: 2,
+                                        data: "if",
+                                        source: &buf
                                     }
                                 },
-                                value: Expr::PrimaryExpr(PrimaryExpr::Litteral(0)),
-                                semicolon: Token { 
-                                    kind: TokenKind::Semicolon,
-                                    span: SourceSpan {
-                                        start : SourceCursor {
-                                            data_ref : "",
-                                            line : 1,
-                                            collumn : 45,
+                                lparen: Token {
+                                    kind: TokenKind::LParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 4
                                         },
-                                        size : 1,
-                                        data : ";",
-                                        source : &buf
+                                        size: 1,
+                                        data: "(",
+                                        source: &buf
                                     }
-                                }
-                            })))
+                                },
+                                cond: Box::new(Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit {
+                                    token: Token {
+                                        kind: TokenKind::Int,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 5
+                                            },
+                                            size: 1,
+                                            data: "0",
+                                            source: &buf
+                                        }
+                                    },
+                                    value: 0
+                                }))),
+                                rparen: Token {
+                                    kind: TokenKind::RParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 6
+                                        },
+                                        size: 1,
+                                        data: ")",
+                                        source: &buf
+                                    }
+                                }, 
+                                then: Box::new(Expr::BlockExpr(Block { 
+                                    lcurly: Token {
+                                        kind: TokenKind::LCurly,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 8
+                                            },
+                                            size: 1,
+                                            data: "{",
+                                            source: &buf
+                                        }
+                                    }, 
+                                    body: vec![],
+                                    ret: Some(Box::new(
+                                        Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit {
+                                            token: Token {
+                                                kind: TokenKind::Int,
+                                                span: SourceSpan { 
+                                                    start: SourceCursor { 
+                                                        data_ref: "",
+                                                        line: 1,
+                                                        collumn: 10
+                                                    },
+                                                    size: 1,
+                                                    data: "1",
+                                                    source: &buf
+                                                }
+                                            },
+                                            value: 1
+                                        }))
+                                    )),
+                                    rcurly: Token {
+                                        kind: TokenKind::RCurly,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 12
+                                            },
+                                            size: 1,
+                                            data: "}",
+                                            source: &buf
+                                        }
+                                    }, 
+                                })), 
+                                else_kw: Some(Token {
+                                    kind: TokenKind::Keyword(KeywordType::Else),
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 14
+                                        },
+                                        size: 4,
+                                        data: "else",
+                                        source: &buf
+                                    }
+                                }),
+                                _else: Some(Box::new(
+                                    Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit {
+                                        token: Token {
+                                            kind: TokenKind::Int,
+                                            span: SourceSpan { 
+                                                start: SourceCursor { 
+                                                    data_ref: "",
+                                                    line: 1,
+                                                    collumn: 19
+                                                },
+                                                size: 1,
+                                                data: "0",
+                                                source: &buf
+                                            }
+                                        },
+                                        value: 0
+                                    }))
+                                )),
+                            })),
+                            semicolon: Some(Token { 
+                                kind: TokenKind::Semicolon, 
+                                span: SourceSpan { 
+                                    start: SourceCursor { 
+                                        data_ref: "",
+                                        line: 1,
+                                        collumn: 20
+                                    },
+                                    size: 1,
+                                    data: ";", 
+                                    source: &buf
+                                } 
+                            })
                         })
                     ])
                 );

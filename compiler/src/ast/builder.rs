@@ -1118,39 +1118,227 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
-    /*
+
     #[test]
     fn test_call() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
-            buffer : String::from("print(0);return pow(input(), 2);")
+            buffer : String::from("print(0);\npow(input(), 2);")
         };
         match AstBuilder::from(Lexer::new(&buf)).parse_program() {
             Ok(p) => {
                 assert_eq!(p,
                     Program(vec![
-                        Statement::Call(Call("print".to_string(), vec![
-                            Expr::PrimaryExpr(PrimaryExpr::Litteral(0))
-                        ])),
-                        Statement::Return(
-                            Expr::PrimaryExpr(PrimaryExpr::Call(Call(
-                                "pow".to_string(),
-                                vec![
-                                    Expr::PrimaryExpr(PrimaryExpr::Call(Call(
-                                            "input".to_string(),
-                                            Vec::new()
-                                    ))),
-                                    Expr::PrimaryExpr(PrimaryExpr::Litteral(2))
-                                ]
-                            )))
-                        )
+                        Statement::Expr(ExprStmt { 
+                            expr: Box::new(Expr::PrimaryExpr(PrimaryExpr::Call(Call {
+                                name: Token { 
+                                    kind: TokenKind::Ident,
+                                    span: SourceSpan {
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 1
+                                        },
+                                        size: 5,
+                                        data: "print",
+                                        source: &buf
+                                    }
+                                },
+                                lparen: Token { 
+                                    kind: TokenKind::LParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 6
+                                        },
+                                        size: 1,
+                                        data: "(",
+                                        source: &buf
+                                    }
+                                },
+                                first_arg: Some(Box::new(Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit {
+                                    token: Token { 
+                                        kind: TokenKind::Int,
+                                        span: SourceSpan {
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 7
+                                            },
+                                            size: 1,
+                                            data: "0",
+                                            source: &buf
+                                        }
+                                    },
+                                    value: 0
+                                })))),
+                                other_args: vec![],
+                                rparen:  Token { 
+                                    kind: TokenKind::RParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 8
+                                        },
+                                        size: 1,
+                                        data: ")",
+                                        source: &buf
+                                    }
+                                }}))),
+                            semicolon: Some(Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan { 
+                                    start: SourceCursor { 
+                                        data_ref: "",
+                                        line: 1,
+                                        collumn: 9
+                                    },
+                                    size: 1,
+                                    data: ";",
+                                    source: &buf
+                                }
+                            })
+                        }),
+                        Statement::Expr(ExprStmt { 
+                            expr: Box::new(Expr::PrimaryExpr(PrimaryExpr::Call(Call {
+                                name: Token { 
+                                    kind: TokenKind::Ident,
+                                    span: SourceSpan {
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 2,
+                                            collumn: 1
+                                        },
+                                        size: 3,
+                                        data: "pow",
+                                        source: &buf
+                                    }
+                                },
+                                lparen: Token { 
+                                    kind: TokenKind::LParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 2,
+                                            collumn: 4
+                                        },
+                                        size: 1,
+                                        data: "(",
+                                        source: &buf
+                                    }
+                                },
+                                first_arg: Some(Box::new(Expr::PrimaryExpr(PrimaryExpr::Call(Call {
+                                    name: Token { 
+                                        kind: TokenKind::Ident,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 2,
+                                                collumn: 5
+                                            },
+                                            size: 5,
+                                            data: "input",
+                                            source: &buf
+                                        }
+                                    },
+                                    lparen: Token { 
+                                        kind: TokenKind::LParan,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 2,
+                                                collumn: 10
+                                            },
+                                            size: 1,
+                                            data: "(",
+                                            source: &buf
+                                        }
+                                    },
+                                    first_arg: None,
+                                    other_args: vec![],
+                                    rparen: Token { 
+                                        kind: TokenKind::RParan,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 2,
+                                                collumn: 11
+                                            },
+                                            size: 1,
+                                            data: ")",
+                                            source: &buf
+                                        }
+                                    }
+                                })))),
+                                other_args: vec![
+                                    (
+                                        Token { 
+                                            kind: TokenKind::Comma,
+                                            span: SourceSpan { 
+                                                start: SourceCursor { 
+                                                    data_ref: "",
+                                                    line: 2,
+                                                    collumn: 12
+                                                },
+                                                size: 1,
+                                                data: ",",
+                                                source: &buf
+                                            }
+                                        },
+                                        Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit {
+                                            token: Token { 
+                                                kind: TokenKind::Int,
+                                                span: SourceSpan {
+                                                    start: SourceCursor { 
+                                                        data_ref: "",
+                                                        line: 2,
+                                                        collumn: 14
+                                                    },
+                                                    size: 1,
+                                                    data: "2",
+                                                    source: &buf
+                                                }
+                                            },
+                                            value: 2
+                                        }))
+                                    )
+                                ],
+                                rparen:  Token { 
+                                    kind: TokenKind::RParan,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 2,
+                                            collumn: 15
+                                        },
+                                        size: 1,
+                                        data: ")",
+                                        source: &buf
+                                    }
+                                }}))),
+                            semicolon: Some(Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan { 
+                                    start: SourceCursor { 
+                                        data_ref: "",
+                                        line: 2,
+                                        collumn: 16
+                                    },
+                                    size: 1,
+                                    data: ";",
+                                    source: &buf
+                                }
+                            })
+                        }),
                     ])
                 );
             },
             Err(e) => panic!("{}", e)
         }
     }
-
+    /*
     #[test]
     fn test_var_set() {
         let buf = SourceBuffer {

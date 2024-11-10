@@ -1338,9 +1338,9 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
-    /*
+    
     #[test]
-    fn test_var_set() {
+    fn test_assign() {
         let buf = SourceBuffer {
             path : PathBuf::from("test.jol"),
             buffer : String::from("n = 1;")
@@ -1349,14 +1349,72 @@ mod tests {
             Ok(p) => {
                 assert_eq!(p,
                     Program(vec![
-                        Statement::VarSet("n".to_string(), Expr::PrimaryExpr(PrimaryExpr::Litteral(1))),
+                        Statement::Expr(ExprStmt { 
+                            expr: Box::new(Expr::AssignExpr(Assignment {
+                                name: Token { 
+                                    kind: TokenKind::Ident,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 1
+                                        },
+                                        size: 1,
+                                        data: "n",
+                                        source: &buf
+                                    }
+                                },
+                                eq_token: Token { 
+                                    kind: TokenKind::Equal,
+                                    span: SourceSpan { 
+                                        start: SourceCursor { 
+                                            data_ref: "",
+                                            line: 1,
+                                            collumn: 3
+                                        },
+                                        size: 1,
+                                        data: "=",
+                                        source: &buf
+                                    }
+                                },
+                                value: Box::new(Expr::PrimaryExpr(PrimaryExpr::IntLit(IntLit {
+                                    token: Token { 
+                                        kind: TokenKind::Int,
+                                        span: SourceSpan { 
+                                            start: SourceCursor { 
+                                                data_ref: "",
+                                                line: 1,
+                                                collumn: 5
+                                            },
+                                            size: 1,
+                                            data: "1",
+                                            source: &buf
+                                        }
+                                    }, 
+                                    value: 1
+                                })))
+                            })),
+                            semicolon: Some(Token { 
+                                kind: TokenKind::Semicolon,
+                                span: SourceSpan { 
+                                    start: SourceCursor { 
+                                        data_ref: "",
+                                        line: 1,
+                                        collumn: 6
+                                    },
+                                    size: 1,
+                                    data: ";",
+                                    source: &buf
+                                }
+                            })
+                        })
                     ])
                 );
             },
             Err(e) => panic!("{}", e)
         }
     }
-
+    /*
     #[test]
     fn test_while_loop() {
         let buf = SourceBuffer {

@@ -471,6 +471,12 @@ impl<'a> AstBuilder<'a> {
             TokenKind::LParan => {
                     let lparen = token.clone();
                     self.next_token()?;
+                    if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                        return Ok(Expr::PrimaryExpr(PrimaryExpr::VoidLit(super::VoidLit { 
+                            lparen,
+                            rparen: self.peek_token().as_ref().unwrap().clone()
+                        })))
+                    }
                     let sub_expr = self.parse_expr()?;
                     if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))

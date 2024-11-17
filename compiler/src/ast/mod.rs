@@ -157,7 +157,7 @@ pub enum PrimaryExpr<'a> {
     Call(Call<'a>),
     Ident(Ident<'a>),
     IntLit(IntLit<'a>),
-    VoidLit(),
+    VoidLit(VoidLit<'a>),
     /// (Expr) (e. g. (5 + 5))
     Paren(ParenExpr<'a>)
 }
@@ -194,6 +194,12 @@ pub struct Assignment<'a> {
 pub struct IntLit<'a> {
     pub token : Token<'a>,
     pub value : i128
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct VoidLit<'a> {
+    pub lparen : Token<'a>,
+    pub rparen : Token<'a>
 }
 
 impl Expr<'_> {

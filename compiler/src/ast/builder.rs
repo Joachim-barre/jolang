@@ -155,6 +155,9 @@ impl<'a> AstBuilder<'a> {
                             Some(self.peek_token().as_ref().unwrap().clone())
                         }
                     }else {
+                        if self.peek_token().is_some() {
+                            self.lexer.reader.goto(self.peek_token().as_ref().unwrap().span.start);
+                        }
                         None
                     };
                     Ok(Statement::Expr(super::ExprStmt { 
@@ -177,6 +180,9 @@ impl<'a> AstBuilder<'a> {
                         Some(self.peek_token().as_ref().unwrap().clone())
                     }
                 }else {
+                    if self.peek_token().is_some() {
+                        self.lexer.reader.goto(self.peek_token().as_ref().unwrap().span.start);
+                    }
                     None
                 };
                 Ok(Statement::Expr(super::ExprStmt { 

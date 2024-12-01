@@ -340,7 +340,7 @@ impl<'a> AstBuilder<'a> {
                     let mut else_kw = None;
                     let mut _else = None;
                     let cursor = self.lexer.reader.current_cursor.clone();
-                    if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
+                    if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
                         else_kw = self.peek_token().clone();
                         if self.next_token()?.is_none() {
                             return Err(self.expected("expression"))
@@ -368,7 +368,7 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("expr"))
                     }
                     let cond = Box::new(self.parse_expr()?);
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
                     let rparen = self.peek_token().as_ref().unwrap().clone();

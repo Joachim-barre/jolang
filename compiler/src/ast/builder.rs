@@ -510,15 +510,10 @@ impl<'a> AstBuilder<'a> {
             None => Expr::PrimaryExpr(primary)
         };
         let cursor = self.peek_token().as_ref().unwrap().span.start;
-        let _ = self.next_token()?;
-        let _token = self.peek_token();
-        if _token.is_none() {
-            self.lexer.reader.goto(cursor);
-            self.next_token()?;
-            return Ok(expr)
-        }
-
-        let bin_op_kind = match &_token.clone().unwrap().kind {
+        let token = self.next_token()?;
+        let bin_op_kind = token.as_ref()
+            .map(|t| t.kind.clone())
+            .and_then(|k| match k {
             TokenKind::Plus => Some(super::BinOpKind::Add),
             TokenKind::Minus => Some(super::BinOpKind::Sub),
             TokenKind::Times => Some(super::BinOpKind::Mul),
@@ -532,33 +527,34 @@ impl<'a> AstBuilder<'a> {
             TokenKind::LShift => Some(super::BinOpKind::LShift),
             TokenKind::RShift => Some(super::BinOpKind::RShift),
             _ => None
-        };
+        });
 
-        if bin_op_kind.is_none() {
-            self.lexer.reader.goto(cursor);
-            self.next_token()?;
-            return Ok(expr);
+        match bin_op_kind {
+            Some(bin_op_kind) => { 
+                let bin_op = BinOp {
+                    token : token.clone().unwrap(),
+                    kind : bin_op_kind
+                };
+
+                let token = self.next_token()?;
+
+                if token.is_none() {
+                    return Err(self.expected("expr"))
+                }
+
+                let expr2 = self.parse_expr()?;
+                Ok(self.apply_precedence(Expr::BinExpr(super::BinExpr {
+                    left: Box::new(expr),
+                    right: Box::new(expr2),
+                    op: bin_op
+                })))
+            }
+            None => {
+                self.lexer.reader.goto(cursor);
+                self.next_token()?;
+                return Ok(expr);
+            }
         }
-
-        let bin_op_kind = bin_op_kind.unwrap();
-        
-        let bin_op = BinOp {
-            token : _token.clone().unwrap(),
-            kind : bin_op_kind
-        };
-
-        let _token = self.next_token()?;
-
-        if _token.is_none() {
-            return Err(self.expected("expr"))
-        }
-
-        let expr2 = self.parse_expr()?;
-        Ok(self.apply_precedence(Expr::BinExpr(super::BinExpr {
-            left: Box::new(expr),
-            right: Box::new(expr2),
-            op: bin_op
-        })))
     }
 }
 

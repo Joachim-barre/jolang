@@ -536,6 +536,7 @@ impl<'a> AstBuilder<'a> {
 
         if bin_op_kind.is_none() {
             self.lexer.reader.goto(cursor);
+            self.next_token()?;
             return Ok(expr);
         }
 

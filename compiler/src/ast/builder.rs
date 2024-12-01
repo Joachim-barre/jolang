@@ -514,20 +514,21 @@ impl<'a> AstBuilder<'a> {
         let bin_op_kind = token.as_ref()
             .map(|t| t.kind.clone())
             .and_then(|k| match k {
-            TokenKind::Plus => Some(super::BinOpKind::Add),
-            TokenKind::Minus => Some(super::BinOpKind::Sub),
-            TokenKind::Times => Some(super::BinOpKind::Mul),
-            TokenKind::Divider => Some(super::BinOpKind::Div),
-            TokenKind::DoubleEqual => Some(super::BinOpKind::Equal),
-            TokenKind::NotEqual => Some(super::BinOpKind::NotEqual),
-            TokenKind::Greater => Some(super::BinOpKind::Greater),
-            TokenKind::GreaterEqual => Some(super::BinOpKind::GreaterEqual),
-            TokenKind::LesserEqual => Some(super::BinOpKind::LesserEqual),
-            TokenKind::Lesser => Some(super::BinOpKind::Lesser),
-            TokenKind::LShift => Some(super::BinOpKind::LShift),
-            TokenKind::RShift => Some(super::BinOpKind::RShift),
-            _ => None
-        });
+                TokenKind::Plus => Some(super::BinOpKind::Add),
+                TokenKind::Minus => Some(super::BinOpKind::Sub),
+                TokenKind::Times => Some(super::BinOpKind::Mul),
+                TokenKind::Divider => Some(super::BinOpKind::Div),
+                TokenKind::DoubleEqual => Some(super::BinOpKind::Equal),
+                TokenKind::NotEqual => Some(super::BinOpKind::NotEqual),
+                TokenKind::Greater => Some(super::BinOpKind::Greater),
+                TokenKind::GreaterEqual => Some(super::BinOpKind::GreaterEqual),
+                TokenKind::LesserEqual => Some(super::BinOpKind::LesserEqual),
+                TokenKind::Lesser => Some(super::BinOpKind::Lesser),
+                TokenKind::LShift => Some(super::BinOpKind::LShift),
+                TokenKind::RShift => Some(super::BinOpKind::RShift),
+                _ => None
+            }
+        );
 
         match bin_op_kind {
             Some(bin_op_kind) => { 

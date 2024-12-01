@@ -42,8 +42,7 @@ impl<'a> SourceReader<'a> {
     }
 
     pub fn peek_char(&self) -> Option<char> {
-        // TODO optimize
-        self.current_cursor.data_ref.chars().nth(0)
+        self.current_cursor.data_ref.chars().next()
     }
 
     pub fn next_char(&mut self) -> Option<char> {

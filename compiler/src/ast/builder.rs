@@ -338,15 +338,12 @@ impl<'a> AstBuilder<'a> {
                     let then = Box::new(self.parse_expr()?);
                     let mut else_kw = None;
                     let mut _else = None;
-                    let cursor = self.lexer.reader.current_cursor.clone();
                     if self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Keyword(KeywordType::Else)) {
                         else_kw = self.peek_token().clone();
                         if self.next_token()?.is_none() {
                             return Err(self.expected("expression"))
                         }
                         _else = Some(Box::new(self.parse_expr()?));
-                    }else {
-                        self.lexer.reader.goto(cursor);
                     }
                     Ok(Expr::IfExpr(super::If {
                         if_kw: token.clone(),

@@ -1420,6 +1420,9 @@ mod tests {
             Err(e) => panic!("{}", e)
         }
     }
+
+    // TODO : rewrite the rst of the tests
+
     /*
     #[test]
     fn test_while_loop() {

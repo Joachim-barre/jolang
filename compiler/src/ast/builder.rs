@@ -509,13 +509,14 @@ impl<'a> AstBuilder<'a> {
             }),
             None => Expr::PrimaryExpr(primary)
         };
+        let cursor = self.peek_token().as_ref().unwrap().span.start;
         let _ = self.next_token()?;
         let _token = self.peek_token();
         if _token.is_none() {
+            self.lexer.reader.goto(cursor);
+            self.next_token()?;
             return Ok(expr)
         }
-
-        let end_pos = self.lexer.reader.current_cursor;
 
         let bin_op_kind = match &_token.clone().unwrap().kind {
             TokenKind::Plus => Some(super::BinOpKind::Add),
@@ -534,7 +535,7 @@ impl<'a> AstBuilder<'a> {
         };
 
         if bin_op_kind.is_none() {
-            self.lexer.reader.goto(end_pos);
+            self.lexer.reader.goto(cursor);
             return Ok(expr);
         }
 

@@ -79,7 +79,7 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("expr"))
                     }
                     let value = self.parse_expr()?;
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::Semicolon) {
                         return Err(self.expected("\";\""))
                     }
                     return Ok(Statement::Return(super::Return {
@@ -129,6 +129,7 @@ impl<'a> AstBuilder<'a> {
                             return Err(self.expected("expression"))
                         }
                         let expr = self.parse_expr()?;
+                        self.next_token()?;
                         Ok(Some((eq_token, expr)))
                     }else {
                         Ok(None)
@@ -149,7 +150,7 @@ impl<'a> AstBuilder<'a> {
                 _ => {
                     let expr = Box::new(self.parse_expr()?);
                     let semicolon = if expr.require_semicolon() {
-                        if self.peek_token().as_ref().map_or(false, |t| t.kind != TokenKind::Semicolon) {
+                        if self.next_token()?.as_ref().map_or(false, |t| t.kind != TokenKind::Semicolon) {
                             return Err(self.expected("\";\""));
                         }else {
                             Some(self.peek_token().as_ref().unwrap().clone())
@@ -171,7 +172,7 @@ impl<'a> AstBuilder<'a> {
             _ => {
                 let expr = Box::new(self.parse_expr()?);
                 let semicolon = if expr.require_semicolon() {
-                    if self.peek_token().as_ref().map_or(false, |t| t.kind != TokenKind::Semicolon) {
+                    if self.next_token()?.as_ref().map_or(false, |t| t.kind != TokenKind::Semicolon) {
                         return Err(self.expected("\";\""));
                     }else {
                         Some(self.peek_token().as_ref().unwrap().clone())
@@ -205,6 +206,7 @@ impl<'a> AstBuilder<'a> {
                 })
             }
             let first_arg = Some(Box::new(self.parse_expr()?));
+            self.next_token()?;
             let mut other_args = vec![];
             loop {
                 if self.peek_token().is_none() {
@@ -217,6 +219,7 @@ impl<'a> AstBuilder<'a> {
                 let comma = self.peek_token().as_ref().unwrap().clone();
                 self.next_token()?;
                 other_args.push((comma, self.parse_expr()?));
+                self.next_token()?;
             }
             return Ok(Call{
                 name : ident,
@@ -277,10 +280,9 @@ impl<'a> AstBuilder<'a> {
                     }
                     let current_cursor  : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
                     if let Ok(expr) = self.parse_expr() {
-                        let cursor2 : SourceCursor<'a> = unsafe { std::mem::transmute(self.peek_token().as_ref().unwrap().span.start.clone()) };
+                        let cursor2 : SourceCursor<'a> = unsafe { std::mem::transmute(self.next_token()?.as_ref().unwrap().span.start.clone()) };
                         if self.peek_token().as_ref().map_or(false, |t| t.kind == TokenKind::RCurly){
                             let rcurly = self.peek_token().as_ref().unwrap().clone();
-                            self.next_token()?;
                             return Ok(Expr::BlockExpr(super::Block { 
                                 lcurly,
                                 body: statements,
@@ -310,7 +312,6 @@ impl<'a> AstBuilder<'a> {
                     }
                 }
                 let rcurly = self.peek_token().as_ref().unwrap().clone();
-                self.next_token()?;
                 Ok(Expr::BlockExpr(super::Block { 
                     lcurly,
                     body: statements,
@@ -328,7 +329,7 @@ impl<'a> AstBuilder<'a> {
                         return Err(self.expected("expr"))
                     }
                     let cond = Box::new(self.parse_expr()?.clone());
-                    if !self.peek_token().as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
+                    if !self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::RParan) {
                         return Err(self.expected("\")\""))
                     }
                     let rparen = self.peek_token().as_ref().unwrap().clone();

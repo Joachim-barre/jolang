@@ -490,12 +490,12 @@ impl<'a> AstBuilder<'a> {
             },
             TokenKind::Ident => {
                 let ident = token.clone();
-                let end_pos = self.lexer.reader.current_cursor;
                 if self.next_token()?.as_ref().map_or(false, |x| x.kind == TokenKind::LParan) {
                     self.lexer.reader.goto(start_cursor);
                     Ok(PrimaryExpr::Call(self.parse_call()?))
                 }else {
-                    self.lexer.reader.goto(end_pos);
+                    self.lexer.reader.goto(start_cursor);
+                    self.next_token()?;
                     Ok(PrimaryExpr::Ident(ident))
                 }
             },

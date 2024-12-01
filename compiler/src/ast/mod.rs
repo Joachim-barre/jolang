@@ -1,7 +1,6 @@
 mod builder;
 use std::str::FromStr;
-
-// mod generators;
+pub mod generators;
 pub use builder::AstBuilder;
 use either::Either;
 use anyhow::Result;

@@ -1,4 +1,6 @@
-# Jolang object format
+# Jolang bytecode object format
+
+the whole file uses little endian for integer values
 
 ## header
 
@@ -7,13 +9,14 @@
 - 1-byte minor version of the targeted runtime
 - 1-byte patch version of the targeted runtime
 - header table :
-    - 8-bytes entry count for the table
-    - 8-bytes offset for start to the table
+    - 4-bytes entry count for the table
+    - 4-bytes offset for start to the table
 
-there are 2 tables in the header and they should be in this order:
+there are 3 tables in the header and they should be in this order:
 
 1. external functions
-3. blocks
+2. blocks
+3. local variable slots
 
 ## external functions table
 
@@ -22,63 +25,88 @@ each entry has the following fields:
 - 4-bytes name size
 - name
 - 1-byte arg count
-- bool (1-byte) does the object expect a return
 
 ## block table
 
 for each block:
 
-- 8-bytes quantity of instructions in the block
-- 8-bytes block argument count
-- for each argument : 8-bytes unsigned argument sizes
-- 8-bytes offset for the start of file to the block's instructions
+- 4-bytes quantity of instructions in the block
+- 4-bytes offset for the start of file to the block's instructions
 
+## Local variable slots
+
+for each local variable slot:
+
+- 1-bytes size of the variable (0 is reference size) 
 ## instructions table
 
-each instruction is 32-bytes (7 padding bytes then 1 for the opcode and then 24 for the operands)
+the instruction table is a list of instruction. each instruction is 16-byte long ( 3-padding bytes, the opcode 1 byte, 12 for the arguments) the padding bytes can have any value and should be ignored by the runtime, arguments should be put in the order they are laid out in the table below and if an instruction do not use all argument bytes the remaining space should be ignored
 
-stack is not kept between blocks but blocks arguments are pushed on top of the stack.
+effect on the stack only impact the top of the stack
 
-st[x] indicate a value on the stack with a offset from the top of x.
-for exemple st[0] is the top of the stack 
+ids are always 4 bytes :
+	- blkid are for blocks and start at zero
+	- fnid are for external functions and start at zero
+	- varid are for local variables they start at zero and 
+other types are :
+- isize : 4 byte value indicating the size of an int 0 means word size and the only other supported size are 8, 16, 32, 64
+- imm : 8 byte immediate value that might get down casted
+- int integer that has a size indicated by an instruction operand (an isize in most of the cases)
 
-unless stated otherwise integer sizes are in bits<br>
-if an instruction access the stack the values must have the same size and their size is deducted at runtime. the run may crash or throw an error in case of bad sizing.
+reference size depends of the architecture however references might not be pointer sized 
 
-an instruction is composed of an opcode then the operands<br>
-there is multiple types of operands : 
-- imm64 (immediate) 8-bytes raw integer value
-- imm (immediate) 16-bytes raw value containing an integer a size that depens on another opcode (must have padding after if the integer value is smaller than 16 bytes)
-- uimm64 8-bytes raw unsigned integer value
-- blkid (block id) 8-bytes id of a block
-- fnid (function id) 8-bytes id of a function
+the following table uses word as a short way of saying 2 bytes please note that the Ir is supporting architectures that don't use 2 byte words, dword means 4 bytes and qword means 8 bytes
 
-there are the following opcodes : 
+| opcode | name     | operands       | effect on stack                  | description                                                                                                     |
+| ------ | -------- | -------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 00     | nop      |                |                                  | does nothing                                                                                                    |
+| 01     | pop      |                | byte ->                          | pop a byte from the stack                                                                                       |
+| 02     | pop2     |                | word ->                          | pop 2 bytes from the stack                                                                                      |
+| 03     | pop4     |                | dword ->                         | pop 4 bytes from the stack                                                                                      |
+| 04     | pop8     |                | qword ->                         | pop 8 bytes from the stack                                                                                      |
+| 05     | dup      |                | byte -> byte, byte               | duplicate a byte on top of the stack                                                                            |
+| 06     | dup2     |                | word -> word, word               | duplicate 2 bytes on top of the stack                                                                           |
+| 07     | dup4     |                | dword -> dword, dword            | duplicate 4 bytes on top of the stack                                                                           |
+| 08     | dup8     |                | qword -> qword, qword            | duplicate 8 bytes on top of the stack                                                                           |
+| 09     | swap     |                | byte1, byte2 -> byte2, byte1     | swap the two bytes on top of the stack                                                                          |
+| 0A     | swap2    |                | word1, word2 -> word2, word1     | swap the two words on top of the stack                                                                          |
+| 0B     | swap4    |                | dword1, dword2 -> dword2, dword1 | swap the two dword on top of the stack                                                                          |
+| 0C     | swap8    |                | qword1, qword2 -> qword2, qword1 | swap the two qword on top of the stack                                                                          |
+| 0D     | br       | blkid          | \[no change\]                    | unconditionally branch to another block                                                                         |
+| 0E     | briz     | blkid1, blkid2 | byte ->                          | jump to the first block  if the byte on top of the stack is equal to zero otherwise jump to the second          |
+| 0F     | call     | fnid           | \[arg1, arg2, ...\] -> return    | call a function taking arguments from the top of the stack                                                      |
+| 10     | varref   |                | varid -> ref                     | get the reference to a local variable                                                                           |
+| 11     | iconst   | isize, imm     | -> int                           | push an integer constant only takes the least significant bits in imm if isize is less than 64                  |
+| 12     | iload    | isize          | ref -> int                       | load the referenced integer                                                                                     |
+| 13     | istore   | isize          | ref, int ->                      | store the integer at reference                                                                                  |
+| 14     | iret     | isize          | int -> \[returns\]               | return an integer from the function                                                                             |
+| 15     | inot     | isize          | int -> int                       | perform a bitwise not on an integer                                                                             |
+| 16     | ior      | isize          | int, int -> int                  | perform a bitwise or on two integers                                                                            |
+| 17     | iand     | isize          | int, int -> int                  | perform a bitwise and on two integers                                                                           |
+| 18     | ixor     | isize          | int, int -> int                  | perform a bitwise xor on two integers                                                                           |
+| 19     | ilshr    | isize          | int1, int2 -> int                | perform a logical right shift on two integers where int1 is shifted by int2                                     |
+| 1A     | iashr    | isize          | int, int ->  int                 | perform an arithmetic right shift on two integers where int1 is shifted by int2                                 |
+| 1B     | ishl     | isize          | int, int -> int                  | perform a left shift on two integers where int1 is shifted by int2                                              |
+| 1C     | ineg     | isize          | int -> int                       | negate an integer                                                                                               |
+| 1D     | iadd     | isize          | int, int -> int                  | add two integers and push the result on top of the stack                                                        |
+| 1E     | isub     | isize          | int, int -> int                  | subtract int2 from int1 and push the result on top of the stack                                                 |
+| 1F     | imul     | isize          | int, int -> int                  | multiply two integers and push the result                                                                       |
+| 20     | idiv     | isize          | int1, int2 -> int                | divide int1 by int2 assumes that the two are signed and push the quotient                                       |
+| 21     | udiv     | isize          | int1, int2 -> int                | divide int1 by int2 assumes that the two are unsigned and push the quotient                                     |
+| 22     | irem     | isize          | int1, int2 -> int                | divide int1 by int2 assumes that the two are signed and push the remainder                                      |
+| 23     | urem     | isize          | int1, int2 -> int                | divide int1 by int2 assumes that the two are unsigned and push the remainder                                    |
+| 24     | ieq      | isize          | int1, int2 -> byte               | if int1 is equal to int2 push 1 on the stack otherwise push 0                                                   |
+| 25     | ine      | isize          | int1, int2 -> byte               | if int1 isn't equal to int2 push 1 on the stack otherwise push 0                                                |
+| 26     | ige      | isize          | int1, int2 -> byte               | if int1 is greater or equal to int2 push 1 on the stack otherwise push 0 assumes that the integers are signed   |
+| 27     | igt      | isize          | int1, int2 -> byte               | if int1 is greater than int2 push 1 on the stack otherwise push 0 assumes that the integers are signed          |
+| 28     | uge      | isize          | int1, int2 -> byte               | if int1 is greater or equal to int2 push 1 on the stack otherwise push 0 assumes that the integers are unsigned |
+| 29     | ugt      | isize          | int1, int2 -> byte               | if int1 is greater than int2 push 1 on the stack otherwise push 0 assumes that the integers are unsigned        |
+| 2A     | ilt      | isize          | int1, int2 -> byte               | if int1 is lesser than int2 push 1 on the stack otherwise push 0 assumes that the integers are signed           |
+| 2B     | ile      | isize          | int1, int2 -> byte               | if int1 is lesser or equal to int2 push 1 on the stack otherwise push 0 assumes that the integers are signed    |
+| 2C     | ule      | isize          | int1, int2 -> byte               | if int1 is lesser than int2 push 1 on the stack otherwise push 0 assumes that the integers are unsigned         |
+| 2D     | ult      | isize          | int1, int2 -> byte               | if int1 is lesser or equal to int2 push 1 on the stack otherwise push 0 assumes that the integers are unsigned  |
+| 2E     | iconv    | isize,isize    | int -> int                       | convert an integer either by sign extension or truncation                                                       |
+| 2F     | uconv    | isize, isize   | int -> int                       | convert an integer either by zero extension or truncation                                                       |
+| 30     | reserved |                |                                  | reserved for future use                                                                                         |
+| 31     | reserved |                |                                  | reserved for future use                                                                                         |
 
-| id | name       | operands                | description                                                                    |
-| -- | --         | --                      | --                                                                             |
-| 00 | ret        |                         | return nothing from the function                                               |
-| 01 | reti       |                         | return the top of the stack                                                    |
-| 02 | iconst     | uimm64, imm             | push a integer constant that have a size indicated by the first operand        |
-| 03 | icast      | uimm                    | cast st[0] to another integer type by trimming or sign extanding               |
-| 04 | br         | blkid                   | unconditionally branch to a block passing the top of the stack as argument     |
-| 05 | dup        |                         | duplicate the top of the stack                                                 |
-| 06 | dupx       | uimm64                  | duplicate st[stack_size-offset-1] where offset is the immediate value          |
-| 07 | swap       |                         | swap the two values on top of the stack                                        |
-| 08 | call       | fnid                    | call a function pass the top of the stack as argument and pop the value passed |
-| 09 | neg        |                         | pop the top of the stack and push the negated value                            |
-| 0A | add        |                         | do st[1] + st[0] pop them and push the result                                  |
-| 0B | sub        |                         | do st[1] - st[0] pop them and push the result                                  |
-| 0C | mul        |                         | do st[1] * st[0] pop them and push the result                                  |
-| 0D | div        |                         | do st[1] / st[0] pop them and push the result                                  |
-| 0E | eq         |                         | do st[1] == st[0] pop them and push the result                                 |
-| 0F | ne         |                         | do st[1] != st[0] pop them and push the result                                 |
-| 10 | gt         |                         | do st[1] > st[0] pop them and push the result                                  |
-| 11 | ge         |                         | do st[1] >= st[0] pop them and push the result                                 |
-| 12 | le         |                         | do st[1] <= st[0] pop them and push the result                                 |
-| 13 | lt         |                         | do st[1] < st[0] pop them and push the result                                  |
-| 14 | lsh        |                         | do st[1] >> st[0] pop them and push the result                                 |
-| 15 | rsh        |                         | do st[1] << st[0] pop them and push the result                                 |
-| 16 | briz       | blkid, blkid            | branch to the first block if st[0] is 0 otherwise branch to the second         |
-
-for each instruction there is the opcode and then the operands

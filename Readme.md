@@ -60,8 +60,5 @@ these builtin functions are currently available:
 
 ## binary object format
 
-the generated binary object follow this format
-
-- an header composed of four bytes to indicate that it is the binary format that can be executed that is "\0JOO"
-### TODO binary format
+the generated binary object follow the format described in : bytecode_spec.md
 

@@ -7,6 +7,7 @@ pub mod printer;
 pub mod block;
 pub mod writer;
 pub mod reader;
+pub mod signature;
 use block::Block;
 
 pub struct IrObject {

@@ -2,8 +2,8 @@ use std::collections::LinkedList;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Signature {
-    ret : String,
-    args : LinkedList<String>
+    pub ret : String,
+    pub args : LinkedList<String>
 }
 
 impl Signature {

@@ -7,42 +7,61 @@ use super::IrObject;
 
 pub fn write_ir(format : &mut std::fmt::Formatter, ir : &IrObject) -> fmt::Result {
     for f in ir.ext_fn.iter() {
-        write!(format, "extern fn {} ({}) {}\n", f.0, "i64 ".repeat(f.1 as usize), if f.2 { "-> i64" } else { "" } )?;
+        write!(format, "extern fn {} (", f.name)?;
+        for (i, arg) in f.sig.args.iter().enumerate() {
+            if i!=0{
+                write!(format, ", ");
+            }
+            write!(format, "{}", arg);
+        }
+        write!(format, ") -> {};\n", f.sig.ret);
     }
 
     write!(format, "fn main () -> i64 {{\n")?;
-    for b in ir.blocks.iter().map(|b| b).enumerate() {
-        write!(format, ".B{}({}) : \n", b.0, b.1.args.iter()
-            .map(|s| format!("i{}", s))
-            .reduce(|s1, s2| s1 + ", " + &s2)
-            .unwrap_or("".to_string())
-            .as_str())?;
-        for i in b.1.instructions.iter() {
+    for (i, blk) in ir.blocks.iter().enumerate() {
+        write!(format, "B{} : \n", i)?;
+        for j in blk.instructions.iter() {
             write!(format, "\t")?;
-            match i {
-                Instruction::Ret() => write!(format, "ret"),
-                Instruction::Reti() => write!(format, "reti"),
-                Instruction::Iconst(s, v) => write!(format, "iconst i{} {}", s, v),
-                Instruction::Icast(size) => write!(format, "icast i{}", size),
-                Instruction::Br(b) => write!(format, "br B{}", b),
-                Instruction::Dup() => write!(format, "dup"),
-                Instruction::Dupx(v) => write!(format, "dupx {}", v),
-                Instruction::Swap() => write!(format, "swap"),
+            match j { 
+                Instruction::Nop() => write!(format, "nop"),
+                Instruction::Pop(size) => write!(format, "pop {}", size),
+                Instruction::Dup(size) => write!(format, "dup {}", size),
+                Instruction::Swap(size) => write!(format, "swap {}", size),
+                Instruction::Br(id) => write!(format, "br {}", id),
+                Instruction::Briz(id1, id2) => write!(format, "briz {} {}", id1, id2),
                 Instruction::Call(id) => write!(format, "call {}", id),
-                Instruction::Neg() => write!(format, "neg"),
-                Instruction::Add() => write!(format, "add"),
-                Instruction::Sub() => write!(format, "sub"),
-                Instruction::Mul() => write!(format, "mul"),
-                Instruction::Div() => write!(format, "div"),
-                Instruction::Eq() => write!(format, "eq"),
-                Instruction::Ne() => write!(format, "ne"),
-                Instruction::Gt() => write!(format, "gt"),
-                Instruction::Ge() => write!(format, "ge"),
-                Instruction::Le() => write!(format, "le"),
-                Instruction::Lt() => write!(format, "lt"),
-                Instruction::Lsh() => write!(format, "lsh"),
-                Instruction::Rsh() => write!(format, "rsh"),
-                Instruction::Briz(b1, b2) => write!(format, "briz {} {}", b1, b2)
+                Instruction::Varref() => write!(format, "varref"),
+                Instruction::Iconst(size, val) => write!(format, "iconst {} {}", size, val),
+                Instruction::Iload(size) => write!(format, "iload {}", size),
+                Instruction::Istore(size) => write!(format, "istore {}", size),
+                Instruction::Iret(size) => write!(format, "iret {}", size),
+                Instruction::Inot(size) => write!(format, "inot {}", size),
+                Instruction::Ior(size) => write!(format, "ior {}", size),
+                Instruction::Iand(size) => write!(format, "iand {}", size),
+                Instruction::Ixor(size) => write!(format, "ixor {}", size),
+                Instruction::Ilshr(size) => write!(format, "ilshr {}", size),
+                Instruction::Iashr(size) => write!(format, "iashr {}", size),
+                Instruction::Ishl(size) => write!(format, "ishl {}", size),
+                Instruction::Ineg(size) => write!(format, "ineg {}", size),
+                Instruction::Iadd(size) => write!(format, "iadd {}", size),
+                Instruction::Isub(size) => write!(format, "isub {}", size),
+                Instruction::Imul(size) => write!(format, "imul {}", size),
+                Instruction::Idiv(size) => write!(format, "idiv {}", size),
+                Instruction::Udiv(size) => write!(format, "udiv {}", size),
+                Instruction::Irem(size) => write!(format, "irem {}", size),
+                Instruction::Urem(size) => write!(format, "urem {}", size),
+                Instruction::Ieq(size) => write!(format, "ieq {}", size),
+                Instruction::Ine(size) => write!(format, "ine {}", size),
+                Instruction::Ige(size) => write!(format, "ige {}", size),
+                Instruction::Igt(size) => write!(format, "igt {}", size),
+                Instruction::Uge(size) => write!(format, "uge {}", size),
+                Instruction::Ugt(size) => write!(format, "ugt {}", size),
+                Instruction::Ilt(size) => write!(format, "ilt {}", size),
+                Instruction::Ile(size) => write!(format, "ile {}", size),
+                Instruction::Ule(size) => write!(format, "ule {}", size),
+                Instruction::Ult(size) => write!(format, "ult {}", size),
+                Instruction::Iconv(size1, size2) => write!(format, "iconv {} {}", size1, size2),
+                Instruction::Uconv(size1, size2) => write!(format, "uconv {} {}", size1, size2),
             }?;
             write!(format, "\n")?;
         }

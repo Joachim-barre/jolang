@@ -1,5 +1,6 @@
 use index_list::IndexList;
 use instructions::{operand::{BlkId, FnId}, Instruction};
+pub use signature::Signature;
 pub mod instructions;
 use std::cell::{Ref, RefCell, RefMut};
 use crate::ffi::JolangExtern;
@@ -10,16 +11,32 @@ pub mod reader;
 pub mod signature;
 use block::Block;
 
+pub struct IrExternalFn {
+    pub name : String,
+    pub sig : Signature
+}
+
 pub struct IrObject {
-    pub ext_fn : Vec<(String, u8, bool)>,
-    pub blocks : Vec<Block>
+    pub ext_fn : Vec<IrExternalFn>,
+    pub blocks : Vec<Block>,
+    pub local_vars : Vec<u8>
+}
+
+impl IrExternalFn {
+    pub fn new(name : String, sig : Signature) -> Self{
+        Self {
+            name,
+            sig
+        }
+    }
 }
 
 impl IrObject {
     pub fn new() -> Self {
         Self{
             ext_fn : Vec::new(),
-            blocks : Vec::new()
+            blocks : Vec::new(),
+            local_vars : Vec::new()
         }
     }
 
@@ -37,7 +54,13 @@ impl IrObject {
     }
 
     pub fn decl_extern(&mut self, name : String, func : &Box<dyn JolangExtern>) -> FnId {
-        self.ext_fn.push((name, func.arg_count(), func.returns()));
+        self.ext_fn.push(IrExternalFn::new(name, func.signature()));
         (self.ext_fn.len() -1) as FnId
     }
+
+    pub fn add_var(&mut self, size : u8) -> u32 {
+        let tmp = self.local_vars.len();
+        self.local_vars.push(size);
+        tmp as u32
+    } 
 }

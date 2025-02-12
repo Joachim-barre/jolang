@@ -1,13 +1,11 @@
-use std::collections::LinkedList;
-
 #[derive(Debug, PartialEq, Eq)]
 pub struct Signature {
     pub ret : String,
-    pub args : LinkedList<String>
+    pub args : Vec<String>
 }
 
 impl Signature {
-    pub fn new(ret : String, args : LinkedList<String>) -> Self {
+    pub fn new(ret : String, args : Vec<String>) -> Self {
         Self {
             ret,
             args

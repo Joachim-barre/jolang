@@ -40,8 +40,8 @@ impl IrObject {
         }
     }
 
-    pub fn append_block(&mut self, args : Vec<u64>) -> BlkId{
-        self.blocks.push(Block::new(args));
+    pub fn append_block(&mut self) -> BlkId{
+        self.blocks.push(Block::new());
         return (self.blocks.len() as BlkId) -1
     }
 
